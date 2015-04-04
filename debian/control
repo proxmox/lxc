@@ -1,0 +1,24 @@
+Source: lxc
+Section: admin
+Priority: optional
+Maintainer: Proxmox Support Team <support@proxmox.com>
+Build-Depends: debhelper (>= 9), autotools-dev, libapparmor-dev, docbook2x 
+Standards-Version: 3.9.5
+Homepage: https://linuxcontainers.org
+
+Package: lxc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+Description: Linux containers usersapce tools
+ Containers provides resource management through control groups and
+ resource isolation through namespaces. The linux containers, lxc, aims
+ to use these new functionalities to provide an userspace container
+ object which provides full resource isolation and resource control for
+ an applications or a system. 
+
+Package: lxc-dbg
+Section: debug
+Architecture: any
+Depends: lxc (= ${binary:Version})
+Description: Debug symbols for LXC
+ This package contains the debug symbols for LXC. 

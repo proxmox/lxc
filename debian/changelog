@@ -1,0 +1,5 @@
+lxc (1.1.1-1) unstable; urgency=low
+
+  * Initial release for Proxmox VE
+
+ -- Proxmox Support Team <support@proxmox.com>  Sat, 04 Apr 2015 14:43:25 +0200
