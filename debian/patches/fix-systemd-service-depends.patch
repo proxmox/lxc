@@ -1,0 +1,12 @@
+Index: new/config/init/systemd/lxc.service.in
+===================================================================
+--- new.orig/config/init/systemd/lxc.service.in
++++ new/config/init/systemd/lxc.service.in
+@@ -1,6 +1,6 @@
+ [Unit]
+ Description=LXC Container Initialization and Autoboot Code
+-After=syslog.target network.target
++After=syslog.service network.target
+ Wants=lxc-net.service
+ 
+ [Service]

@@ -2,7 +2,7 @@ RELEASE=4.0
 
 PACKAGE=lxc
 LXCVER=1.1.1
-DEBREL=1
+DEBREL=pve1
 
 SRCDIR=${PACKAGE}
 SRCTAR=${SRCDIR}.tgz
@@ -12,6 +12,7 @@ GITVERSION:=$(shell cat .git/refs/heads/master)
 
 DEBS=					\
 ${PACKAGE}_${LXCVER}-${DEBREL}_amd64.deb  			\
+${PACKAGE}-dev_${LXCVER}-${DEBREL}_amd64.deb  			\
 ${PACKAGE}-dbg_${LXCVER}-${DEBREL}_amd64.deb
 
 all: ${DEBS}
