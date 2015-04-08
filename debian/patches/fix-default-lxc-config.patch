@@ -1,0 +1,8 @@
+Index: new/config/etc/default.conf.unknown
+===================================================================
+--- new.orig/config/etc/default.conf.unknown
++++ new/config/etc/default.conf.unknown
+@@ -1 +1,2 @@
+-lxc.network.type = empty
++lxc.network.type = veth
++lxc.network.link = vmbr0
