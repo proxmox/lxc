@@ -1,2 +1,3 @@
 fix-systemd-service-depends.patch
 fix-default-lxc-config.patch
+fix-rootfs-mount-point.patch

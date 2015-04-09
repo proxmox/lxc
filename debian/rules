@@ -14,6 +14,8 @@ override_dh_auto_configure:
 	dh_auto_configure -- \
 	--with-distro=debian \
 	--with-init-script=systemd \
+	--with-config-path=/etc/pve/lxc \
+	--with-rootfs-path=/var/lib/lxc \
 	--enable-apparmor	\
 	--enable-doc	\
 	--enable-api-docs \
@@ -32,4 +34,9 @@ override_dh_strip:
 
 override_dh_install:
 	dh_apparmor -p lxc --profile-name=usr.bin.lxc-start
+
+	# do not include dirs on /etc/pve
+	rmdir $(CURDIR)/debian/tmp/etc/pve/lxc
+	rmdir $(CURDIR)/debian/tmp/etc/pve
+
 	dh_install --fail-missing

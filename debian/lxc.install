@@ -4,6 +4,6 @@ usr/share/man
 usr/share/lxc
 usr/lib/*/*.so.*
 usr/lib/*/lxc/lxc-*
-usr/lib/*/lxc/rootfs
+var/lib/lxc/README
 lib/systemd
 etc

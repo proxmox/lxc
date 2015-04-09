@@ -1,0 +1,161 @@
+Index: new/doc/lxc-create.sgml.in
+===================================================================
+--- new.orig/doc/lxc-create.sgml.in
++++ new/doc/lxc-create.sgml.in
+@@ -128,7 +128,7 @@ Foundation, Inc., 51 Franklin Street, Fi
+ 	  <para>
+ 	    'backingstore' is one of 'dir', 'lvm', 'loop', 'btrfs', 'zfs', or 'best'.  The
+ 	    default is 'dir', meaning that the container root filesystem
+-	    will be a directory under <filename>@LXCPATH@/container/rootfs</filename>.
++	    will be a directory under <filename>@LXCROOTFSMOUNT@/container/rootfs</filename>.
+ 	    This backing store type allows the optional
+ 	    <replaceable>--dir ROOTFS</replaceable> to be specified, meaning
+ 	    that the container rootfs should be placed under the specified path,
+Index: new/src/lxc/lxccontainer.c
+===================================================================
+--- new.orig/src/lxc/lxccontainer.c
++++ new/src/lxc/lxccontainer.c
+@@ -812,17 +812,16 @@ static struct bdev *do_bdev_create(struc
+ 	struct bdev *bdev;
+ 	int ret;
+ 
+-	/* rootfs.path or lxcpath/lxcname/rootfs */
++	/* rootfs.path or LXCROOTFSMOUNT/lxcname/rootfs */
+ 	if (c->lxc_conf->rootfs.path && access(c->lxc_conf->rootfs.path, F_OK) == 0) {
+ 		const char *rpath = c->lxc_conf->rootfs.path;
+ 		len = strlen(rpath) + 1;
+ 		dest = alloca(len);
+ 		ret = snprintf(dest, len, "%s", rpath);
+ 	} else {
+-		const char *lxcpath = lxcapi_get_config_path(c);
+-		len = strlen(c->name) + strlen(lxcpath) + 9;
++		len = strlen(c->name) + strlen(LXCROOTFSMOUNT) + 9;
+ 		dest = alloca(len);
+-		ret = snprintf(dest, len, "%s/%s/rootfs", lxcpath, c->name);
++		ret = snprintf(dest, len, "%s/%s/rootfs", LXCROOTFSMOUNT, c->name);
+ 	}
+ 	if (ret < 0 || ret >= len)
+ 		return NULL;
+@@ -2708,7 +2707,7 @@ static struct lxc_container *lxcapi_clon
+ 	fclose(fout);
+ 	c->lxc_conf->rootfs.path = origroot;
+ 
+-	sprintf(newpath, "%s/%s/rootfs", lxcpath, newname);
++	sprintf(newpath, "%s/%s/rootfs", LXCROOTFSMOUNT, newname);
+ 	if (mkdir(newpath, 0755) < 0) {
+ 		SYSERROR("error creating %s", newpath);
+ 		goto out;
+Index: new/src/lxc/bdev.c
+===================================================================
+--- new.orig/src/lxc/bdev.c
++++ new/src/lxc/bdev.c
+@@ -459,11 +459,11 @@ static int dir_clonepaths(struct bdev *o
+ 	if (!orig->dest || !orig->src)
+ 		return -1;
+ 
+-	len = strlen(lxcpath) + strlen(cname) + strlen("rootfs") + 3;
++	len = strlen(LXCROOTFSMOUNT) + strlen(cname) + strlen("rootfs") + 3;
+ 	new->src = malloc(len);
+ 	if (!new->src)
+ 		return -1;
+-	ret = snprintf(new->src, len, "%s/%s/rootfs", lxcpath, cname);
++	ret = snprintf(new->src, len, "%s/%s/rootfs", LXCROOTFSMOUNT, cname);
+ 	if (ret < 0 || ret >= len)
+ 		return -1;
+ 	if ((new->dest = strdup(new->src)) == NULL)
+@@ -613,7 +613,7 @@ static int zfs_clone(const char *opath,
+ 		zfsroot = lxc_global_config_value("lxc.bdev.zfs.root");
+ 
+ 	ret = snprintf(option, MAXPATHLEN, "-omountpoint=%s/%s/rootfs",
+-		lxcpath, nname);
++		 LXCROOTFSMOUNT, nname);
+ 	if (ret < 0  || ret >= MAXPATHLEN)
+ 		return -1;
+ 
+@@ -689,11 +689,11 @@ static int zfs_clonepaths(struct bdev *o
+ 		return -1;
+ 	}
+ 
+-	len = strlen(lxcpath) + strlen(cname) + strlen("rootfs") + 3;
++	len = strlen(LXCROOTFSMOUNT) + strlen(cname) + strlen("rootfs") + 3;
+ 	new->src = malloc(len);
+ 	if (!new->src)
+ 		return -1;
+-	ret = snprintf(new->src, len, "%s/%s/rootfs", lxcpath, cname);
++	ret = snprintf(new->src, len, "%s/%s/rootfs", LXCROOTFSMOUNT, cname);
+ 	if (ret < 0 || ret >= len)
+ 		return -1;
+ 	if ((new->dest = strdup(new->src)) == NULL)
+@@ -1047,11 +1047,11 @@ static int lvm_clonepaths(struct bdev *o
+ 			return -1;
+ 	}
+ 
+-	len = strlen(lxcpath) + strlen(cname) + strlen("rootfs") + 3;
++	len = strlen(LXCROOTFSMOUNT) + strlen(cname) + strlen("rootfs") + 3;
+ 	new->dest = malloc(len);
+ 	if (!new->dest)
+ 		return -1;
+-	ret = snprintf(new->dest, len, "%s/%s/rootfs", lxcpath, cname);
++	ret = snprintf(new->dest, len, "%s/%s/rootfs", LXCROOTFSMOUNT, cname);
+ 	if (ret < 0 || ret >= len)
+ 		return -1;
+ 	if (mkdir_p(new->dest, 0755) < 0)
+@@ -1473,11 +1473,11 @@ static int btrfs_clonepaths(struct bdev
+ 				orig->type);
+ 			return -1;
+ 		}
+-		len = strlen(lxcpath) + strlen(cname) + strlen("rootfs") + 3;
++		len = strlen(LXCROOTFSMOUNT) + strlen(cname) + strlen("rootfs") + 3;
+ 		new->src = malloc(len);
+ 		if (!new->src)
+ 			return -1;
+-		ret = snprintf(new->src, len, "%s/%s/rootfs", lxcpath, cname);
++		ret = snprintf(new->src, len, "%s/%s/rootfs", LXCROOTFSMOUNT, cname);
+ 		if (ret < 0 || ret >= len)
+ 			return -1;
+ 	} else {
+@@ -2021,7 +2021,7 @@ static int loop_clonepaths(struct bdev *
+ 	if (!orig->dest || !orig->src)
+ 		return -1;
+ 
+-	len = strlen(lxcpath) + strlen(cname) + strlen("rootdev") + 3;
++	len = strlen(LXCROOTFSMOUNT) + strlen(lxcpath) + strlen(cname) + strlen("rootdev") + 3;
+ 	srcdev = alloca(len);
+ 	ret = snprintf(srcdev, len, "%s/%s/rootdev", lxcpath, cname);
+ 	if (ret < 0 || ret >= len)
+@@ -2037,7 +2037,7 @@ static int loop_clonepaths(struct bdev *
+ 	new->dest = malloc(len);
+ 	if (!new->dest)
+ 		return -1;
+-	ret = snprintf(new->dest, len, "%s/%s/rootfs", lxcpath, cname);
++	ret = snprintf(new->dest, len, "%s/%s/rootfs", LXCROOTFSMOUNT, cname);
+ 	if (ret < 0 || ret >= len)
+ 		return -1;
+ 
+Index: new/src/lxc/conf.c
+===================================================================
+--- new.orig/src/lxc/conf.c
++++ new/src/lxc/conf.c
+@@ -1851,20 +1851,13 @@ static int mount_entry_on_absolute_rootf
+ 	unsigned long mntflags;
+ 	char *mntdata;
+ 	int r, ret = 0, offset;
+-	const char *lxcpath;
+ 	FILE *pathfile = NULL;
+ 	char *pathdirname = NULL;
+ 	bool optional = hasmntopt(mntent, "optional") != NULL;
+ 
+-	lxcpath = lxc_global_config_value("lxc.lxcpath");
+-	if (!lxcpath) {
+-		ERROR("Out of memory");
+-		return -1;
+-	}
+-
+ 	/* if rootfs->path is a blockdev path, allow container fstab to
+-	 * use $lxcpath/CN/rootfs as the target prefix */
+-	r = snprintf(path, MAXPATHLEN, "%s/%s/rootfs", lxcpath, lxc_name);
++	 * use LXCROOTFSMOUNT/CN/rootfs as the target prefix */
++	r = snprintf(path, MAXPATHLEN, "%s/%s/rootfs", LXCROOTFSMOUNT, lxc_name);
+ 	if (r < 0 || r >= MAXPATHLEN)
+ 		goto skipvarlib;
+ 
