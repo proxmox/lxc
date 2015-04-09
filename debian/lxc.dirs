@@ -1,3 +1,3 @@
 var/cache/lxc
-var/lib/lxc
+var/lib/vz
 var/log/lxc

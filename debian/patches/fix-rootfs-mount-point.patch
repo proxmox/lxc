@@ -7,7 +7,7 @@ Index: new/doc/lxc-create.sgml.in
  	    'backingstore' is one of 'dir', 'lvm', 'loop', 'btrfs', 'zfs', or 'best'.  The
  	    default is 'dir', meaning that the container root filesystem
 -	    will be a directory under <filename>@LXCPATH@/container/rootfs</filename>.
-+	    will be a directory under <filename>@LXCROOTFSMOUNT@/container/rootfs</filename>.
++	    will be a directory under <filename>@LXCROOTFSMOUNT@/rootfs/ctname</filename>.
  	    This backing store type allows the optional
  	    <replaceable>--dir ROOTFS</replaceable> to be specified, meaning
  	    that the container rootfs should be placed under the specified path,
@@ -20,7 +20,7 @@ Index: new/src/lxc/lxccontainer.c
  	int ret;
  
 -	/* rootfs.path or lxcpath/lxcname/rootfs */
-+	/* rootfs.path or LXCROOTFSMOUNT/lxcname/rootfs */
++	/* rootfs.path or LXCROOTFSMOUNT/rootfs/lxcname */
  	if (c->lxc_conf->rootfs.path && access(c->lxc_conf->rootfs.path, F_OK) == 0) {
  		const char *rpath = c->lxc_conf->rootfs.path;
  		len = strlen(rpath) + 1;
@@ -32,7 +32,7 @@ Index: new/src/lxc/lxccontainer.c
 +		len = strlen(c->name) + strlen(LXCROOTFSMOUNT) + 9;
  		dest = alloca(len);
 -		ret = snprintf(dest, len, "%s/%s/rootfs", lxcpath, c->name);
-+		ret = snprintf(dest, len, "%s/%s/rootfs", LXCROOTFSMOUNT, c->name);
++		ret = snprintf(dest, len, "%s/rootfs/%s", LXCROOTFSMOUNT, c->name);
  	}
  	if (ret < 0 || ret >= len)
  		return NULL;
@@ -41,7 +41,7 @@ Index: new/src/lxc/lxccontainer.c
  	c->lxc_conf->rootfs.path = origroot;
  
 -	sprintf(newpath, "%s/%s/rootfs", lxcpath, newname);
-+	sprintf(newpath, "%s/%s/rootfs", LXCROOTFSMOUNT, newname);
++	sprintf(newpath, "%s/rootfs/%s", LXCROOTFSMOUNT, newname);
  	if (mkdir(newpath, 0755) < 0) {
  		SYSERROR("error creating %s", newpath);
  		goto out;
@@ -59,15 +59,17 @@ Index: new/src/lxc/bdev.c
  	if (!new->src)
  		return -1;
 -	ret = snprintf(new->src, len, "%s/%s/rootfs", lxcpath, cname);
-+	ret = snprintf(new->src, len, "%s/%s/rootfs", LXCROOTFSMOUNT, cname);
++	ret = snprintf(new->src, len, "%s/rootfs/%s", LXCROOTFSMOUNT, cname);
  	if (ret < 0 || ret >= len)
  		return -1;
  	if ((new->dest = strdup(new->src)) == NULL)
-@@ -613,7 +613,7 @@ static int zfs_clone(const char *opath,
+@@ -612,8 +612,8 @@ static int zfs_clone(const char *opath,
+ 	} else
  		zfsroot = lxc_global_config_value("lxc.bdev.zfs.root");
  
- 	ret = snprintf(option, MAXPATHLEN, "-omountpoint=%s/%s/rootfs",
+-	ret = snprintf(option, MAXPATHLEN, "-omountpoint=%s/%s/rootfs",
 -		lxcpath, nname);
++	ret = snprintf(option, MAXPATHLEN, "-omountpoint=%s/rootfs/%s",
 +		 LXCROOTFSMOUNT, nname);
  	if (ret < 0  || ret >= MAXPATHLEN)
  		return -1;
@@ -82,7 +84,7 @@ Index: new/src/lxc/bdev.c
  	if (!new->src)
  		return -1;
 -	ret = snprintf(new->src, len, "%s/%s/rootfs", lxcpath, cname);
-+	ret = snprintf(new->src, len, "%s/%s/rootfs", LXCROOTFSMOUNT, cname);
++	ret = snprintf(new->src, len, "%s/rootfs/%s", LXCROOTFSMOUNT, cname);
  	if (ret < 0 || ret >= len)
  		return -1;
  	if ((new->dest = strdup(new->src)) == NULL)
@@ -96,7 +98,7 @@ Index: new/src/lxc/bdev.c
  	if (!new->dest)
  		return -1;
 -	ret = snprintf(new->dest, len, "%s/%s/rootfs", lxcpath, cname);
-+	ret = snprintf(new->dest, len, "%s/%s/rootfs", LXCROOTFSMOUNT, cname);
++	ret = snprintf(new->dest, len, "%s/rootfs/%s", LXCROOTFSMOUNT, cname);
  	if (ret < 0 || ret >= len)
  		return -1;
  	if (mkdir_p(new->dest, 0755) < 0)
@@ -110,7 +112,7 @@ Index: new/src/lxc/bdev.c
  		if (!new->src)
  			return -1;
 -		ret = snprintf(new->src, len, "%s/%s/rootfs", lxcpath, cname);
-+		ret = snprintf(new->src, len, "%s/%s/rootfs", LXCROOTFSMOUNT, cname);
++		ret = snprintf(new->src, len, "%s/rootfs/%s", LXCROOTFSMOUNT, cname);
  		if (ret < 0 || ret >= len)
  			return -1;
  	} else {
@@ -128,7 +130,7 @@ Index: new/src/lxc/bdev.c
  	if (!new->dest)
  		return -1;
 -	ret = snprintf(new->dest, len, "%s/%s/rootfs", lxcpath, cname);
-+	ret = snprintf(new->dest, len, "%s/%s/rootfs", LXCROOTFSMOUNT, cname);
++	ret = snprintf(new->dest, len, "%s/rootfs/%s", LXCROOTFSMOUNT, cname);
  	if (ret < 0 || ret >= len)
  		return -1;
  
@@ -154,8 +156,8 @@ Index: new/src/lxc/conf.c
  	/* if rootfs->path is a blockdev path, allow container fstab to
 -	 * use $lxcpath/CN/rootfs as the target prefix */
 -	r = snprintf(path, MAXPATHLEN, "%s/%s/rootfs", lxcpath, lxc_name);
-+	 * use LXCROOTFSMOUNT/CN/rootfs as the target prefix */
-+	r = snprintf(path, MAXPATHLEN, "%s/%s/rootfs", LXCROOTFSMOUNT, lxc_name);
++	 * use LXCROOTFSMOUNT/rootfs/CN as the target prefix */
++	r = snprintf(path, MAXPATHLEN, "%s/rootfs/%s", LXCROOTFSMOUNT, lxc_name);
  	if (r < 0 || r >= MAXPATHLEN)
  		goto skipvarlib;
  
