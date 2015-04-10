@@ -23,3 +23,7 @@ int create_user_ns(struct cred *new)
 There is already an open bug:
 
 https://bugzilla.redhat.com/show_bug.cgi?id=917708
+
+Other links:
+
+http://zurlinux.com/?p=2106
