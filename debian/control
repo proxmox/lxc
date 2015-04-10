@@ -8,7 +8,7 @@ Homepage: https://linuxcontainers.org
 
 Package: lxc
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libcap2, apparmor, python3
+Depends: ${shlibs:Depends}, ${misc:Depends}, libcap2, apparmor, python3, bridge-utils
 Description: Linux containers usersapce tools
  Containers provides resource management through control groups and
  resource isolation through namespaces. The linux containers, lxc, aims
