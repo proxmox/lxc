@@ -1,0 +1,16 @@
+Index: new/src/lxc/lxccontainer.c
+===================================================================
+--- new.orig/src/lxc/lxccontainer.c
++++ new/src/lxc/lxccontainer.c
+@@ -767,6 +767,11 @@ static int do_create_container_dir(const
+ 			return -1;
+ 		}
+ 	}
++
++	/* it is not possible to set ownership on /etc/pve */
++	if (strncmp(path, "/etc/pve/lxc/", 12) == 0)
++		return ret;
++
+ 	strcpy(p, path);
+ 	if (!lxc_list_empty(&conf->id_map) && chown_mapped_root(p, conf) != 0) {
+ 		ERROR("Failed to chown container dir");
