@@ -1,5 +1,6 @@
 fix-systemd-service-depends.patch
 fix-default-lxc-config.patch
-fix-rootfs-mount-point.patch
-do-dot-call-chown_mapped_root-on-etc-pve.patch
 include-linux-sched.patch
+do-dot-call-chown_mapped_root-on-etc-pve.patch
+use-var-lib-vz-as-default-dir.patch
+do-not-use-config-path-for-rootfs.patch
