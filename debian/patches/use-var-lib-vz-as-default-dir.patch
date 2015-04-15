@@ -16,12 +16,12 @@ Index: new/src/lxc/bdev.c
  	char *best_options[] = {"btrfs", "zfs", "lvm", "dir", NULL};
  
 +	if ((!type || (strcmp(type, "dir") == 0)) && !specs->dir) {
-+		int len = strlen(PVE_DEFAULT_DIR) + strlen(cname) + strlen("rootfs") + 3;
++		int len = strlen(PVE_DEFAULT_DIR) + strlen(cname) + strlen("private") + 3;
 +		specs->dir = malloc(len);
 +		if (!specs->dir) {
 +			return NULL;
 +		}
-+		int ret = snprintf(specs->dir, len, "%s/rootfs/%s", PVE_DEFAULT_DIR, cname);
++		int ret = snprintf(specs->dir, len, "%s/private/%s", PVE_DEFAULT_DIR, cname);
 +		if (ret < 0 || ret >= len) {
 +			free(specs->dir);
 +			specs->dir = NULL;
