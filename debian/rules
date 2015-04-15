@@ -27,12 +27,12 @@ override_dh_auto_configure:
 	--disable-examples
 
 override_dh_strip:
-	dh_strip --dbg-package=lxc-dbg
+	dh_strip --dbg-package=lxc-pve-dbg
 
 
 
 override_dh_install:
-	dh_apparmor -p lxc --profile-name=usr.bin.lxc-start
+	dh_apparmor -p lxc-pve --profile-name=usr.bin.lxc-start
 
 	# do not include dirs on /etc/pve
 #	rmdir $(CURDIR)/debian/tmp/etc/pve/lxc

@@ -6,9 +6,12 @@ Build-Depends: debhelper (>= 9), autotools-dev, libapparmor-dev, docbook2x, libc
 Standards-Version: 3.9.5
 Homepage: https://linuxcontainers.org
 
-Package: lxc
+Package: lxc-pve
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, libcap2, apparmor, python3, bridge-utils, uidmap, libgnutlsxx28
+Conflicts: lxc
+Replaces: lxc
+Provides: lxc
 Description: Linux containers usersapce tools
  Containers provides resource management through control groups and
  resource isolation through namespaces. The linux containers, lxc, aims
@@ -16,17 +19,17 @@ Description: Linux containers usersapce tools
  object which provides full resource isolation and resource control for
  an applications or a system. 
 
-Package: lxc-dbg
+Package: lxc-pve-dbg
 Section: debug
 Architecture: any
-Depends: lxc (= ${binary:Version}), lxc-dev (= ${binary:Version}), ${misc:Depends}
+Depends: lxc-pve (= ${binary:Version}), lxc-pve-dev (= ${binary:Version}), ${misc:Depends}
 Description: Debug symbols for LXC
  This package contains the debug symbols for LXC. 
 
-Package: lxc-dev
+Package: lxc-pve-dev
 Section: libdevel
 Architecture: any
-Depends: lxc (= ${binary:Version}), ${misc:Depends}
+Depends: lxc-pve (= ${binary:Version}), ${misc:Depends}
 Description: Linux Containers userspace tools (development)
  Containers provides resource management through control groups and
  resource isolation through namespaces. The linux containers, lxc, aims

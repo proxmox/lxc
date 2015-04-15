@@ -1,4 +1,4 @@
-lxc (1.1.1-pve1) unstable; urgency=low
+lxc (1.1.1-1) unstable; urgency=low
 
   * Initial release for Proxmox VE
 

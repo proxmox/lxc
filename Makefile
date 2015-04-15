@@ -1,10 +1,10 @@
 RELEASE=4.0
 
-PACKAGE=lxc
+PACKAGE=lxc-pve
 LXCVER=1.1.1
-DEBREL=pve1
+DEBREL=1
 
-SRCDIR=${PACKAGE}
+SRCDIR=lxc
 SRCTAR=${SRCDIR}.tgz
 
 ARCH:=$(shell dpkg-architecture -qDEB_BUILD_ARCH)
