@@ -1,0 +1,19 @@
+Index: new/src/lxc/conf.c
+===================================================================
+--- new.orig/src/lxc/conf.c
++++ new/src/lxc/conf.c
+@@ -2669,8 +2669,13 @@ static int instantiate_veth(struct lxc_h
+ 				 "veth", veth1, (char*) NULL);
+ 		if (err)
+ 			goto out_delete;
++	} else if (!netdev->link) {
++		err = run_script(handler->name, "net", "/usr/share/lxc/lxcnetaddbr", "up",
++				 "veth", veth1, (char*) NULL);
++		if (err)
++			goto out_delete;
+ 	}
+-
++	
+ 	DEBUG("instantiated veth '%s/%s', index is '%d'",
+ 	      veth1, veth2, netdev->ifindex);
+ 
