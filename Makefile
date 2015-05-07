@@ -39,6 +39,7 @@ upload: ${DEBS}
 	umount /pve/${RELEASE}; mount /pve/${RELEASE} -o rw 
 	mkdir -p /pve/${RELEASE}/extra
 	rm -f /pve/${RELEASE}/extra/${PACKAGE}_*.deb
+	rm -f /pve/${RELEASE}/extra/${PACKAGE}-dev_*.deb
 	rm -f /pve/${RELEASE}/extra/${PACKAGE}-dbg_*.deb
 	rm -f /pve/${RELEASE}/extra/Packages*
 	cp ${DEBS} /pve/${RELEASE}/extra
