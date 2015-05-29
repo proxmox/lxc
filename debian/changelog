@@ -1,3 +1,9 @@
+lxc (1.1.1-5) unstable; urgency=medium
+
+  * do not include dirs on /etc/pve
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 29 May 2015 10:08:37 +0200
+
 lxc (1.1.1-4) unstable; urgency=medium
 
   * depend on criu
