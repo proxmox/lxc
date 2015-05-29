@@ -35,9 +35,9 @@ override_dh_install:
 	dh_apparmor -p lxc-pve --profile-name=usr.bin.lxc-start
 
 	# do not include dirs on /etc/pve
-#	rmdir $(CURDIR)/debian/tmp/etc/pve/lxc
-#	rmdir $(CURDIR)/debian/tmp/etc/pve
-
-#	rm $(CURDIR)/debian/tmp/var/lib/lxc/README
+	rmdir $(CURDIR)/debian/tmp/etc/pve/lxc
+	rmdir $(CURDIR)/debian/tmp/etc/pve
 
 	dh_install --fail-missing
+
+
