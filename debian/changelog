@@ -1,3 +1,9 @@
+lxc (1.1.2-1) unstable; urgency=medium
+
+  * update to latest version from git
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 02 Jun 2015 06:00:01 +0200
+
 lxc (1.1.1-5) unstable; urgency=medium
 
   * do not include dirs on /etc/pve
