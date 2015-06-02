@@ -2,7 +2,7 @@ Index: new/src/lxc/lxccontainer.c
 ===================================================================
 --- new.orig/src/lxc/lxccontainer.c
 +++ new/src/lxc/lxccontainer.c
-@@ -767,6 +767,11 @@ static int do_create_container_dir(const
+@@ -862,6 +862,11 @@ static int do_create_container_dir(const
  			return -1;
  		}
  	}

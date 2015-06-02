@@ -1,0 +1,15 @@
+This flag requires systemd 218 or newer
+
+Index: new/config/init/systemd/lxc.service.in
+===================================================================
+--- new.orig/config/init/systemd/lxc.service.in
++++ new/config/init/systemd/lxc.service.in
+@@ -12,7 +12,7 @@ ExecStart=@LIBEXECDIR@/lxc/lxc-container
+ ExecStop=@LIBEXECDIR@/lxc/lxc-containers stop
+ # Environment=BOOTUP=serial
+ # Environment=CONSOLETYPE=serial
+-Delegate=yes
++#Delegate=yes
+ StandardOutput=syslog
+ StandardError=syslog
+ 
