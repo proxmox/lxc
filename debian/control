@@ -2,7 +2,7 @@ Source: lxc
 Section: admin
 Priority: optional
 Maintainer: Proxmox Support Team <support@proxmox.com>
-Build-Depends: debhelper (>= 9), autotools-dev, libapparmor-dev, docbook2x, libcap-dev, dh-apparmor, libcgmanager-dev, graphviz, libgnutls28-dev, linux-libc-dev
+Build-Depends: debhelper (>= 9), autotools-dev, libapparmor-dev, docbook2x, libcap-dev, dh-apparmor, libcgmanager-dev, graphviz, libgnutls28-dev, linux-libc-dev, dh-autoreconf
 Standards-Version: 3.9.5
 Homepage: https://linuxcontainers.org
 
