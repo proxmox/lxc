@@ -2,7 +2,7 @@ Index: new/src/lxc/lxccontainer.c
 ===================================================================
 --- new.orig/src/lxc/lxccontainer.c
 +++ new/src/lxc/lxccontainer.c
-@@ -916,10 +916,10 @@ static struct bdev *do_bdev_create(struc
+@@ -924,10 +924,10 @@ static struct bdev *do_bdev_create(struc
  		dest = alloca(len);
  		ret = snprintf(dest, len, "%s", rpath);
  	} else {

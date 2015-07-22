@@ -2,7 +2,7 @@ Index: new/src/lxc/bdev.c
 ===================================================================
 --- new.orig/src/lxc/bdev.c
 +++ new/src/lxc/bdev.c
-@@ -3519,6 +3519,8 @@ static struct bdev * do_bdev_create(cons
+@@ -3535,6 +3535,8 @@ static struct bdev * do_bdev_create(cons
  	return bdev;
  }
  
@@ -11,7 +11,7 @@ Index: new/src/lxc/bdev.c
  /*
   * bdev_create:
   * Create a backing store for a container.
-@@ -3536,6 +3538,20 @@ struct bdev *bdev_create(const char *des
+@@ -3552,6 +3554,20 @@ struct bdev *bdev_create(const char *des
  	struct bdev *bdev;
  	char *best_options[] = {"btrfs", "zfs", "lvm", "dir", NULL};
  
