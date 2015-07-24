@@ -1,0 +1,78 @@
+From 33564919e4af8557c1556a3daeb619922ad8b609 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Fri, 24 Jul 2015 08:21:39 +0200
+Subject: [PATCH] pass on reboot flag and delete old veth on reboot
+
+When using a fixed interface name the recreation of it after
+a reboot caused an EEXIST.
+-) The reboot flag is now kept till after lxc_spawn instead
+of just before lxc_start in order to know whether to delete
+the old interface.
+-) If the reboot flag is set within instantiate_veth and a
+fixed name is used, the interface is now deleted before
+being recreated.
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ src/lxc/conf.c         | 6 ++++--
+ src/lxc/lxccontainer.c | 3 +--
+ src/lxc/start.c        | 2 ++
+ 3 files changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/src/lxc/conf.c b/src/lxc/conf.c
+index 9870455..ed2ad66 100644
+--- a/src/lxc/conf.c
++++ b/src/lxc/conf.c
+@@ -2613,9 +2613,11 @@ static int instantiate_veth(struct lxc_handler *handler, struct lxc_netdev *netd
+ 	char veth2buf[IFNAMSIZ], *veth2;
+ 	int err;
+ 
+-	if (netdev->priv.veth_attr.pair)
++	if (netdev->priv.veth_attr.pair) {
+ 		veth1 = netdev->priv.veth_attr.pair;
+-	else {
++		if (handler->conf->reboot)
++			lxc_netdev_delete_by_name(veth1);
++	} else {
+ 		err = snprintf(veth1buf, sizeof(veth1buf), "vethXXXXXX");
+ 		if (err >= sizeof(veth1buf)) { /* can't *really* happen, but... */
+ 			ERROR("veth1 name too long");
+diff --git a/src/lxc/lxccontainer.c b/src/lxc/lxccontainer.c
+index 1c103e8..b483dd8 100644
+--- a/src/lxc/lxccontainer.c
++++ b/src/lxc/lxccontainer.c
+@@ -760,9 +760,9 @@ static bool do_lxcapi_start(struct lxc_container *c, int useinit, char * const a
+ 		pid_fp = NULL;
+ 	}
+ 
+-reboot:
+ 	conf->reboot = 0;
+ 
++reboot:
+ 	if (lxc_check_inherited(conf, daemonize, -1)) {
+ 		ERROR("Inherited fds found");
+ 		ret = 1;
+@@ -774,7 +774,6 @@ reboot:
+ 
+ 	if (conf->reboot) {
+ 		INFO("container requested reboot");
+-		conf->reboot = 0;
+ 		goto reboot;
+ 	}
+ 
+diff --git a/src/lxc/start.c b/src/lxc/start.c
+index 6eded61..2fc026e 100644
+--- a/src/lxc/start.c
++++ b/src/lxc/start.c
+@@ -1173,6 +1173,8 @@ int __lxc_start(const char *name, struct lxc_conf *conf,
+ 		goto out_detach_blockdev;
+ 	}
+ 
++	handler->conf->reboot = 0;
++
+ 	netnsfd = get_netns_fd(handler->pid);
+ 
+ 	err = lxc_poll(name, handler);
+-- 
+2.1.4
+

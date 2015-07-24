@@ -6,3 +6,5 @@ do-dot-call-chown_mapped_root-on-etc-pve.patch
 use-var-lib-vz-as-default-dir.patch
 do-not-use-config-path-for-rootfs.patch
 run-lxcnetaddbr.patch
+0001-seccomp-simplify-and-fix-rule-parsing.patch
+0001-pass-on-reboot-flag-and-delete-old-veth-on-reboot.patch
