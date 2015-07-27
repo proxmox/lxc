@@ -1,3 +1,9 @@
+lxc (1.1.2-4) unstable; urgency=medium
+
+  * update reboot patch
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 27 Jul 2015 13:16:24 +0200
+
 lxc (1.1.2-3) unstable; urgency=medium
 
   * seccomp and reboot fixes
