@@ -1,23 +1,23 @@
-From 33564919e4af8557c1556a3daeb619922ad8b609 Mon Sep 17 00:00:00 2001
+From b853bd4c180eaedd04b6d3750699e1f2805f5782 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
-Date: Fri, 24 Jul 2015 08:21:39 +0200
-Subject: [PATCH] pass on reboot flag and delete old veth on reboot
+Date: Fri, 24 Jul 2015 09:00:33 +0200
+Subject: [PATCH v2] pass on reboot flag and delete old veth on reboot
 
-When using a fixed interface name the recreation of it after
-a reboot caused an EEXIST.
--) The reboot flag is now kept till after lxc_spawn instead
-of just before lxc_start in order to know whether to delete
-the old interface.
--) If the reboot flag is set within instantiate_veth and a
-fixed name is used, the interface is now deleted before
+When setting lxc.network.veth.pair to get a fixed interface
+name the recreation of it after a reboot caused an EEXIST.
+-) The reboot flag is now a three-state value. It's set to
+1 to request a reboot, and 2 during a reboot until after
+lxc_spawn where it is reset to 0.
+-) If the reboot is set (!= 0) within instantiate_veth and
+a fixed name is used, the interface is now deleted before
 being recreated.
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---
  src/lxc/conf.c         | 6 ++++--
- src/lxc/lxccontainer.c | 3 +--
+ src/lxc/lxccontainer.c | 6 +++---
  src/lxc/start.c        | 2 ++
- 3 files changed, 7 insertions(+), 4 deletions(-)
+ 3 files changed, 9 insertions(+), 5 deletions(-)
 
 diff --git a/src/lxc/conf.c b/src/lxc/conf.c
 index 9870455..ed2ad66 100644
@@ -38,7 +38,7 @@ index 9870455..ed2ad66 100644
  		if (err >= sizeof(veth1buf)) { /* can't *really* happen, but... */
  			ERROR("veth1 name too long");
 diff --git a/src/lxc/lxccontainer.c b/src/lxc/lxccontainer.c
-index 1c103e8..b483dd8 100644
+index 1c103e8..223e78e 100644
 --- a/src/lxc/lxccontainer.c
 +++ b/src/lxc/lxccontainer.c
 @@ -760,9 +760,9 @@ static bool do_lxcapi_start(struct lxc_container *c, int useinit, char * const a
@@ -52,11 +52,15 @@ index 1c103e8..b483dd8 100644
  	if (lxc_check_inherited(conf, daemonize, -1)) {
  		ERROR("Inherited fds found");
  		ret = 1;
-@@ -774,7 +774,6 @@ reboot:
+@@ -772,9 +772,9 @@ reboot:
+ 	ret = lxc_start(c->name, argv, conf, c->config_path, daemonize);
+ 	c->error_num = ret;
  
- 	if (conf->reboot) {
+-	if (conf->reboot) {
++	if (conf->reboot == 1) {
  		INFO("container requested reboot");
 -		conf->reboot = 0;
++		conf->reboot = 2;
  		goto reboot;
  	}
  
