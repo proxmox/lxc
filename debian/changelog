@@ -1,3 +1,9 @@
+lxc (1.1.2-6) unstable; urgency=medium
+
+  * use libseccomp2
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 06 Aug 2015 15:57:18 +0200
+
 lxc (1.1.2-5) unstable; urgency=medium
 
   * do not use /etc/pve (use standard lxc directory instead)
