@@ -2,13 +2,13 @@ Source: lxc
 Section: admin
 Priority: optional
 Maintainer: Proxmox Support Team <support@proxmox.com>
-Build-Depends: debhelper (>= 9), autotools-dev, libapparmor-dev, docbook2x, libcap-dev, dh-apparmor, libcgmanager-dev, graphviz, libgnutls28-dev, linux-libc-dev, dh-autoreconf
+Build-Depends: debhelper (>= 9), autotools-dev, libapparmor-dev, docbook2x, libcap-dev, dh-apparmor, libcgmanager-dev, graphviz, libgnutls28-dev, linux-libc-dev, dh-autoreconf, libseccomp-dev
 Standards-Version: 3.9.5
 Homepage: https://linuxcontainers.org
 
 Package: lxc-pve
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libcap2, apparmor, python3, bridge-utils, uidmap, libgnutlsxx28, criu (>= 1.5.2-1), lxcfs
+Depends: ${shlibs:Depends}, ${misc:Depends}, libcap2, apparmor, python3, bridge-utils, uidmap, libgnutlsxx28, criu (>= 1.5.2-1), lxcfs, libseccomp2
 Conflicts: lxc
 Replaces: lxc
 Provides: lxc

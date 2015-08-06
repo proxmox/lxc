@@ -23,7 +23,8 @@ override_dh_auto_configure:
 	--enable-cgmanager \
 	--disable-python \
 	--disable-lua \
-	--disable-examples
+	--disable-examples \
+	--enable-seccomp
 
 override_dh_strip:
 	dh_strip --dbg-package=lxc-pve-dbg
