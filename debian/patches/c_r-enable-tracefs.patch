@@ -1,0 +1,48 @@
+From 6b2a672801950d972474a86fc29d05f9e6ad2fd6 Mon Sep 17 00:00:00 2001
+From: Tycho Andersen <tycho.andersen@canonical.com>
+Date: Wed, 12 Aug 2015 11:17:12 -0600
+Subject: [PATCH] c/r: enable tracefs
+
+tracefs is a new filesystem that can be mounted by users. Only the options
+and fs name need to be passed to restore the state, so we can use criu's
+auto fs feature.
+
+Signed-off-by: Tycho Andersen <tycho.andersen@canonical.com>
+---
+ src/lxc/criu.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/src/lxc/criu.c b/src/lxc/criu.c
+index e939b37..bd6ecac 100644
+--- a/src/lxc/criu.c
++++ b/src/lxc/criu.c
+@@ -49,7 +49,7 @@ lxc_log_define(lxc_criu, lxc);
+ void exec_criu(struct criu_opts *opts)
+ {
+ 	char **argv, log[PATH_MAX];
+-	int static_args = 20, argc = 0, i, ret;
++	int static_args = 22, argc = 0, i, ret;
+ 	int netnr = 0;
+ 	struct lxc_list *it;
+ 
+@@ -60,7 +60,7 @@ void exec_criu(struct criu_opts *opts)
+ 	 * --manage-cgroups action-script foo.sh -D $(directory) \
+ 	 * -o $(directory)/$(action).log --ext-mount-map auto
+ 	 * --enable-external-sharing --enable-external-masters
+-	 * --enable-fs hugetlbfs
++	 * --enable-fs hugetlbfs --enable-fs tracefs
+ 	 * +1 for final NULL */
+ 
+ 	if (strcmp(opts->action, "dump") == 0) {
+@@ -122,6 +122,8 @@ void exec_criu(struct criu_opts *opts)
+ 	DECLARE_ARG("--enable-external-masters");
+ 	DECLARE_ARG("--enable-fs");
+ 	DECLARE_ARG("hugetlbfs");
++	DECLARE_ARG("--enable-fs");
++	DECLARE_ARG("tracefs");
+ 	DECLARE_ARG("-D");
+ 	DECLARE_ARG(opts->directory);
+ 	DECLARE_ARG("-o");
+-- 
+2.1.4
+
