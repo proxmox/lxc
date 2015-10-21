@@ -1,0 +1,44 @@
+From 9b20851c6cbe129569efaf91d1261b7369fca883 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Wed, 21 Oct 2015 09:42:52 +0200
+Subject: [PATCH] hooks: put binary hooks in /usr/lib/lxc/hooks
+
+---
+ configure.ac      | 1 +
+ hooks/Makefile.am | 3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 874b446..29706cc 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -539,6 +539,7 @@ AS_AC_EXPAND(LXCROOTFSMOUNT, "$with_rootfs_path")
+ AS_AC_EXPAND(LXCTEMPLATEDIR, "$datadir/lxc/templates")
+ AS_AC_EXPAND(LXCTEMPLATECONFIG, "$datadir/lxc/config")
+ AS_AC_EXPAND(LXCHOOKDIR, "$datadir/lxc/hooks")
++AS_AC_EXPAND(LXCLIBHOOKDIR, "$libdir/lxc/hooks")
+ AS_AC_EXPAND(LXCINITDIR, "$libexecdir")
+ AS_AC_EXPAND(LOGPATH, "$with_log_path")
+ AS_AC_EXPAND(RUNTIME_PATH, "$with_runtime_path")
+diff --git a/hooks/Makefile.am b/hooks/Makefile.am
+index 499a2c4..263f62c 100644
+--- a/hooks/Makefile.am
++++ b/hooks/Makefile.am
+@@ -1,4 +1,5 @@
+ hooksdir=@LXCHOOKDIR@
++libhooksdir=@LXCLIBHOOKDIR@
+ 
+ hooks_SCRIPTS = \
+ 	clonehostname \
+@@ -6,7 +7,7 @@ hooks_SCRIPTS = \
+ 	ubuntu-cloud-prep \
+ 	squid-deb-proxy-client
+ 
+-hooks_PROGRAMS = \
++libhooks_PROGRAMS = \
+ 	unmount-namespace
+ 
+ unmount_namespace_SOURCES = \
+-- 
+2.1.4
+
