@@ -1,3 +1,9 @@
+lxc (1.1.4-3) unstable; urgency=medium
+
+  * show error message when deleting an interface failed
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 22 Oct 2015 12:08:03 +0200
+
 lxc (1.1.4-2) unstable; urgency=medium
 
   * added unmount-namespace hook series
