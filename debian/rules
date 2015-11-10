@@ -20,7 +20,7 @@ override_dh_auto_configure:
 	--disable-rpath \
 	--disable-selinux \
 	--enable-bash \
-	--enable-cgmanager \
+	--disable-cgmanager \
 	--disable-python \
 	--disable-lua \
 	--disable-examples \
