@@ -1,3 +1,9 @@
+lxc (1.1.5-2) unstable; urgency=medium
+
+  * re-enable cgmanager - it is still required (cgfs does not work reliable)
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 18 Nov 2015 10:56:09 +0100
+
 lxc (1.1.5-1) unstable; urgency=medium
 
   * update to 1.1.5 (latest stable 1.1 branch)
