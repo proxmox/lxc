@@ -13,3 +13,4 @@ run-lxcnetaddbr.patch
 0005-added-the-unmount-namespace-hook.patch
 0006-hooks-put-binary-hooks-in-usr-lib-lxc-hooks.patch
 delete_network_show_error.diff
+0001-added-lxc.start.unshare.patch
