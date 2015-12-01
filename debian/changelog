@@ -1,3 +1,9 @@
+lxc (1.1.5-4) unstable; urgency=medium
+
+  *  renamed lxc.start.unshare to lxc.monitor.unshare
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 01 Dec 2015 09:54:57 +0100
+
 lxc (1.1.5-3) unstable; urgency=medium
 
   * start cgmanager before lxc
