@@ -1,0 +1,32 @@
+From 4a491a31c23e64f29152a4b5e4ff07b361074261 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Tue, 2 Feb 2016 09:13:04 +0100
+Subject: [PATCH] apparmor: allow binding /run/{,lock/} -> /var/run/{,lock/}
+
+Some systems need to be able to bind-mount /run to /var/run
+and /run/lock to /var/run/lock. (Tested with opensuse 13.1
+containers migrated from openvz.)
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ config/apparmor/abstractions/container-base.in | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/config/apparmor/abstractions/container-base.in b/config/apparmor/abstractions/container-base.in
+index 1121256..3a001d8 100644
+--- a/config/apparmor/abstractions/container-base.in
++++ b/config/apparmor/abstractions/container-base.in
+@@ -62,6 +62,10 @@
+   # allow bind mount of /lib/init/fstab for lxcguest
+   mount options=(rw, bind) /lib/init/fstab.lxc/ -> /lib/init/fstab/,
+ 
++  # allow bind mounts of /run/{,lock} to /var/run/{,lock}
++  mount options=(rw, bind) /run/ -> /var/run/,
++  mount options=(rw, bind) /run/lock/ -> /var/lock/,
++
+   # deny writes in /proc/sys/fs but allow binfmt_misc to be mounted
+   mount fstype=binfmt_misc -> /proc/sys/fs/binfmt_misc/,
+   deny @{PROC}/sys/fs/** wklx,
+-- 
+2.1.4
+

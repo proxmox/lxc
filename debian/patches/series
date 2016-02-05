@@ -15,3 +15,4 @@ run-lxcnetaddbr.patch
 delete_network_show_error.diff
 0001-AppArmor-add-make-rslave-to-usr.bin.lxc-start.patch
 0002-Added-lxc.monitor.unshare.patch
+0001-apparmor-allow-binding-run-lock-var-run-lock.patch
