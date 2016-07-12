@@ -6,13 +6,3 @@ include-linux-sched.patch
 use-var-lib-vz-as-default-dir.patch
 #do-not-use-config-path-for-rootfs.patch
 run-lxcnetaddbr.patch
-0001-added-stop-hook-entries.patch
-0002-run-stop-hook-between-STOPPING-and-STOPPED-states.patch
-0003-pass-namespace-handles-to-the-stop-hook.patch
-0004-document-the-stop-hook.patch
-0005-added-the-unmount-namespace-hook.patch
-0006-hooks-put-binary-hooks-in-usr-lib-lxc-hooks.patch
-delete_network_show_error.diff
-0001-AppArmor-add-make-rslave-to-usr.bin.lxc-start.patch
-0002-Added-lxc.monitor.unshare.patch
-0001-apparmor-allow-binding-run-lock-var-run-lock.patch
