@@ -1,9 +1,7 @@
-Index: new/src/lxc/bdev.c
-===================================================================
---- new.orig/src/lxc/bdev.c
-+++ new/src/lxc/bdev.c
-@@ -3535,6 +3535,8 @@ static struct bdev * do_bdev_create(cons
- 	return bdev;
+--- a/src/lxc/bdev/bdev.c
++++ b/src/lxc/bdev/bdev.c
+@@ -449,6 +449,8 @@
+ 	return NULL;
  }
  
 +#define PVE_DEFAULT_DIR "/var/lib/vz"
@@ -11,9 +9,9 @@ Index: new/src/lxc/bdev.c
  /*
   * bdev_create:
   * Create a backing store for a container.
-@@ -3552,6 +3554,20 @@ struct bdev *bdev_create(const char *des
+@@ -466,6 +468,20 @@
  	struct bdev *bdev;
- 	char *best_options[] = {"btrfs", "zfs", "lvm", "dir", NULL};
+ 	char *best_options[] = {"btrfs", "zfs", "lvm", "dir", "rbd", NULL};
  
 +	if ((!type || (strcmp(type, "dir") == 0)) && !specs->dir) {
 +		int len = strlen(PVE_DEFAULT_DIR) + strlen(cname) + strlen("private") + 3;
@@ -28,7 +26,7 @@ Index: new/src/lxc/bdev.c
 +			return NULL;
 +		}
 +	}
-+	
++
  	if (!type)
  		return do_bdev_create(dest, "dir", cname, specs);
  
