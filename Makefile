@@ -30,7 +30,7 @@ deb ${DEBS}: ${SRCTAR}
 .PHONY: download
 download ${SRCTAR}:
 	rm -rf ${SRCDIR} ${SRCTAR}
-	git clone -b stable-1.1 git://github.com/lxc/lxc
+	git clone -b stable-2.0 git://github.com/lxc/lxc
 	tar czf ${SRCTAR}.tmp ${SRCDIR}
 	mv ${SRCTAR}.tmp ${SRCTAR}
 
