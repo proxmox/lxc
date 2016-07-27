@@ -1,3 +1,9 @@
+lxc (2.0.3-3) unstable; urgency=medium
+
+  * update apprmor profiles in postinstall's configure step
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 27 Jul 2016 12:12:31 +0200
+
 lxc (2.0.3-2) unstable; urgency=medium
 
   * drop cgmanager dependency
