@@ -14,6 +14,9 @@ case "$1" in
 	# create subuid/subgui map for root
 	# (to run unprivileged containers as root)
 	usermod -v 100000-165535 -w 100000-165535 root
+
+	# update apparmor profiles
+	apparmor_parser -r -W -T /etc/apparmor.d/lxc-containers
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
