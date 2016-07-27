@@ -1,3 +1,9 @@
+lxc (2.0.3-2) unstable; urgency=medium
+
+  * drop cgmanager dependency
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 27 Jul 2016 11:10:30 +0200
+
 lxc (2.0.3-1) unstable; urgency=medium
 
   * update to 2.0.3 (latest stable 2.0 branch)
