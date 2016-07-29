@@ -33,7 +33,7 @@ override_dh_strip:
 
 override_dh_install:
 	dh_apparmor -p lxc-pve --profile-name=usr.bin.lxc-start
-
+	dh_apparmor -p lxc-pve --profile-name=lxc-containers
 	dh_install --fail-missing
 
 override_dh_systemd_start:
