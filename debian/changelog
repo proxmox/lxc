@@ -1,3 +1,11 @@
+lxc (2.0.3-4) unstable; urgency=medium
+
+  * use dh_apparmor for the lxc-containers profile
+
+  * patch: conf: set pty_info to NULL after free
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 05 Aug 2016 13:04:08 +0200
+
 lxc (2.0.3-3) unstable; urgency=medium
 
   * update apprmor profiles in postinstall's configure step
