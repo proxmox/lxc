@@ -36,15 +36,7 @@ download ${SRCTAR}:
 
 .PHONY: upload
 upload: ${DEBS}
-	umount /pve/${RELEASE}; mount /pve/${RELEASE} -o rw 
-	mkdir -p /pve/${RELEASE}/extra
-	rm -f /pve/${RELEASE}/extra/${PACKAGE}_*.deb
-	rm -f /pve/${RELEASE}/extra/${PACKAGE}-dev_*.deb
-	rm -f /pve/${RELEASE}/extra/${PACKAGE}-dbg_*.deb
-	rm -f /pve/${RELEASE}/extra/Packages*
-	cp ${DEBS} /pve/${RELEASE}/extra
-	cd /pve/${RELEASE}/extra; dpkg-scanpackages . /dev/null > Packages; gzip -9c Packages > Packages.gz
-	umount /pve/${RELEASE}; mount /pve/${RELEASE} -o ro
+	tar cf - ${DEBS} | ssh repoman@repo.proxmox.com upload
 
 distclean: clean
 
