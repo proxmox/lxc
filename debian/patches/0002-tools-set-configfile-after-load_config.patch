@@ -1,0 +1,245 @@
+From fb259e5b431260c61a2afcee862f7e836d7d8cf9 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Fri, 12 Aug 2016 14:49:37 +0200
+Subject: [PATCH 2/3] tools: set configfile after load_config
+
+In order to cause c->is_defined() to become true.
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ src/lxc/tools/lxc_attach.c     | 6 ++++++
+ src/lxc/tools/lxc_cgroup.c     | 6 ++++++
+ src/lxc/tools/lxc_checkpoint.c | 6 ++++++
+ src/lxc/tools/lxc_console.c    | 6 ++++++
+ src/lxc/tools/lxc_copy.c       | 5 +++++
+ src/lxc/tools/lxc_destroy.c    | 6 ++++++
+ src/lxc/tools/lxc_device.c     | 5 +++++
+ src/lxc/tools/lxc_freeze.c     | 6 ++++++
+ src/lxc/tools/lxc_info.c       | 6 ++++++
+ src/lxc/tools/lxc_snapshot.c   | 6 ++++++
+ src/lxc/tools/lxc_stop.c       | 5 +++++
+ src/lxc/tools/lxc_unfreeze.c   | 6 ++++++
+ src/lxc/tools/lxc_wait.c       | 6 ++++++
+ 13 files changed, 75 insertions(+)
+
+diff --git a/src/lxc/tools/lxc_attach.c b/src/lxc/tools/lxc_attach.c
+index 14c724a..e436ae9 100644
+--- a/src/lxc/tools/lxc_attach.c
++++ b/src/lxc/tools/lxc_attach.c
+@@ -384,6 +384,12 @@ int main(int argc, char *argv[])
+ 			lxc_container_put(c);
+ 			exit(EXIT_FAILURE);
+ 		}
++		c->configfile = strdup(my_args.rcfile);
++		if (!c->configfile) {
++			ERROR("Out of memory setting new config filename");
++			lxc_container_put(c);
++			exit(EXIT_FAILURE);
++		}
+ 	}
+ 
+ 	if (!c->may_control(c)) {
+diff --git a/src/lxc/tools/lxc_cgroup.c b/src/lxc/tools/lxc_cgroup.c
+index c644501..4dc2682 100644
+--- a/src/lxc/tools/lxc_cgroup.c
++++ b/src/lxc/tools/lxc_cgroup.c
+@@ -92,6 +92,12 @@ int main(int argc, char *argv[])
+ 			lxc_container_put(c);
+ 			return 1;
+ 		}
++		c->configfile = strdup(my_args.rcfile);
++		if (!c->configfile) {
++			ERROR("Out of memory setting new config filename");
++			lxc_container_put(c);
++			return 1;
++		}
+ 	}
+ 
+ 	if (!c->may_control(c)) {
+diff --git a/src/lxc/tools/lxc_checkpoint.c b/src/lxc/tools/lxc_checkpoint.c
+index bc18b80..6de3d23 100644
+--- a/src/lxc/tools/lxc_checkpoint.c
++++ b/src/lxc/tools/lxc_checkpoint.c
+@@ -222,6 +222,12 @@ int main(int argc, char *argv[])
+ 			lxc_container_put(c);
+ 			exit(1);
+ 		}
++		c->configfile = strdup(my_args.rcfile);
++		if (!c->configfile) {
++			fprintf(stderr, "Out of memory setting new config filename\n");
++			lxc_container_put(c);
++			exit(1);
++		}
+ 	}
+ 
+ 	if (!c->may_control(c)) {
+diff --git a/src/lxc/tools/lxc_console.c b/src/lxc/tools/lxc_console.c
+index 8a4d1c0..829c908 100644
+--- a/src/lxc/tools/lxc_console.c
++++ b/src/lxc/tools/lxc_console.c
+@@ -120,6 +120,12 @@ int main(int argc, char *argv[])
+ 			lxc_container_put(c);
+ 			exit(EXIT_FAILURE);
+ 		}
++		c->configfile = strdup(my_args.rcfile);
++		if (!c->configfile) {
++			fprintf(stderr, "Out of memory setting new config filename\n");
++			lxc_container_put(c);
++			exit(EXIT_FAILURE);
++		}
+ 	}
+ 
+ 	if (!c->may_control(c)) {
+diff --git a/src/lxc/tools/lxc_copy.c b/src/lxc/tools/lxc_copy.c
+index c81c077..f7dc8b2 100644
+--- a/src/lxc/tools/lxc_copy.c
++++ b/src/lxc/tools/lxc_copy.c
+@@ -217,6 +217,11 @@ int main(int argc, char *argv[])
+ 			fprintf(stderr, "Failed to load rcfile\n");
+ 			goto out;
+ 		}
++		c->configfile = strdup(my_args.rcfile);
++		if (!c->configfile) {
++			fprintf(stderr, "Out of memory setting new config filename\n");
++			goto out;
++		}
+ 	}
+ 
+ 	if (!c->may_control(c)) {
+diff --git a/src/lxc/tools/lxc_destroy.c b/src/lxc/tools/lxc_destroy.c
+index 50fd708..3f46415 100644
+--- a/src/lxc/tools/lxc_destroy.c
++++ b/src/lxc/tools/lxc_destroy.c
+@@ -96,6 +96,12 @@ int main(int argc, char *argv[])
+ 			lxc_container_put(c);
+ 			exit(EXIT_FAILURE);
+ 		}
++		c->configfile = strdup(my_args.rcfile);
++		if (!c->configfile) {
++			fprintf(stderr, "Out of memory setting new config filename\n");
++			lxc_container_put(c);
++			exit(EXIT_FAILURE);
++		}
+ 	}
+ 
+ 	if (!c->may_control(c)) {
+diff --git a/src/lxc/tools/lxc_device.c b/src/lxc/tools/lxc_device.c
+index 0f1ee8b..49af062 100644
+--- a/src/lxc/tools/lxc_device.c
++++ b/src/lxc/tools/lxc_device.c
+@@ -132,6 +132,11 @@ int main(int argc, char *argv[])
+ 			ERROR("Failed to load rcfile");
+ 			goto err1;
+ 		}
++		c->configfile = strdup(my_args.rcfile);
++		if (!c->configfile) {
++			ERROR("Out of memory setting new config filename");
++			goto err1;
++		}
+ 	}
+ 
+ 	if (!c->is_running(c)) {
+diff --git a/src/lxc/tools/lxc_freeze.c b/src/lxc/tools/lxc_freeze.c
+index d0239bf..ac0802e 100644
+--- a/src/lxc/tools/lxc_freeze.c
++++ b/src/lxc/tools/lxc_freeze.c
+@@ -82,6 +82,12 @@ int main(int argc, char *argv[])
+ 			lxc_container_put(c);
+ 			exit(1);
+ 		}
++		c->configfile = strdup(my_args.rcfile);
++		if (!c->configfile) {
++			ERROR("Out of memory setting new config filename");
++			lxc_container_put(c);
++			exit(1);
++		}
+ 	}
+ 
+ 	if (!c->may_control(c)) {
+diff --git a/src/lxc/tools/lxc_info.c b/src/lxc/tools/lxc_info.c
+index e833697..08c698d 100644
+--- a/src/lxc/tools/lxc_info.c
++++ b/src/lxc/tools/lxc_info.c
+@@ -303,6 +303,12 @@ static int print_info(const char *name, const char *lxcpath)
+ 			lxc_container_put(c);
+ 			return -1;
+ 		}
++		c->configfile = strdup(my_args.rcfile);
++		if (!c->configfile) {
++			fprintf(stderr, "Out of memory setting new config filename\n");
++			lxc_container_put(c);
++			return -1;
++		}
+ 	}
+ 
+ 	if (!c->may_control(c)) {
+diff --git a/src/lxc/tools/lxc_snapshot.c b/src/lxc/tools/lxc_snapshot.c
+index aa9b6fe..a1166bc 100644
+--- a/src/lxc/tools/lxc_snapshot.c
++++ b/src/lxc/tools/lxc_snapshot.c
+@@ -115,6 +115,12 @@ int main(int argc, char *argv[])
+ 			lxc_container_put(c);
+ 			exit(EXIT_FAILURE);
+ 		}
++		c->configfile = strdup(my_args.rcfile);
++		if (!c->configfile) {
++			fprintf(stderr, "Out of memory setting new config filename\n");
++			lxc_container_put(c);
++			exit(EXIT_FAILURE);
++		}
+ 	}
+ 
+ 	if (!c->may_control(c)) {
+diff --git a/src/lxc/tools/lxc_stop.c b/src/lxc/tools/lxc_stop.c
+index bbe1f1c..cb7cfe2 100644
+--- a/src/lxc/tools/lxc_stop.c
++++ b/src/lxc/tools/lxc_stop.c
+@@ -210,6 +210,11 @@ int main(int argc, char *argv[])
+ 			fprintf(stderr, "Failed to load rcfile\n");
+ 			goto out;
+ 		}
++		c->configfile = strdup(my_args.rcfile);
++		if (!c->configfile) {
++			fprintf(stderr, "Out of memory setting new config filename\n");
++			goto out;
++		}
+ 	}
+ 
+ 	if (!c->may_control(c)) {
+diff --git a/src/lxc/tools/lxc_unfreeze.c b/src/lxc/tools/lxc_unfreeze.c
+index b7bbea6..24faf5e 100644
+--- a/src/lxc/tools/lxc_unfreeze.c
++++ b/src/lxc/tools/lxc_unfreeze.c
+@@ -86,6 +86,12 @@ int main(int argc, char *argv[])
+ 			lxc_container_put(c);
+ 			exit(1);
+ 		}
++		c->configfile = strdup(my_args.rcfile);
++		if (!c->configfile) {
++			ERROR("Out of memory setting new config filename");
++			lxc_container_put(c);
++			exit(1);
++		}
+ 	}
+ 
+ 	if (!c->unfreeze(c)) {
+diff --git a/src/lxc/tools/lxc_wait.c b/src/lxc/tools/lxc_wait.c
+index deeff98..61fd869 100644
+--- a/src/lxc/tools/lxc_wait.c
++++ b/src/lxc/tools/lxc_wait.c
+@@ -112,6 +112,12 @@ int main(int argc, char *argv[])
+ 			lxc_container_put(c);
+ 			return 1;
+ 		}
++		c->configfile = strdup(my_args.rcfile);
++		if (!c->configfile) {
++			fprintf(stderr, "Out of memory setting new config filename\n");
++			lxc_container_put(c);
++			return 1;
++		}
+ 	}
+ 
+ 	if (!c->wait(c, my_args.states, my_args.timeout)) {
+-- 
+2.1.4
+

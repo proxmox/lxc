@@ -6,4 +6,6 @@ include-linux-sched.patch
 use-var-lib-vz-as-default-dir.patch
 #do-not-use-config-path-for-rootfs.patch
 run-lxcnetaddbr.patch
-0001-conf-set-pty_info-to-NULL-after-free.patch
+0001-tools-move-rcfile-to-the-common-options-list.patch
+0002-tools-set-configfile-after-load_config.patch
+0003-doc-add-rcfile-to-common-opts.patch

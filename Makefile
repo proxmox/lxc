@@ -1,8 +1,8 @@
 RELEASE=4.2
 
 PACKAGE=lxc-pve
-LXCVER=2.0.3
-DEBREL=4
+LXCVER=2.0.4
+DEBREL=1
 
 SRCDIR=lxc
 SRCTAR=${SRCDIR}.tgz
@@ -30,7 +30,7 @@ deb ${DEBS}: ${SRCTAR}
 .PHONY: download
 download ${SRCTAR}:
 	rm -rf ${SRCDIR} ${SRCTAR}
-	git clone -b stable-2.0 git://github.com/lxc/lxc
+	git clone -b lxc-${LXCVER} git://github.com/lxc/lxc
 	tar czf ${SRCTAR}.tmp ${SRCDIR}
 	mv ${SRCTAR}.tmp ${SRCTAR}
 

@@ -1,0 +1,427 @@
+From dacc363d7d21434b764d95e4bd3d740c8995e951 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Fri, 12 Aug 2016 12:21:22 +0200
+Subject: [PATCH 1/3] tools: move --rcfile to the common options list
+
+In almost all commands it's a useful addition to the -n
+switch which is a common option, too.
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ src/lxc/arguments.c            |  1 +
+ src/lxc/arguments.h            |  2 ++
+ src/lxc/tools/lxc_attach.c     |  1 -
+ src/lxc/tools/lxc_cgroup.c     | 12 +++++++++++-
+ src/lxc/tools/lxc_checkpoint.c | 10 ++++++++++
+ src/lxc/tools/lxc_console.c    | 12 +++++++++++-
+ src/lxc/tools/lxc_copy.c       | 11 ++++++++++-
+ src/lxc/tools/lxc_destroy.c    | 12 +++++++++++-
+ src/lxc/tools/lxc_device.c     | 11 ++++++++++-
+ src/lxc/tools/lxc_freeze.c     | 12 +++++++++++-
+ src/lxc/tools/lxc_info.c       | 12 +++++++++++-
+ src/lxc/tools/lxc_snapshot.c   | 12 +++++++++++-
+ src/lxc/tools/lxc_stop.c       | 11 ++++++++++-
+ src/lxc/tools/lxc_unfreeze.c   | 12 +++++++++++-
+ src/lxc/tools/lxc_wait.c       | 12 +++++++++++-
+ 15 files changed, 131 insertions(+), 12 deletions(-)
+
+diff --git a/src/lxc/arguments.c b/src/lxc/arguments.c
+index c2f7b67..0d2b203 100644
+--- a/src/lxc/arguments.c
++++ b/src/lxc/arguments.c
+@@ -203,6 +203,7 @@ extern int lxc_arguments_parse(struct lxc_arguments *args,
+ 		case 'o':	args->log_file = optarg; break;
+ 		case 'l':	args->log_priority = optarg; break;
+ 		case 'q':	args->quiet = 1; break;
++		case OPT_RCFILE: args->rcfile = optarg; break;
+ 		case 'P':
+ 			remove_trailing_slashes(optarg);
+ 			ret = lxc_arguments_lxcpath_add(args, optarg);
+diff --git a/src/lxc/arguments.h b/src/lxc/arguments.h
+index f68f8ab..39bedf5 100644
+--- a/src/lxc/arguments.h
++++ b/src/lxc/arguments.h
+@@ -151,11 +151,13 @@ struct lxc_arguments {
+ 	{"logfile", required_argument, 0, 'o'}, \
+ 	{"logpriority", required_argument, 0, 'l'}, \
+ 	{"lxcpath", required_argument, 0, 'P'}, \
++	{"rcfile", required_argument, 0, OPT_RCFILE}, \
+ 	{0, 0, 0, 0}
+ 
+ /* option keys for long only options */
+ #define	OPT_USAGE 0x1000
+ #define	OPT_VERSION OPT_USAGE-1
++#define	OPT_RCFILE OPT_USAGE-2
+ 
+ extern int lxc_arguments_parse(struct lxc_arguments *args,
+ 			       int argc, char *const argv[]);
+diff --git a/src/lxc/tools/lxc_attach.c b/src/lxc/tools/lxc_attach.c
+index 281f97a..14c724a 100644
+--- a/src/lxc/tools/lxc_attach.c
++++ b/src/lxc/tools/lxc_attach.c
+@@ -65,7 +65,6 @@ static const struct option my_longopts[] = {
+ 	{"keep-var", required_argument, 0, 502},
+ 	{"set-var", required_argument, 0, 'v'},
+ 	{"pty-log", required_argument, 0, 'L'},
+-	{"rcfile", required_argument, 0, 'f'},
+ 	LXC_COMMON_OPTIONS
+ };
+ 
+diff --git a/src/lxc/tools/lxc_cgroup.c b/src/lxc/tools/lxc_cgroup.c
+index dd60fd1..c644501 100644
+--- a/src/lxc/tools/lxc_cgroup.c
++++ b/src/lxc/tools/lxc_cgroup.c
+@@ -56,7 +56,8 @@ Get or set the value of a state object (for example, 'cpuset.cpus')\n\
+ in the container's cgroup for the corresponding subsystem.\n\
+ \n\
+ Options :\n\
+-  -n, --name=NAME      NAME of the container",
++  -n, --name=NAME      NAME of the container\n\
++  --rcfile=FILE        Load configuration file FILE\n",
+ 	.options  = my_longopts,
+ 	.parser   = NULL,
+ 	.checker  = my_checker,
+@@ -84,6 +85,15 @@ int main(int argc, char *argv[])
+ 	if (!c)
+ 		return 1;
+ 
++	if (my_args.rcfile) {
++		c->clear_config(c);
++		if (!c->load_config(c, my_args.rcfile)) {
++			ERROR("Failed to load rcfile");
++			lxc_container_put(c);
++			return 1;
++		}
++	}
++
+ 	if (!c->may_control(c)) {
+ 		ERROR("Insufficent privileges to control %s:%s", my_args.lxcpath[0], my_args.name);
+ 		lxc_container_put(c);
+diff --git a/src/lxc/tools/lxc_checkpoint.c b/src/lxc/tools/lxc_checkpoint.c
+index 7130245..bc18b80 100644
+--- a/src/lxc/tools/lxc_checkpoint.c
++++ b/src/lxc/tools/lxc_checkpoint.c
+@@ -114,6 +114,7 @@ Options :\n\
+   Restore options:\n\
+   -d, --daemon              Daemonize the container (default)\n\
+   -F, --foreground          Start with the current tty attached to /dev/console\n\
++  --rcfile=FILE             Load configuration file FILE\n\
+ ",
+ 	.options   = my_longopts,
+ 	.parser    = my_parser,
+@@ -214,6 +215,15 @@ int main(int argc, char *argv[])
+ 		exit(1);
+ 	}
+ 
++	if (my_args.rcfile) {
++		c->clear_config(c);
++		if (!c->load_config(c, my_args.rcfile)) {
++			fprintf(stderr, "Failed to load rcfile\n");
++			lxc_container_put(c);
++			exit(1);
++		}
++	}
++
+ 	if (!c->may_control(c)) {
+ 		fprintf(stderr, "Insufficent privileges to control %s\n", my_args.name);
+ 		lxc_container_put(c);
+diff --git a/src/lxc/tools/lxc_console.c b/src/lxc/tools/lxc_console.c
+index adbd7e0..8a4d1c0 100644
+--- a/src/lxc/tools/lxc_console.c
++++ b/src/lxc/tools/lxc_console.c
+@@ -80,7 +80,8 @@ lxc-console logs on the container with the identifier NAME\n\
+ Options :\n\
+   -n, --name=NAME      NAME of the container\n\
+   -t, --tty=NUMBER     console tty number\n\
+-  -e, --escape=PREFIX  prefix for escape command\n",
++  -e, --escape=PREFIX  prefix for escape command\n\
++  --rcfile=FILE        Load configuration file FILE\n",
+ 	.options  = my_longopts,
+ 	.parser   = my_parser,
+ 	.checker  = NULL,
+@@ -112,6 +113,15 @@ int main(int argc, char *argv[])
+ 		exit(EXIT_FAILURE);
+ 	}
+ 
++	if (my_args.rcfile) {
++		c->clear_config(c);
++		if (!c->load_config(c, my_args.rcfile)) {
++			fprintf(stderr, "Failed to load rcfile\n");
++			lxc_container_put(c);
++			exit(EXIT_FAILURE);
++		}
++	}
++
+ 	if (!c->may_control(c)) {
+ 		fprintf(stderr, "Insufficent privileges to control %s\n", my_args.name);
+ 		lxc_container_put(c);
+diff --git a/src/lxc/tools/lxc_copy.c b/src/lxc/tools/lxc_copy.c
+index 3257ab7..c81c077 100644
+--- a/src/lxc/tools/lxc_copy.c
++++ b/src/lxc/tools/lxc_copy.c
+@@ -126,7 +126,8 @@ Options :\n\
+   -D, --keedata	            pass together with -e start a persistent snapshot \n\
+   -K, --keepname	    keep the hostname of the original container\n\
+   --  hook options	    arguments passed to the hook program\n\
+-  -M, --keepmac		    keep the MAC address of the original container\n",
++  -M, --keepmac		    keep the MAC address of the original container\n\
++  --rcfile=FILE		    Load configuration file FILE\n",
+ 	.options = my_longopts,
+ 	.parser = my_parser,
+ 	.task = CLONE,
+@@ -210,6 +211,14 @@ int main(int argc, char *argv[])
+ 	if (!c)
+ 		exit(ret);
+ 
++	if (my_args.rcfile) {
++		c->clear_config(c);
++		if (!c->load_config(c, my_args.rcfile)) {
++			fprintf(stderr, "Failed to load rcfile\n");
++			goto out;
++		}
++	}
++
+ 	if (!c->may_control(c)) {
+ 		if (!my_args.quiet)
+ 			fprintf(stderr, "Insufficent privileges to control %s\n", c->name);
+diff --git a/src/lxc/tools/lxc_destroy.c b/src/lxc/tools/lxc_destroy.c
+index b521739..50fd708 100644
+--- a/src/lxc/tools/lxc_destroy.c
++++ b/src/lxc/tools/lxc_destroy.c
+@@ -53,7 +53,8 @@ lxc-destroy destroys a container with the identifier NAME\n\
+ Options :\n\
+   -n, --name=NAME   NAME of the container\n\
+   -s, --snapshots   destroy including all snapshots\n\
+-  -f, --force       wait for the container to shut down\n",
++  -f, --force       wait for the container to shut down\n\
++  --rcfile=FILE     Load configuration file FILE\n",
+ 	.options  = my_longopts,
+ 	.parser   = my_parser,
+ 	.checker  = NULL,
+@@ -88,6 +89,15 @@ int main(int argc, char *argv[])
+ 		exit(EXIT_FAILURE);
+ 	}
+ 
++	if (my_args.rcfile) {
++		c->clear_config(c);
++		if (!c->load_config(c, my_args.rcfile)) {
++			fprintf(stderr, "Failed to load rcfile\n");
++			lxc_container_put(c);
++			exit(EXIT_FAILURE);
++		}
++	}
++
+ 	if (!c->may_control(c)) {
+ 		if (!quiet)
+ 			fprintf(stderr, "Insufficent privileges to control %s\n", my_args.name);
+diff --git a/src/lxc/tools/lxc_device.c b/src/lxc/tools/lxc_device.c
+index 0c9e066..0f1ee8b 100644
+--- a/src/lxc/tools/lxc_device.c
++++ b/src/lxc/tools/lxc_device.c
+@@ -53,7 +53,8 @@ static struct lxc_arguments my_args = {
+ lxc-device attach or detach DEV to or from container.\n\
+ \n\
+ Options :\n\
+-  -n, --name=NAME      NAME of the container",
++  -n, --name=NAME      NAME of the container\n\
++  --rcfile=FILE        Load configuration file FILE\n",
+ 	.options  = my_longopts,
+ 	.parser   = NULL,
+ 	.checker  = NULL,
+@@ -125,6 +126,14 @@ int main(int argc, char *argv[])
+ 		goto err;
+ 	}
+ 
++	if (my_args.rcfile) {
++		c->clear_config(c);
++		if (!c->load_config(c, my_args.rcfile)) {
++			ERROR("Failed to load rcfile");
++			goto err1;
++		}
++	}
++
+ 	if (!c->is_running(c)) {
+ 		ERROR("Container %s is not running.", c->name);
+ 		goto err1;
+diff --git a/src/lxc/tools/lxc_freeze.c b/src/lxc/tools/lxc_freeze.c
+index ea8bd3e..d0239bf 100644
+--- a/src/lxc/tools/lxc_freeze.c
++++ b/src/lxc/tools/lxc_freeze.c
+@@ -47,7 +47,8 @@ static struct lxc_arguments my_args = {
+ lxc-freeze freezes a container with the identifier NAME\n\
+ \n\
+ Options :\n\
+-  -n, --name=NAME      NAME of the container",
++  -n, --name=NAME      NAME of the container\n\
++  --rcfile=FILE        Load configuration file FILE\n",
+ 	.options  = my_longopts,
+ 	.parser   = NULL,
+ 	.checker  = NULL,
+@@ -74,6 +75,15 @@ int main(int argc, char *argv[])
+ 		exit(1);
+ 	}
+ 
++	if (my_args.rcfile) {
++		c->clear_config(c);
++		if (!c->load_config(c, my_args.rcfile)) {
++			ERROR("Failed to load rcfile");
++			lxc_container_put(c);
++			exit(1);
++		}
++	}
++
+ 	if (!c->may_control(c)) {
+ 		ERROR("Insufficent privileges to control %s:%s", my_args.lxcpath[0], my_args.name);
+ 		lxc_container_put(c);
+diff --git a/src/lxc/tools/lxc_info.c b/src/lxc/tools/lxc_info.c
+index 58ff619..e833697 100644
+--- a/src/lxc/tools/lxc_info.c
++++ b/src/lxc/tools/lxc_info.c
+@@ -93,7 +93,8 @@ Options :\n\
+   -p, --pid             shows the process id of the init container\n\
+   -S, --stats           shows usage stats\n\
+   -H, --no-humanize     shows stats as raw numbers, not humanized\n\
+-  -s, --state           shows the state of the container\n",
++  -s, --state           shows the state of the container\n\
++  --rcfile=FILE         Load configuration file FILE\n",
+ 	.name     = NULL,
+ 	.options  = my_longopts,
+ 	.parser   = my_parser,
+@@ -295,6 +296,15 @@ static int print_info(const char *name, const char *lxcpath)
+ 		return -1;
+ 	}
+ 
++	if (my_args.rcfile) {
++		c->clear_config(c);
++		if (!c->load_config(c, my_args.rcfile)) {
++			fprintf(stderr, "Failed to load rcfile\n");
++			lxc_container_put(c);
++			return -1;
++		}
++	}
++
+ 	if (!c->may_control(c)) {
+ 		fprintf(stderr, "Insufficent privileges to control %s\n", c->name);
+ 		lxc_container_put(c);
+diff --git a/src/lxc/tools/lxc_snapshot.c b/src/lxc/tools/lxc_snapshot.c
+index 8f44891..aa9b6fe 100644
+--- a/src/lxc/tools/lxc_snapshot.c
++++ b/src/lxc/tools/lxc_snapshot.c
+@@ -62,7 +62,8 @@ Options :\n\
+   -d, --destroy=NAME     destroy snapshot NAME, e.g. 'snap0'\n\
+                          use ALL to destroy all snapshots\n\
+   -c, --comment=FILE     add FILE as a comment\n\
+-  -C, --showcomments     show snapshot comments\n",
++  -C, --showcomments     show snapshot comments\n\
++  --rcfile=FILE          Load configuration file FILE\n",
+ 	.options = my_longopts,
+ 	.parser = my_parser,
+ 	.checker = NULL,
+@@ -107,6 +108,15 @@ int main(int argc, char *argv[])
+ 		exit(EXIT_FAILURE);
+ 	}
+ 
++	if (my_args.rcfile) {
++		c->clear_config(c);
++		if (!c->load_config(c, my_args.rcfile)) {
++			fprintf(stderr, "Failed to load rcfile\n");
++			lxc_container_put(c);
++			exit(EXIT_FAILURE);
++		}
++	}
++
+ 	if (!c->may_control(c)) {
+ 		fprintf(stderr, "Insufficent privileges to control %s\n",
+ 			my_args.name);
+diff --git a/src/lxc/tools/lxc_stop.c b/src/lxc/tools/lxc_stop.c
+index 10ddce6..bbe1f1c 100644
+--- a/src/lxc/tools/lxc_stop.c
++++ b/src/lxc/tools/lxc_stop.c
+@@ -75,7 +75,8 @@ Options :\n\
+   -t, --timeout=T   wait T seconds before hard-stopping\n\
+   -k, --kill        kill container rather than request clean shutdown\n\
+       --nolock      Avoid using API locks\n\
+-      --nokill      Only request clean shutdown, don't force kill after timeout\n",
++      --nokill      Only request clean shutdown, don't force kill after timeout\n\
++  --rcfile=FILE     Load configuration file FILE\n",
+ 	.options  = my_longopts,
+ 	.parser   = my_parser,
+ 	.checker  = NULL,
+@@ -203,6 +204,14 @@ int main(int argc, char *argv[])
+ 		goto out;
+ 	}
+ 
++	if (my_args.rcfile) {
++		c->clear_config(c);
++		if (!c->load_config(c, my_args.rcfile)) {
++			fprintf(stderr, "Failed to load rcfile\n");
++			goto out;
++		}
++	}
++
+ 	if (!c->may_control(c)) {
+ 		fprintf(stderr, "Insufficent privileges to control %s\n", c->name);
+ 		goto out;
+diff --git a/src/lxc/tools/lxc_unfreeze.c b/src/lxc/tools/lxc_unfreeze.c
+index 3a13d37..b7bbea6 100644
+--- a/src/lxc/tools/lxc_unfreeze.c
++++ b/src/lxc/tools/lxc_unfreeze.c
+@@ -45,7 +45,8 @@ static struct lxc_arguments my_args = {
+ lxc-unfreeze unfreezes a container with the identifier NAME\n\
+ \n\
+ Options :\n\
+-  -n, --name=NAME   NAME of the container\n",
++  -n, --name=NAME   NAME of the container\n\
++  --rcfile=FILE     Load configuration file FILE\n",
+ 	.options  = my_longopts,
+ 	.parser   = NULL,
+ 	.checker  = NULL,
+@@ -78,6 +79,15 @@ int main(int argc, char *argv[])
+ 		exit(1);
+ 	}
+ 
++	if (my_args.rcfile) {
++		c->clear_config(c);
++		if (!c->load_config(c, my_args.rcfile)) {
++			ERROR("Failed to load rcfile");
++			lxc_container_put(c);
++			exit(1);
++		}
++	}
++
+ 	if (!c->unfreeze(c)) {
+ 		ERROR("Failed to unfreeze %s:%s", my_args.lxcpath[0], my_args.name);
+ 		lxc_container_put(c);
+diff --git a/src/lxc/tools/lxc_wait.c b/src/lxc/tools/lxc_wait.c
+index 712ba52..deeff98 100644
+--- a/src/lxc/tools/lxc_wait.c
++++ b/src/lxc/tools/lxc_wait.c
+@@ -72,7 +72,8 @@ Options :\n\
+   -s, --state=STATE ORed states to wait for\n\
+                     STOPPED, STARTING, RUNNING, STOPPING,\n\
+                     ABORTING, FREEZING, FROZEN, THAWED\n\
+-  -t, --timeout=TMO Seconds to wait for state changes\n",
++  -t, --timeout=TMO Seconds to wait for state changes\n\
++  --rcfile=FILE     Load configuration file FILE\n",
+ 	.options  = my_longopts,
+ 	.parser   = my_parser,
+ 	.checker  = my_checker,
+@@ -104,6 +105,15 @@ int main(int argc, char *argv[])
+ 		return 1;
+ 	}
+ 
++	if (my_args.rcfile) {
++		c->clear_config(c);
++		if (!c->load_config(c, my_args.rcfile)) {
++			fprintf(stderr, "Failed to load rcfile\n");
++			lxc_container_put(c);
++			return 1;
++		}
++	}
++
+ 	if (!c->wait(c, my_args.states, my_args.timeout)) {
+ 		lxc_container_put(c);
+ 		return 1;
+-- 
+2.1.4
+
