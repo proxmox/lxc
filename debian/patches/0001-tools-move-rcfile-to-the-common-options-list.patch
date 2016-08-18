@@ -55,18 +55,6 @@ index f68f8ab..39bedf5 100644
  
  extern int lxc_arguments_parse(struct lxc_arguments *args,
  			       int argc, char *const argv[]);
-diff --git a/src/lxc/tools/lxc_attach.c b/src/lxc/tools/lxc_attach.c
-index 281f97a..14c724a 100644
---- a/src/lxc/tools/lxc_attach.c
-+++ b/src/lxc/tools/lxc_attach.c
-@@ -65,7 +65,6 @@ static const struct option my_longopts[] = {
- 	{"keep-var", required_argument, 0, 502},
- 	{"set-var", required_argument, 0, 'v'},
- 	{"pty-log", required_argument, 0, 'L'},
--	{"rcfile", required_argument, 0, 'f'},
- 	LXC_COMMON_OPTIONS
- };
- 
 diff --git a/src/lxc/tools/lxc_cgroup.c b/src/lxc/tools/lxc_cgroup.c
 index dd60fd1..c644501 100644
 --- a/src/lxc/tools/lxc_cgroup.c
