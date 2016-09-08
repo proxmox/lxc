@@ -11,9 +11,9 @@ ARCH:=$(shell dpkg-architecture -qDEB_BUILD_ARCH)
 GITVERSION:=$(shell cat .git/refs/heads/master)
 
 DEBS=					\
-${PACKAGE}_${LXCVER}-${DEBREL}_amd64.deb  			\
-${PACKAGE}-dev_${LXCVER}-${DEBREL}_amd64.deb  			\
-${PACKAGE}-dbg_${LXCVER}-${DEBREL}_amd64.deb
+${PACKAGE}_${LXCVER}-${DEBREL}_${ARCH}.deb  			\
+${PACKAGE}-dev_${LXCVER}-${DEBREL}_${ARCH}.deb  			\
+${PACKAGE}-dbg_${LXCVER}-${DEBREL}_${ARCH}.deb
 
 all: ${DEBS}
 	echo ${DEBS}
