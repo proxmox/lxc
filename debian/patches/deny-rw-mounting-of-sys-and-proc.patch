@@ -1,0 +1,66 @@
+From 77596df581ee381896a5d9a9152c046ff164c65a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Fabian=20Gr=C3=BCnbichler?= <f.gruenbichler@proxmox.com>
+Date: Wed, 9 Nov 2016 09:14:26 +0100
+Subject: [PATCH] deny rw mounting of /sys and /proc
+
+this would allow root in a privileged container to change
+the permissions of /sys on the host, which could lock out
+non-root users.
+
+if a rw /sys is desired, set "lxc.mount.auto" accordingly
+---
+ config/apparmor/abstractions/container-base    | 6 +++++-
+ config/apparmor/abstractions/container-base.in | 6 +++++-
+ 2 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/config/apparmor/abstractions/container-base b/config/apparmor/abstractions/container-base
+index 06290de..3c64c66 100644
+--- a/config/apparmor/abstractions/container-base
++++ b/config/apparmor/abstractions/container-base
+@@ -84,7 +84,6 @@
+   deny mount fstype=debugfs -> /var/lib/ureadahead/debugfs/,
+   mount fstype=proc -> /proc/,
+   mount fstype=sysfs -> /sys/,
+-  mount options=(rw, nosuid, nodev, noexec, remount) -> /sys/,
+   deny /sys/firmware/efi/efivars/** rwklx,
+   deny /sys/kernel/security/** rwklx,
+   mount options=(move) /sys/fs/cgroup/cgmanager/ -> /sys/fs/cgroup/cgmanager.lower/,
+@@ -93,6 +92,11 @@
+   # deny reads from debugfs
+   deny /sys/kernel/debug/{,**} rwklx,
+ 
++  # prevent rw mounting of /sys, because that allows changing its global permissions
++  deny mount -> /proc/,
++  deny mount -> /sys/,
++#  mount options=(rw, nosuid, nodev, noexec, remount) -> /sys/,
++
+   # allow paths to be made slave, shared, private or unbindable
+   # FIXME: This currently doesn't work due to the apparmor parser treating those as allowing all mounts.
+ #  mount options=(rw,make-slave) -> **,
+diff --git a/config/apparmor/abstractions/container-base.in b/config/apparmor/abstractions/container-base.in
+index 5bc9b28..482214e 100644
+--- a/config/apparmor/abstractions/container-base.in
++++ b/config/apparmor/abstractions/container-base.in
+@@ -84,7 +84,6 @@
+   deny mount fstype=debugfs -> /var/lib/ureadahead/debugfs/,
+   mount fstype=proc -> /proc/,
+   mount fstype=sysfs -> /sys/,
+-  mount options=(rw, nosuid, nodev, noexec, remount) -> /sys/,
+   deny /sys/firmware/efi/efivars/** rwklx,
+   deny /sys/kernel/security/** rwklx,
+   mount options=(move) /sys/fs/cgroup/cgmanager/ -> /sys/fs/cgroup/cgmanager.lower/,
+@@ -93,6 +92,11 @@
+   # deny reads from debugfs
+   deny /sys/kernel/debug/{,**} rwklx,
+ 
++  # prevent rw mounting of /sys, because that allows changing its global permissions
++  deny mount -> /proc/,
++  deny mount -> /sys/,
++#  mount options=(rw, nosuid, nodev, noexec, remount) -> /sys/,
++
+   # allow paths to be made slave, shared, private or unbindable
+   # FIXME: This currently doesn't work due to the apparmor parser treating those as allowing all mounts.
+ #  mount options=(rw,make-slave) -> **,
+-- 
+2.1.4
+
