@@ -1,0 +1,114 @@
+From 5610055a113f46a017bad687c40e7570da2a7035 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Wed, 17 Aug 2016 11:36:39 +0200
+Subject: [PATCH] conf: merge network namespace move & rename on shutdown
+
+On shutdown we move physical network interfaces back to the
+host namespace and rename them afterwards as well as in the
+later lxc_network_delete() step. However, if the device had
+a name which already exists in the host namespace then the
+moving fails and so do the subsequent rename attempts. When
+the namespace ceases to exist the devices finally end up
+in the host namespace named 'dev<ID>' by the kernel.
+
+In order to avoid this, we do the moving and renaming in a
+single step (lxc_netdev_move_by_*()'s move & rename happen
+in a single netlink transaction).
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ src/lxc/conf.c  | 29 ++++++++---------------------
+ src/lxc/conf.h  |  2 +-
+ src/lxc/start.c |  2 +-
+ 3 files changed, 10 insertions(+), 23 deletions(-)
+
+diff --git a/src/lxc/conf.c b/src/lxc/conf.c
+index f688f94..b2e0fd9 100644
+--- a/src/lxc/conf.c
++++ b/src/lxc/conf.c
+@@ -2397,15 +2397,17 @@ static int setup_network(struct lxc_list *network)
+ }
+ 
+ /* try to move physical nics to the init netns */
+-void restore_phys_nics_to_netns(int netnsfd, struct lxc_conf *conf)
++void lxc_restore_phys_nics_to_netns(int netnsfd, struct lxc_conf *conf)
+ {
+ 	int i, ret, oldfd;
+ 	char path[MAXPATHLEN];
+ 	char ifname[IFNAMSIZ];
+ 
+-	if (netnsfd < 0)
++	if (netnsfd < 0 || conf->num_savednics == 0)
+ 		return;
+ 
++	INFO("running to reset %d nic names", conf->num_savednics);
++
+ 	ret = snprintf(path, MAXPATHLEN, "/proc/self/ns/net");
+ 	if (ret < 0 || ret >= MAXPATHLEN) {
+ 		WARN("Failed to open monitor netns fd");
+@@ -2427,32 +2429,17 @@ void restore_phys_nics_to_netns(int netnsfd, struct lxc_conf *conf)
+ 			WARN("no interface corresponding to index '%d'", s->ifindex);
+ 			continue;
+ 		}
+-		if (lxc_netdev_move_by_name(ifname, 1, NULL))
++		if (lxc_netdev_move_by_name(ifname, 1, s->orig_name))
+ 			WARN("Error moving nic name:%s back to host netns", ifname);
++		free(s->orig_name);
+ 	}
++	conf->num_savednics = 0;
++
+ 	if (setns(oldfd, 0) != 0)
+ 		SYSERROR("Failed to re-enter monitor's netns");
+ 	close(oldfd);
+ }
+ 
+-void lxc_rename_phys_nics_on_shutdown(int netnsfd, struct lxc_conf *conf)
+-{
+-	int i;
+-
+-	if (conf->num_savednics == 0)
+-		return;
+-
+-	INFO("running to reset %d nic names", conf->num_savednics);
+-	restore_phys_nics_to_netns(netnsfd, conf);
+-	for (i=0; i<conf->num_savednics; i++) {
+-		struct saved_nic *s = &conf->saved_nics[i];
+-		INFO("resetting nic %d to %s", s->ifindex, s->orig_name);
+-		lxc_netdev_rename_by_index(s->ifindex, s->orig_name);
+-		free(s->orig_name);
+-	}
+-	conf->num_savednics = 0;
+-}
+-
+ static char *default_rootfs_mount = LXCROOTFSMOUNT;
+ 
+ struct lxc_conf *lxc_conf_init(void)
+diff --git a/src/lxc/conf.h b/src/lxc/conf.h
+index e484667..842e4dc 100644
+--- a/src/lxc/conf.h
++++ b/src/lxc/conf.h
+@@ -440,7 +440,7 @@ extern int do_rootfs_setup(struct lxc_conf *conf, const char *name,
+ struct cgroup_process_info;
+ extern int lxc_setup(struct lxc_handler *handler);
+ 
+-extern void lxc_rename_phys_nics_on_shutdown(int netnsfd, struct lxc_conf *conf);
++extern void lxc_restore_phys_nics_to_netns(int netnsfd, struct lxc_conf *conf);
+ 
+ extern int find_unmapped_nsuid(struct lxc_conf *conf, enum idtype idtype);
+ extern int mapped_hostid(unsigned id, struct lxc_conf *conf, enum idtype idtype);
+diff --git a/src/lxc/start.c b/src/lxc/start.c
+index ecc7b08..0da7f9f 100644
+--- a/src/lxc/start.c
++++ b/src/lxc/start.c
+@@ -1420,7 +1420,7 @@ int __lxc_start(const char *name, struct lxc_conf *conf,
+ 	}
+ 
+ 	DEBUG("Pushing physical nics back to host namespace");
+-	lxc_rename_phys_nics_on_shutdown(netnsfd, handler->conf);
++	lxc_restore_phys_nics_to_netns(netnsfd, handler->conf);
+ 
+ 	DEBUG("Tearing down virtual network devices used by container");
+ 	lxc_delete_network(handler);
+-- 
+2.1.4
+
