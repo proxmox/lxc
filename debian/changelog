@@ -1,3 +1,15 @@
+lxc (2.0.5-2) unstable; urgency=medium
+
+  * revert to lxc's default directories when using lxc-create
+
+  * merged network device cleanup fixes for passed-through devices
+
+  * fix permissions for lxc-user-nic for lxc-start used by users directly
+
+  * separate limiting cgroup from namespace cgroup root
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 15 Nov 2016 15:58:45 +0100
+
 lxc (2.0.5-1) unstable; urgency=medium
 
   * update to lxc-2.0.5
