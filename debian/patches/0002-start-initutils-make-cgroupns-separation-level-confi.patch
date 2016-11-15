@@ -1,0 +1,98 @@
+From e1678be9b02b589f19cae89ed989fa2c82388962 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Wed, 16 Nov 2016 09:53:42 +0100
+Subject: [PATCH 2/2] start/initutils: make cgroupns separation level
+ configurable
+
+Adds a new global config variable `lxc.cgroup.separate`
+which controls whether a separation directory for cgroup
+namespaces should be used.
+Can be empty, "privileged", "unprivileged" or "both".
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ src/lxc/initutils.c |  1 +
+ src/lxc/initutils.h |  1 +
+ src/lxc/start.c     | 28 ++++++++++++++++------------
+ 3 files changed, 18 insertions(+), 12 deletions(-)
+
+diff --git a/src/lxc/initutils.c b/src/lxc/initutils.c
+index b611b5e..cc22991 100644
+--- a/src/lxc/initutils.c
++++ b/src/lxc/initutils.c
+@@ -96,6 +96,7 @@ const char *lxc_global_config_value(const char *option_name)
+ 		{ "lxc.default_config",     NULL            },
+ 		{ "lxc.cgroup.pattern",     NULL            },
+ 		{ "lxc.cgroup.use",         NULL            },
++		{ "lxc.cgroup.separate",    DEFAULT_CGSEPARATE },
+ 		{ NULL, NULL },
+ 	};
+ 
+diff --git a/src/lxc/initutils.h b/src/lxc/initutils.h
+index c021fd6..55fb8d9 100644
+--- a/src/lxc/initutils.h
++++ b/src/lxc/initutils.h
+@@ -43,6 +43,7 @@
+ #define DEFAULT_THIN_POOL "lxc"
+ #define DEFAULT_ZFSROOT "lxc"
+ #define DEFAULT_RBDPOOL "lxc"
++#define DEFAULT_CGSEPARATE "privileged"
+ 
+ extern void lxc_setup_fs(void);
+ extern const char *lxc_global_config_value(const char *option_name);
+diff --git a/src/lxc/start.c b/src/lxc/start.c
+index 29bbb08..93338ae 100644
+--- a/src/lxc/start.c
++++ b/src/lxc/start.c
+@@ -1084,6 +1084,7 @@ static int lxc_spawn(struct lxc_handler *handler)
+ 	int saved_ns_fd[LXC_NS_MAX];
+ 	int preserve_mask = 0, i, flags;
+ 	int netpipepair[2], nveths;
++	bool privileged = !!lxc_list_empty(&handler->conf->id_map);
+ 
+ 	netpipe = -1;
+ 
+@@ -1148,7 +1149,7 @@ static int lxc_spawn(struct lxc_handler *handler)
+ 	 *
+ 	 * if the container is unprivileged then skip rootfs pinning
+ 	 */
+-	if (lxc_list_empty(&handler->conf->id_map)) {
++	if (!privileged) {
+ 		handler->pinfd = pin_rootfs(handler->conf->rootfs.path);
+ 		if (handler->pinfd == -1)
+ 			INFO("failed to pin the container's rootfs");
+@@ -1269,17 +1270,20 @@ static int lxc_spawn(struct lxc_handler *handler)
+ 	}
+ 
+ 	if (cgns_supported()) {
+-		if (!cgroup_create(handler, true)) {
+-			ERROR("failed to create inner cgroup separation layer");
+-			goto out_delete_net;
+-		}
+-		if (!cgroup_enter(handler, true)) {
+-			ERROR("failed to enter inner cgroup separation layer");
+-			goto out_delete_net;
+-		}
+-		if (!cgroup_chown(handler, true)) {
+-			ERROR("failed chown inner cgroup separation layer");
+-			goto out_delete_net;
++		const char *tmp = lxc_global_config_value("lxc.cgroup.separate");
++		if (!strcmp(tmp, "both") || !strcmp(tmp, privileged ? "privileged" : "unprivileged")) {
++			if (!cgroup_create(handler, true)) {
++				ERROR("failed to create inner cgroup separation layer");
++				goto out_delete_net;
++			}
++			if (!cgroup_enter(handler, true)) {
++				ERROR("failed to enter inner cgroup separation layer");
++				goto out_delete_net;
++			}
++			if (!cgroup_chown(handler, true)) {
++				ERROR("failed chown inner cgroup separation layer");
++				goto out_delete_net;
++			}
+ 		}
+ 	}
+ 
+-- 
+2.1.4
+
