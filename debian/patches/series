@@ -1,6 +1,5 @@
 fix-systemd-service-depends.patch
 remove-systemd-delegate-flag.patch
-use-var-lib-vz-as-default-dir.patch
 run-lxcnetaddbr.patch
 deny-rw-mounting-of-sys-and-proc.patch
 phynet-rename.patch
