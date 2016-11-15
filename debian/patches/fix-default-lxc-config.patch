@@ -1,9 +1,0 @@
-Index: new/config/etc/default.conf.unknown
-===================================================================
---- new.orig/config/etc/default.conf.unknown
-+++ new/config/etc/default.conf.unknown
-@@ -1 +1,4 @@
- lxc.network.type = empty
-+lxc.id_map = u 0 100000 65536
-+lxc.id_map = g 0 100000 65536
-+
