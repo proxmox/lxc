@@ -9,6 +9,6 @@ Index: new/config/init/systemd/lxc.service.in
 -Wants=lxc-net.service
 +After=syslog.service network.target lxc-net.service cgmanager.service
 +Wants=lxc-net.service cgmanager.service
+ Documentation=man:lxc-autostart man:lxc
  
  [Service]
- Type=oneshot

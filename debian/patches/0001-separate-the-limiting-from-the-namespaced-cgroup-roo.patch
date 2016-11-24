@@ -1,4 +1,4 @@
-From a9ab32b6e1e7b53c5f9ae3919b87bad80c30ba19 Mon Sep 17 00:00:00 2001
+From a3743ab2816d54fbe9854a5a9f31cc62b01b5339 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Tue, 15 Nov 2016 09:20:24 +0100
 Subject: [PATCH 1/2] separate the limiting from the namespaced cgroup root
@@ -14,14 +14,14 @@ being used in order to combat this.
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---
- src/lxc/cgroups/cgfs.c      | 15 ++++++++--
- src/lxc/cgroups/cgfsng.c    | 70 +++++++++++++++++++++++++++++++++++++--------
- src/lxc/cgroups/cgmanager.c | 15 ++++++++--
- src/lxc/cgroups/cgroup.c    | 12 ++++----
- src/lxc/cgroups/cgroup.h    | 12 ++++----
+ src/lxc/cgroups/cgfs.c      | 15 +++++++--
+ src/lxc/cgroups/cgfsng.c    | 76 ++++++++++++++++++++++++++++++++++++---------
+ src/lxc/cgroups/cgmanager.c | 15 +++++++--
+ src/lxc/cgroups/cgroup.c    | 12 +++----
+ src/lxc/cgroups/cgroup.h    | 12 +++----
  src/lxc/criu.c              |  2 +-
- src/lxc/start.c             | 21 ++++++++++++--
- 7 files changed, 113 insertions(+), 34 deletions(-)
+ src/lxc/start.c             | 21 +++++++++++--
+ 7 files changed, 116 insertions(+), 37 deletions(-)
 
 diff --git a/src/lxc/cgroups/cgfs.c b/src/lxc/cgroups/cgfs.c
 index 8499200..0152477 100644
@@ -80,10 +80,10 @@ index 8499200..0152477 100644
  		return false;
  
 diff --git a/src/lxc/cgroups/cgfsng.c b/src/lxc/cgroups/cgfsng.c
-index 57a13dc..15db0f1 100644
+index d3215d7..123c67c 100644
 --- a/src/lxc/cgroups/cgfsng.c
 +++ b/src/lxc/cgroups/cgfsng.c
-@@ -1250,14 +1250,20 @@ struct cgroup_ops *cgfsng_ops_init(void)
+@@ -1303,18 +1303,24 @@ struct cgroup_ops *cgfsng_ops_init(void)
  	return &cgfsng_ops;
  }
  
@@ -91,27 +91,34 @@ index 57a13dc..15db0f1 100644
 +static bool create_path_for_hierarchy(struct hierarchy *h, char *cgname, bool inner)
  {
 -	h->fullcgpath = must_make_path(h->mountpoint, h->base_cgroup, cgname, NULL);
--	if (dir_exists(h->fullcgpath)) // it must not already exist
+-	if (dir_exists(h->fullcgpath)) { // it must not already exist
+-		ERROR("Path \"%s\" already existed.", h->fullcgpath);
 -		return false;
--	if (!handle_cpuset_hierarchy(h, cgname))
+-	}
+-	if (!handle_cpuset_hierarchy(h, cgname)) {
+-		ERROR("Failed to handle cgroupfs v1 cpuset controller.");
 -		return false;
--	return mkdir_p(h->fullcgpath, 0755) == 0;
 +	char *path;
 +	if (inner) {
 +		path = must_make_path(h->fullcgpath, "ns", NULL);
 +	} else {
 +		path = must_make_path(h->mountpoint, h->base_cgroup, cgname, NULL);
 +		h->fullcgpath = path;
-+		if (dir_exists(h->fullcgpath)) // it must not already exist
++		if (dir_exists(h->fullcgpath)) { // it must not already exist
++			ERROR("Path \"%s\" already existed.", h->fullcgpath);
 +			return false;
-+		if (!handle_cpuset_hierarchy(h, cgname))
++		}
++		if (!handle_cpuset_hierarchy(h, cgname)) {
++			ERROR("Failed to handle cgroupfs v1 cpuset controller.");
 +			return false;
-+	}
++		}
+ 	}
+-	return mkdir_p(h->fullcgpath, 0755) == 0;
 +	return mkdir_p(path, 0755) == 0;
  }
  
  static void remove_path_for_hierarchy(struct hierarchy *h, char *cgname)
-@@ -1272,7 +1278,8 @@ static void remove_path_for_hierarchy(struct hierarchy *h, char *cgname)
+@@ -1329,7 +1335,8 @@ static void remove_path_for_hierarchy(struct hierarchy *h, char *cgname)
   * Try to create the same cgroup in all hierarchies.
   * Start with cgroup_pattern; next cgroup_pattern-1, -2, ..., -999
   */
@@ -121,7 +128,7 @@ index 57a13dc..15db0f1 100644
  {
  	struct cgfsng_handler_data *d = hdata;
  	char *tmp, *cgname, *offset;
-@@ -1282,9 +1289,15 @@ static inline bool cgfsng_create(void *hdata)
+@@ -1339,9 +1346,15 @@ static inline bool cgfsng_create(void *hdata)
  	if (!d)
  		return false;
  	if (d->container_cgroup) {
@@ -137,7 +144,7 @@ index 57a13dc..15db0f1 100644
  
  	tmp = lxc_string_replace("%n", d->name, d->cgroup_pattern);
  	if (!tmp) {
-@@ -1305,7 +1318,7 @@ again:
+@@ -1362,7 +1375,7 @@ again:
  	if (idx)
  		snprintf(offset, 5, "-%d", idx);
  	for (i = 0; hierarchies[i]; i++) {
@@ -146,7 +153,7 @@ index 57a13dc..15db0f1 100644
  			int j;
  			SYSERROR("Failed to create %s: %s", hierarchies[i]->fullcgpath, strerror(errno));
  			free(hierarchies[i]->fullcgpath);
-@@ -1325,7 +1338,24 @@ out_free:
+@@ -1382,7 +1395,24 @@ out_free:
  	return false;
  }
  
@@ -172,7 +179,7 @@ index 57a13dc..15db0f1 100644
  {
  	char pidstr[25];
  	int i, len;
-@@ -1335,7 +1365,12 @@ static bool cgfsng_enter(void *hdata, pid_t pid)
+@@ -1392,7 +1422,12 @@ static bool cgfsng_enter(void *hdata, pid_t pid)
  		return false;
  
  	for (i = 0; hierarchies[i]; i++) {
@@ -186,7 +193,7 @@ index 57a13dc..15db0f1 100644
  						"cgroup.procs", NULL);
  		if (lxc_write_to_file(fullpath, pidstr, len, false) != 0) {
  			SYSERROR("Failed to enter %s", fullpath);
-@@ -1351,6 +1386,7 @@ static bool cgfsng_enter(void *hdata, pid_t pid)
+@@ -1408,6 +1443,7 @@ static bool cgfsng_enter(void *hdata, pid_t pid)
  struct chown_data {
  	struct cgfsng_handler_data *d;
  	uid_t origuid; // target uid in parent namespace
@@ -194,7 +201,7 @@ index 57a13dc..15db0f1 100644
  };
  
  /*
-@@ -1379,13 +1415,20 @@ static int chown_cgroup_wrapper(void *data)
+@@ -1436,13 +1472,20 @@ static int chown_cgroup_wrapper(void *data)
  	for (i = 0; hierarchies[i]; i++) {
  		char *fullpath, *path = hierarchies[i]->fullcgpath;
  
@@ -215,7 +222,7 @@ index 57a13dc..15db0f1 100644
  			return -1;
  		}
  
-@@ -1409,12 +1452,14 @@ static int chown_cgroup_wrapper(void *data)
+@@ -1466,12 +1509,14 @@ static int chown_cgroup_wrapper(void *data)
  		if (chmod(fullpath, 0664) < 0)
  			WARN("Error chmoding %s: %m", path);
  		free(fullpath);
@@ -231,7 +238,7 @@ index 57a13dc..15db0f1 100644
  {
  	struct cgfsng_handler_data *d = hdata;
  	struct chown_data wrap;
-@@ -1427,6 +1472,7 @@ static bool cgfsns_chown(void *hdata, struct lxc_conf *conf)
+@@ -1484,6 +1529,7 @@ static bool cgfsns_chown(void *hdata, struct lxc_conf *conf)
  
  	wrap.d = d;
  	wrap.origuid = geteuid();
@@ -377,10 +384,10 @@ index 11b251e..4a2b070 100644
  extern bool cgroup_create_legacy(struct lxc_handler *handler);
  extern int cgroup_nrtasks(struct lxc_handler *handler);
 diff --git a/src/lxc/criu.c b/src/lxc/criu.c
-index 9523af3..2339088 100644
+index 50a7400..8933d9a 100644
 --- a/src/lxc/criu.c
 +++ b/src/lxc/criu.c
-@@ -770,7 +770,7 @@ static void do_restore(struct lxc_container *c, int status_pipe, struct migrate_
+@@ -797,7 +797,7 @@ static void do_restore(struct lxc_container *c, int status_pipe, struct migrate_
  		goto out_fini_handler;
  	}
  
@@ -390,19 +397,19 @@ index 9523af3..2339088 100644
  		goto out_fini_handler;
  	}
 diff --git a/src/lxc/start.c b/src/lxc/start.c
-index 451becb..29bbb08 100644
+index 71206e0..c9d78b7 100644
 --- a/src/lxc/start.c
 +++ b/src/lxc/start.c
-@@ -1137,7 +1137,7 @@ static int lxc_spawn(struct lxc_handler *handler)
+@@ -1121,7 +1121,7 @@ static int lxc_spawn(struct lxc_handler *handler)
  
  	cgroups_connected = true;
  
 -	if (!cgroup_create(handler)) {
 +	if (!cgroup_create(handler, false)) {
- 		ERROR("failed creating cgroups");
+ 		ERROR("Failed creating cgroups.");
  		goto out_delete_net;
  	}
-@@ -1222,10 +1222,10 @@ static int lxc_spawn(struct lxc_handler *handler)
+@@ -1208,10 +1208,10 @@ static int lxc_spawn(struct lxc_handler *handler)
  		goto out_delete_net;
  	}
  
@@ -415,7 +422,7 @@ index 451becb..29bbb08 100644
  		goto out_delete_net;
  
  	if (failed_before_rename)
-@@ -1268,6 +1268,21 @@ static int lxc_spawn(struct lxc_handler *handler)
+@@ -1254,6 +1254,21 @@ static int lxc_spawn(struct lxc_handler *handler)
  		goto out_delete_net;
  	}
  

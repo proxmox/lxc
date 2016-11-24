@@ -35,6 +35,7 @@ override_dh_fixperms:
 	dh_fixperms -Xusr/lib/$(DEB_HOST_MULTIARCH)/lxc/lxc-user-nic
 
 override_dh_install:
+	rm debian/tmp/usr/lib/x86_64-linux-gnu/*.la
 	dh_apparmor -p lxc-pve --profile-name=usr.bin.lxc-start
 	dh_apparmor -p lxc-pve --profile-name=lxc-containers
 	dh_install --fail-missing

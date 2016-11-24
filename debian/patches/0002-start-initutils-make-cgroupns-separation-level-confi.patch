@@ -1,4 +1,4 @@
-From e1678be9b02b589f19cae89ed989fa2c82388962 Mon Sep 17 00:00:00 2001
+From 1623287e7370989d554149a1e2ac28afcde96dbb Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Wed, 16 Nov 2016 09:53:42 +0100
 Subject: [PATCH 2/2] start/initutils: make cgroupns separation level
@@ -41,10 +41,10 @@ index c021fd6..55fb8d9 100644
  extern void lxc_setup_fs(void);
  extern const char *lxc_global_config_value(const char *option_name);
 diff --git a/src/lxc/start.c b/src/lxc/start.c
-index 29bbb08..93338ae 100644
+index c9d78b7..d4603f7 100644
 --- a/src/lxc/start.c
 +++ b/src/lxc/start.c
-@@ -1084,6 +1084,7 @@ static int lxc_spawn(struct lxc_handler *handler)
+@@ -1067,6 +1067,7 @@ static int lxc_spawn(struct lxc_handler *handler)
  	int saved_ns_fd[LXC_NS_MAX];
  	int preserve_mask = 0, i, flags;
  	int netpipepair[2], nveths;
@@ -52,16 +52,16 @@ index 29bbb08..93338ae 100644
  
  	netpipe = -1;
  
-@@ -1148,7 +1149,7 @@ static int lxc_spawn(struct lxc_handler *handler)
- 	 *
- 	 * if the container is unprivileged then skip rootfs pinning
+@@ -1130,7 +1131,7 @@ static int lxc_spawn(struct lxc_handler *handler)
+ 	 * it readonly.
+ 	 * If the container is unprivileged then skip rootfs pinning.
  	 */
 -	if (lxc_list_empty(&handler->conf->id_map)) {
 +	if (!privileged) {
  		handler->pinfd = pin_rootfs(handler->conf->rootfs.path);
  		if (handler->pinfd == -1)
- 			INFO("failed to pin the container's rootfs");
-@@ -1269,17 +1270,20 @@ static int lxc_spawn(struct lxc_handler *handler)
+ 			INFO("Failed to pin the rootfs for container \"%s\".", handler->name);
+@@ -1255,17 +1256,20 @@ static int lxc_spawn(struct lxc_handler *handler)
  	}
  
  	if (cgns_supported()) {
