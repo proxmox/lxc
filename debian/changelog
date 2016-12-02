@@ -1,3 +1,9 @@
+lxc (2.0.6-2) unstable; urgency=medium
+
+  * reintroduce support for non-default config paths in lxc-start (for aab/dab)
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 02 Dec 2016 14:19:42 +0100
+
 lxc (2.0.6-1) unstable; urgency=medium
 
   * update to lxc-2.0.6
