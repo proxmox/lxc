@@ -1,0 +1,32 @@
+From b586db430b5eb2c8212f5e95fca49b78657f6edb Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Fri, 2 Dec 2016 14:15:40 +0100
+Subject: [PATCH] tools: lxc-start: set configfile after load_config
+
+Same change as in 6118210e0a which was missing in lxc-start
+and back then is_defined() wasn't being called.
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ src/lxc/tools/lxc_start.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/lxc/tools/lxc_start.c b/src/lxc/tools/lxc_start.c
+index 984a28f..c85305b 100644
+--- a/src/lxc/tools/lxc_start.c
++++ b/src/lxc/tools/lxc_start.c
+@@ -259,6 +259,11 @@ int main(int argc, char *argv[])
+ 			lxc_container_put(c);
+ 			exit(err);
+ 		}
++		c->configfile = strdup(my_args.rcfile);
++		if (!c->configfile) {
++			ERROR("Out of memory setting new config filename");
++			goto out;
++		}
+ 	} else {
+ 		int rc;
+ 
+-- 
+2.1.4
+

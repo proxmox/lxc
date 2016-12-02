@@ -4,3 +4,4 @@ run-lxcnetaddbr.patch
 deny-rw-mounting-of-sys-and-proc.patch
 0001-separate-the-limiting-from-the-namespaced-cgroup-roo.patch
 0002-start-initutils-make-cgroupns-separation-level-confi.patch
+lxc-start-configfile.patch
