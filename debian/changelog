@@ -1,3 +1,9 @@
+lxc (2.0.6-3) unstable; urgency=medium
+
+  * update cgroup limit namespace separation patches
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 22 Dec 2016 12:23:53 +0100
+
 lxc (2.0.6-2) unstable; urgency=medium
 
   * reintroduce support for non-default config paths in lxc-start (for aab/dab)
