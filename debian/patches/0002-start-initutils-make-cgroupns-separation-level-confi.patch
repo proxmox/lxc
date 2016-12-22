@@ -1,4 +1,4 @@
-From 1623287e7370989d554149a1e2ac28afcde96dbb Mon Sep 17 00:00:00 2001
+From 2422b2caffe3710178dce779daddc2f16463e880 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Wed, 16 Nov 2016 09:53:42 +0100
 Subject: [PATCH 2/2] start/initutils: make cgroupns separation level
@@ -11,44 +11,60 @@ Can be empty, "privileged", "unprivileged" or "both".
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---
- src/lxc/initutils.c |  1 +
+ src/lxc/initutils.c | 17 +++++++++--------
  src/lxc/initutils.h |  1 +
  src/lxc/start.c     | 28 ++++++++++++++++------------
- 3 files changed, 18 insertions(+), 12 deletions(-)
+ 3 files changed, 26 insertions(+), 20 deletions(-)
 
 diff --git a/src/lxc/initutils.c b/src/lxc/initutils.c
-index b611b5e..cc22991 100644
+index 3213bd3..d07fd10 100644
 --- a/src/lxc/initutils.c
 +++ b/src/lxc/initutils.c
-@@ -96,6 +96,7 @@ const char *lxc_global_config_value(const char *option_name)
- 		{ "lxc.default_config",     NULL            },
- 		{ "lxc.cgroup.pattern",     NULL            },
- 		{ "lxc.cgroup.use",         NULL            },
-+		{ "lxc.cgroup.separate",    DEFAULT_CGSEPARATE },
+@@ -88,14 +88,15 @@ static char *copy_global_config_value(char *p)
+ const char *lxc_global_config_value(const char *option_name)
+ {
+ 	static const char * const options[][2] = {
+-		{ "lxc.bdev.lvm.vg",        DEFAULT_VG      },
+-		{ "lxc.bdev.lvm.thin_pool", DEFAULT_THIN_POOL },
+-		{ "lxc.bdev.zfs.root",      DEFAULT_ZFSROOT },
+-		{ "lxc.bdev.rbd.rbdpool",   DEFAULT_RBDPOOL },
+-		{ "lxc.lxcpath",            NULL            },
+-		{ "lxc.default_config",     NULL            },
+-		{ "lxc.cgroup.pattern",     NULL            },
+-		{ "lxc.cgroup.use",         NULL            },
++		{ "lxc.bdev.lvm.vg",           DEFAULT_VG      },
++		{ "lxc.bdev.lvm.thin_pool",    DEFAULT_THIN_POOL },
++		{ "lxc.bdev.zfs.root",         DEFAULT_ZFSROOT },
++		{ "lxc.bdev.rbd.rbdpool",      DEFAULT_RBDPOOL },
++		{ "lxc.lxcpath",               NULL            },
++		{ "lxc.default_config",        NULL            },
++		{ "lxc.cgroup.pattern",        NULL            },
++		{ "lxc.cgroup.use",            NULL            },
++		{ "lxc.cgroup.protect_limits", DEFAULT_CGPROTECT },
  		{ NULL, NULL },
  	};
  
 diff --git a/src/lxc/initutils.h b/src/lxc/initutils.h
-index c021fd6..55fb8d9 100644
+index c021fd6..443ad02 100644
 --- a/src/lxc/initutils.h
 +++ b/src/lxc/initutils.h
 @@ -43,6 +43,7 @@
  #define DEFAULT_THIN_POOL "lxc"
  #define DEFAULT_ZFSROOT "lxc"
  #define DEFAULT_RBDPOOL "lxc"
-+#define DEFAULT_CGSEPARATE "privileged"
++#define DEFAULT_CGPROTECT "privileged"
  
  extern void lxc_setup_fs(void);
  extern const char *lxc_global_config_value(const char *option_name);
 diff --git a/src/lxc/start.c b/src/lxc/start.c
-index c9d78b7..d4603f7 100644
+index c9d78b7..fe2e335 100644
 --- a/src/lxc/start.c
 +++ b/src/lxc/start.c
 @@ -1067,6 +1067,7 @@ static int lxc_spawn(struct lxc_handler *handler)
  	int saved_ns_fd[LXC_NS_MAX];
  	int preserve_mask = 0, i, flags;
  	int netpipepair[2], nveths;
-+	bool privileged = !!lxc_list_empty(&handler->conf->id_map);
++	bool privileged = lxc_list_empty(&handler->conf->id_map);
  
  	netpipe = -1;
  
@@ -57,7 +73,7 @@ index c9d78b7..d4603f7 100644
  	 * If the container is unprivileged then skip rootfs pinning.
  	 */
 -	if (lxc_list_empty(&handler->conf->id_map)) {
-+	if (!privileged) {
++	if (privileged) {
  		handler->pinfd = pin_rootfs(handler->conf->rootfs.path);
  		if (handler->pinfd == -1)
  			INFO("Failed to pin the rootfs for container \"%s\".", handler->name);
@@ -76,7 +92,7 @@ index c9d78b7..d4603f7 100644
 -		if (!cgroup_chown(handler, true)) {
 -			ERROR("failed chown inner cgroup separation layer");
 -			goto out_delete_net;
-+		const char *tmp = lxc_global_config_value("lxc.cgroup.separate");
++		const char *tmp = lxc_global_config_value("lxc.cgroup.protect_limits");
 +		if (!strcmp(tmp, "both") || !strcmp(tmp, privileged ? "privileged" : "unprivileged")) {
 +			if (!cgroup_create(handler, true)) {
 +				ERROR("failed to create inner cgroup separation layer");
