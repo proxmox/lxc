@@ -1,4 +1,4 @@
-From ae0e051a843f17ab721fc43ee5ce72a1052080e0 Mon Sep 17 00:00:00 2001
+From 386f5fcf2e31efa2d7a379bf20f4aef5f96bf116 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Tue, 15 Nov 2016 09:20:24 +0100
 Subject: [PATCH 1/2] separate the limiting from the namespaced cgroup root
@@ -15,15 +15,15 @@ being used in order to combat this.
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---
  src/lxc/cgroups/cgfs.c      |  19 ++++++--
- src/lxc/cgroups/cgfsng.c    |  80 ++++++++++++++++++++++++++++------
+ src/lxc/cgroups/cgfsng.c    |  80 +++++++++++++++++++++++++++------
  src/lxc/cgroups/cgmanager.c |  19 ++++++--
  src/lxc/cgroups/cgroup.c    |  16 +++----
  src/lxc/cgroups/cgroup.h    |  16 +++----
- src/lxc/commands.c          | 103 +++++++++++++++++++++++++++++++++++---------
+ src/lxc/commands.c          | 107 +++++++++++++++++++++++++++++++++++---------
  src/lxc/commands.h          |   3 ++
  src/lxc/criu.c              |   4 +-
  src/lxc/start.c             |  21 +++++++--
- 9 files changed, 219 insertions(+), 62 deletions(-)
+ 9 files changed, 223 insertions(+), 62 deletions(-)
 
 diff --git a/src/lxc/cgroups/cgfs.c b/src/lxc/cgroups/cgfs.c
 index 8499200..b78b78d 100644
@@ -483,7 +483,7 @@ index 11b251e..3b5cad9 100644
  extern int cgroup_num_hierarchies();
  extern bool cgroup_get_hierarchies(int i, char ***out);
 diff --git a/src/lxc/commands.c b/src/lxc/commands.c
-index b17879b..0bf786b 100644
+index b17879b..aeb1e16 100644
 --- a/src/lxc/commands.c
 +++ b/src/lxc/commands.c
 @@ -128,15 +128,16 @@ static int fill_sock_name(char *path, int len, const char *name,
@@ -512,7 +512,7 @@ index b17879b..0bf786b 100644
  	};
  
  	if (cmd >= LXC_CMD_MAX)
-@@ -480,7 +481,68 @@ static int lxc_cmd_get_cgroup_callback(int fd, struct lxc_cmd_req *req,
+@@ -480,7 +481,72 @@ static int lxc_cmd_get_cgroup_callback(int fd, struct lxc_cmd_req *req,
  	if (req->datalen < 1)
  		return -1;
  
@@ -552,6 +552,10 @@ index b17879b..0bf786b 100644
 +	};
 +
 +	ret = lxc_cmd(name, &cmd, &stopped, lxcpath, NULL);
++	if (!ret) {
++		cmd.req.cmd = LXC_CMD_GET_CGROUP;
++		ret = lxc_cmd(name, &cmd, &stopped, lxcpath, NULL);
++	}
 +	if (ret < 0)
 +		return NULL;
 +
@@ -582,7 +586,7 @@ index b17879b..0bf786b 100644
  	if (!path)
  		return -1;
  	rsp.datalen = strlen(path) + 1,
-@@ -841,16 +903,17 @@ static int lxc_cmd_process(int fd, struct lxc_cmd_req *req,
+@@ -841,16 +907,17 @@ static int lxc_cmd_process(int fd, struct lxc_cmd_req *req,
  	typedef int (*callback)(int, struct lxc_cmd_req *, struct lxc_handler *);
  
  	callback cb[LXC_CMD_MAX] = {
