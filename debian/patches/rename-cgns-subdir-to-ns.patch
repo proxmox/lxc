@@ -1,0 +1,26 @@
+From 9b5f49f361290267e00665ec9f0bdbfaeda39bc0 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Fri, 23 Dec 2016 15:57:24 +0100
+Subject: [PATCH] rename cgroup namespace directory to ns
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ src/lxc/cgroups/cgroup.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/lxc/cgroups/cgroup.h b/src/lxc/cgroups/cgroup.h
+index f36c6f0..2c504c8 100644
+--- a/src/lxc/cgroups/cgroup.h
++++ b/src/lxc/cgroups/cgroup.h
+@@ -32,7 +32,7 @@
+  * will be moved into an additional subdirectory "cgns/" inside the cgroup in
+  * order to prevent it from accessing the outer limiting cgroup.
+  */
+-#define CGROUP_NAMESPACE_SUBDIR "cgns"
++#define CGROUP_NAMESPACE_SUBDIR "ns"
+ 
+ struct lxc_handler;
+ struct lxc_conf;
+-- 
+2.1.4
+
