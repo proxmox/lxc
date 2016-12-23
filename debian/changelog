@@ -1,3 +1,9 @@
+lxc (2.0.6-5) unstable; urgency=medium
+
+  * update cgroup limit namespace separation patches
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 23 Dec 2016 15:53:48 +0100
+
 lxc (2.0.6-4) unstable; urgency=medium
 
   * cgroup limit namespace separation: restore backward compatibility
