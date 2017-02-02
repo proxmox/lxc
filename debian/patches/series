@@ -1,5 +1,6 @@
 fix-systemd-service-depends.patch
 remove-systemd-delegate-flag.patch
+use-forking-systemd-service.patch
 run-lxcnetaddbr.patch
 deny-rw-mounting-of-sys-and-proc.patch
 0001-separate-the-limiting-from-the-namespaced-cgroup-roo.patch
