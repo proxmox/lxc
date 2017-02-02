@@ -7,8 +7,8 @@ Index: new/config/init/systemd/lxc.service.in
  Description=LXC Container Initialization and Autoboot Code
 -After=network.target lxc-net.service
 -Wants=lxc-net.service
-+After=syslog.service network.target lxc-net.service cgmanager.service
-+Wants=lxc-net.service cgmanager.service
++After=syslog.service network.target lxc-net.service
++Wants=lxc-net.service
  Documentation=man:lxc-autostart man:lxc
  
  [Service]
