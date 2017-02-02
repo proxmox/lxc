@@ -13,3 +13,14 @@ Index: new/config/init/systemd/lxc.service.in
  StandardOutput=syslog
  StandardError=syslog
  
+--- new.orig/config/init/systemd/lxc@.service.in
++++ new/config/init/systemd/lxc@.service.in
+@@ -12,7 +12,7 @@ ExecStart=@LIBEXECDIR@/lxc/lxc-container
+ ExecStart=/usr/bin/lxc-start -n %i
+ # Environment=BOOTUP=serial
+ # Environment=CONSOLETYPE=serial
+-Delegate=yes
++#Delegate=yes
+ StandardOutput=syslog
+ StandardError=syslog
+ 
