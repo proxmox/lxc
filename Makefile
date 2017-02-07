@@ -18,7 +18,9 @@ ${PACKAGE}-dbg_${LXCVER}-${DEBREL}_${ARCH}.deb
 all: ${DEBS}
 	echo ${DEBS}
 
-deb ${DEBS}: ${SRCTAR}
+.PHONY: deb
+deb: ${DEBS}
+${DEBS}: ${SRCTAR}
 	rm -rf ${SRCDIR}
 	tar xf ${SRCTAR}
 	cp -a debian ${SRCDIR}/debian
