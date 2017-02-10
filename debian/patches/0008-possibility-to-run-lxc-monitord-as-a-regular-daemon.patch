@@ -1,0 +1,229 @@
+From 1bdcf98811093349ca856dac4beb3f5bd0dd501b Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Fri, 10 Feb 2017 10:23:36 +0100
+Subject: [PATCH 8/8] possibility to run lxc-monitord as a regular daemon
+
+This includes an lxc-monitord.service, required by
+lxc@.service which is now of Type=forking.
+
+Previously the init process' output was dumped into the log
+files since the service used Type=simple and
+StandardOutput/Error=syslog. Using lxc-start's daemon mode
+on the other hand used a wait call spawning an lxc-monitord
+in the background which could potentially stick around
+forever if there were clients connected to it. Since it was
+considered part of the lxc@foo.service unit by systemd this
+also meant the unit was considered active until not only the
+container but also lxc-monitord exited.
+This is now corrected by creating a separate lxc-monitord
+unit which lxc@.service depends on.
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ config/init/systemd/Makefile.am             | 10 +++--
+ config/init/systemd/lxc-monitord.service.in | 12 ++++++
+ config/init/systemd/lxc@.service.in         |  7 ++--
+ configure.ac                                |  1 +
+ lxc.spec.in                                 |  1 +
+ src/lxc/lxc_monitord.c                      | 60 +++++++++++++++++++++--------
+ 6 files changed, 67 insertions(+), 24 deletions(-)
+ create mode 100644 config/init/systemd/lxc-monitord.service.in
+
+diff --git a/config/init/systemd/Makefile.am b/config/init/systemd/Makefile.am
+index c448850..4a4fde5 100644
+--- a/config/init/systemd/Makefile.am
++++ b/config/init/systemd/Makefile.am
+@@ -2,19 +2,21 @@ EXTRA_DIST = \
+ 	lxc-apparmor-load \
+ 	lxc.service.in \
+ 	lxc@.service.in \
+-	lxc-net.service.in
++	lxc-net.service.in \
++	lxc-monitord.service.in
+ 
+ if INIT_SCRIPT_SYSTEMD
+-BUILT_SOURCES = lxc.service lxc@.service lxc-net.service
++BUILT_SOURCES = lxc.service lxc@.service lxc-net.service lxc-monitord.service
+ 
+-install-systemd: lxc.service lxc@.service lxc-net.service lxc-apparmor-load
++install-systemd: lxc.service lxc@.service lxc-net.service lxc-monitord.service lxc-apparmor-load
+ 	$(MKDIR_P) $(DESTDIR)$(SYSTEMD_UNIT_DIR)
+-	$(INSTALL_DATA) lxc.service lxc@.service lxc-net.service $(DESTDIR)$(SYSTEMD_UNIT_DIR)/
++	$(INSTALL_DATA) lxc.service lxc@.service lxc-net.service lxc-monitord.service $(DESTDIR)$(SYSTEMD_UNIT_DIR)/
+ 
+ uninstall-systemd:
+ 	rm -f $(DESTDIR)$(SYSTEMD_UNIT_DIR)/lxc.service
+ 	rm -f $(DESTDIR)$(SYSTEMD_UNIT_DIR)/lxc@.service
+ 	rm -f $(DESTDIR)$(SYSTEMD_UNIT_DIR)/lxc-net.service
++	rm -f $(DESTDIR)$(SYSTEMD_UNIT_DIR)/lxc-monitord.service
+ 	rmdir $(DESTDIR)$(SYSTEMD_UNIT_DIR) || :
+ 
+ pkglibexec_SCRIPTS = lxc-apparmor-load
+diff --git a/config/init/systemd/lxc-monitord.service.in b/config/init/systemd/lxc-monitord.service.in
+new file mode 100644
+index 0000000..4063516
+--- /dev/null
++++ b/config/init/systemd/lxc-monitord.service.in
+@@ -0,0 +1,12 @@
++[Unit]
++Description=LXC Container Monitoring Daemon
++After=syslog.service network.target
++
++[Service]
++Type=simple
++ExecStart=@LIBEXECDIR@/lxc/lxc-monitord --daemon
++StandardOutput=syslog
++StandardError=syslog
++
++[Install]
++WantedBy=multi-user.target
+diff --git a/config/init/systemd/lxc@.service.in b/config/init/systemd/lxc@.service.in
+index 6b8b5ff..ffb9136 100644
+--- a/config/init/systemd/lxc@.service.in
++++ b/config/init/systemd/lxc@.service.in
+@@ -1,16 +1,17 @@
+ [Unit]
+ Description=LXC Container: %i
+ # This pulls in apparmor, dev-setup, lxc-net
+-After=lxc.service
++After=lxc.service lxc-monitord.service
+ Wants=lxc.service
++Requires = lxc-monitord.service
+ Documentation=man:lxc-start man:lxc
+ 
+ [Service]
+-Type=simple
++Type=forking
+ KillMode=mixed
+ KillSignal=SIGPWR
+ TimeoutStopSec=120s
+-ExecStart=@BINDIR@/lxc-start -F -n %i
++ExecStart=@BINDIR@/lxc-start -n %i
+ # Environment=BOOTUP=serial
+ # Environment=CONSOLETYPE=serial
+ StandardOutput=syslog
+diff --git a/configure.ac b/configure.ac
+index 42ece7a..c6b2a78 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -694,6 +694,7 @@ AC_CONFIG_FILES([
+ 	config/init/systemd/lxc.service
+ 	config/init/systemd/lxc@.service
+ 	config/init/systemd/lxc-net.service
++	config/init/systemd/lxc-monitord.service
+ 	config/init/sysvinit/Makefile
+ 	config/init/sysvinit/lxc-containers
+ 	config/init/sysvinit/lxc-net
+diff --git a/lxc.spec.in b/lxc.spec.in
+index 0e64907..f35d81c 100644
+--- a/lxc.spec.in
++++ b/lxc.spec.in
+@@ -259,6 +259,7 @@ fi
+ %{_unitdir}/lxc-net.service
+ %{_unitdir}/lxc.service
+ %{_unitdir}/lxc@.service
++%{_unitdir}/lxc-monitord.service
+ %else
+ %{_sysconfdir}/rc.d/init.d/lxc
+ %{_sysconfdir}/rc.d/init.d/lxc-net
+diff --git a/src/lxc/lxc_monitord.c b/src/lxc/lxc_monitord.c
+index 62e2121..ad40dbe 100644
+--- a/src/lxc/lxc_monitord.c
++++ b/src/lxc/lxc_monitord.c
+@@ -344,16 +344,43 @@ static void lxc_monitord_sig_handler(int sig)
+ 
+ int main(int argc, char *argv[])
+ {
+-	int ret, pipefd;
++	int ret, pipefd = -1;
+ 	char logpath[PATH_MAX];
+ 	sigset_t mask;
+-	char *lxcpath = argv[1];
++	const char *lxcpath = NULL;
+ 	bool mainloop_opened = false;
+ 	bool monitord_created = false;
++	bool persistent = false;
+ 
+-	if (argc != 3) {
++	if (argc > 1 && !strcmp(argv[1], "--daemon")) {
++		persistent = true;
++		--argc;
++		++argv;
++	}
++
++	if (argc > 1) {
++		lxcpath = argv[1];
++		--argc;
++		++argv;
++	} else {
++		lxcpath = lxc_global_config_value("lxc.lxcpath");
++		if (!lxcpath) {
++			ERROR("Out of memory getting lxcpath");
++			exit(EXIT_FAILURE);
++		}
++	}
++
++	if (argc > 1) {
++		if (lxc_safe_int(argv[1], &pipefd) < 0)
++			exit(EXIT_FAILURE);
++		--argc;
++		++argv;
++	}
++
++	if (argc != 1 || (persistent != (pipefd == -1))) {
+ 		fprintf(stderr,
+-			"Usage: lxc-monitord lxcpath sync-pipe-fd\n\n"
++			"Usage: lxc-monitord lxcpath sync-pipe-fd\n"
++			"       lxc-monitord --daemon lxcpath\n\n"
+ 			"NOTE: lxc-monitord is intended for use by lxc internally\n"
+ 			"      and does not need to be run by hand\n\n");
+ 		exit(EXIT_FAILURE);
+@@ -369,9 +396,6 @@ int main(int argc, char *argv[])
+ 		INFO("Failed to open log file %s, log will be lost.", lxcpath);
+ 	lxc_log_options_no_override();
+ 
+-	if (lxc_safe_int(argv[2], &pipefd) < 0)
+-		exit(EXIT_FAILURE);
+-
+ 	if (sigfillset(&mask) ||
+ 	    sigdelset(&mask, SIGILL)  ||
+ 	    sigdelset(&mask, SIGSEGV) ||
+@@ -403,15 +427,17 @@ int main(int argc, char *argv[])
+ 		goto on_error;
+ 	monitord_created = true;
+ 
+-	/* sync with parent, we're ignoring the return from write
+-	 * because regardless if it works or not, the following
+-	 * close will sync us with the parent process. the
+-	 * if-empty-statement construct is to quiet the
+-	 * warn-unused-result warning.
+-	 */
+-	if (write(pipefd, "S", 1))
+-		;
+-	close(pipefd);
++	if (pipefd != -1) {
++		/* sync with parent, we're ignoring the return from write
++		 * because regardless if it works or not, the following
++		 * close will sync us with the parent process. the
++		 * if-empty-statement construct is to quiet the
++		 * warn-unused-result warning.
++		 */
++		if (write(pipefd, "S", 1))
++			;
++		close(pipefd);
++	}
+ 
+ 	if (lxc_monitord_mainloop_add(&mon)) {
+ 		ERROR("Failed to add mainloop handlers.");
+@@ -421,7 +447,7 @@ int main(int argc, char *argv[])
+ 	NOTICE("lxc-monitord with pid %d is now monitoring lxcpath %s.",
+ 	       getpid(), mon.lxcpath);
+ 	for (;;) {
+-		ret = lxc_mainloop(&mon.descr, 1000 * 30);
++		ret = lxc_mainloop(&mon.descr, persistent ? -1 : 1000 * 30);
+ 		if (mon.clientfds_cnt <= 0) {
+ 			NOTICE("No remaining clients. lxc-monitord is exiting.");
+ 			break;
+-- 
+2.1.4
+

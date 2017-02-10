@@ -1,0 +1,34 @@
+From 6b3de84e0654c3b0b13166d63af9961a3a757c6e Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Fri, 10 Feb 2017 09:15:37 +0100
+Subject: [PATCH 3/8] pve: run lxcnetaddbr when instantiating veths
+
+FIXME: Why aren't we using regular up-scripts?
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ src/lxc/conf.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/src/lxc/conf.c b/src/lxc/conf.c
+index a93124b..c4079bb 100644
+--- a/src/lxc/conf.c
++++ b/src/lxc/conf.c
+@@ -2683,8 +2683,13 @@ static int instantiate_veth(struct lxc_handler *handler, struct lxc_netdev *netd
+ 				 "veth", veth1, (char*) NULL);
+ 		if (err)
+ 			goto out_delete;
++	} else if (!netdev->link) {
++		err = run_script(handler->name, "net", "/usr/share/lxc/lxcnetaddbr", "up",
++				 "veth", veth1, (char*) NULL);
++		if (err)
++			goto out_delete;
+ 	}
+-
++	
+ 	DEBUG("instantiated veth '%s/%s', index is '%d'",
+ 	      veth1, veth2, netdev->ifindex);
+ 
+-- 
+2.1.4
+

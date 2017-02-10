@@ -1,7 +1,7 @@
-From 2e386b0ab03ebc04bd3b08fa3cf9aa14c596b883 Mon Sep 17 00:00:00 2001
+From 6adbaea0d07553932f4cd78b5530cd5291c3b41f Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Tue, 15 Nov 2016 09:20:24 +0100
-Subject: [PATCH 1/2] separate the limiting from the namespaced cgroup root
+Subject: [PATCH 5/8] separate the limiting from the namespaced cgroup root
 
 When cgroup namespaces are enabled a privileged container
 with mixed cgroups has full write access to its own root
@@ -679,10 +679,10 @@ index 184eefa..6430b33 100644
  extern char *lxc_cmd_get_config_item(const char *name, const char *item, const char *lxcpath);
  extern char *lxc_cmd_get_name(const char *hashed_sock);
 diff --git a/src/lxc/criu.c b/src/lxc/criu.c
-index 125e674..5a9e36b 100644
+index 8a0702f..5843f97 100644
 --- a/src/lxc/criu.c
 +++ b/src/lxc/criu.c
-@@ -284,7 +284,7 @@ static void exec_criu(struct criu_opts *opts)
+@@ -283,7 +283,7 @@ static void exec_criu(struct criu_opts *opts)
  		} else {
  			const char *p;
  
@@ -691,7 +691,7 @@ index 125e674..5a9e36b 100644
  			if (!p) {
  				ERROR("failed to get cgroup path for %s", controllers[0]);
  				goto err;
-@@ -797,7 +797,7 @@ static void do_restore(struct lxc_container *c, int status_pipe, struct migrate_
+@@ -795,7 +795,7 @@ static void do_restore(struct lxc_container *c, int status_pipe, struct migrate_
  		goto out_fini_handler;
  	}
  
@@ -701,10 +701,10 @@ index 125e674..5a9e36b 100644
  		goto out_fini_handler;
  	}
 diff --git a/src/lxc/start.c b/src/lxc/start.c
-index 71206e0..c9d78b7 100644
+index c2c14a7..e889421 100644
 --- a/src/lxc/start.c
 +++ b/src/lxc/start.c
-@@ -1121,7 +1121,7 @@ static int lxc_spawn(struct lxc_handler *handler)
+@@ -1104,7 +1104,7 @@ static int lxc_spawn(struct lxc_handler *handler)
  
  	cgroups_connected = true;
  
@@ -713,7 +713,7 @@ index 71206e0..c9d78b7 100644
  		ERROR("Failed creating cgroups.");
  		goto out_delete_net;
  	}
-@@ -1208,10 +1208,10 @@ static int lxc_spawn(struct lxc_handler *handler)
+@@ -1191,10 +1191,10 @@ static int lxc_spawn(struct lxc_handler *handler)
  		goto out_delete_net;
  	}
  
@@ -726,7 +726,7 @@ index 71206e0..c9d78b7 100644
  		goto out_delete_net;
  
  	if (failed_before_rename)
-@@ -1254,6 +1254,21 @@ static int lxc_spawn(struct lxc_handler *handler)
+@@ -1237,6 +1237,21 @@ static int lxc_spawn(struct lxc_handler *handler)
  		goto out_delete_net;
  	}
  

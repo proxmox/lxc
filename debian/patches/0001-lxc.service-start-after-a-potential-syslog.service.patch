@@ -1,0 +1,25 @@
+From 10bc10054434f20870f812bb710eef5b5e22040b Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Fri, 10 Feb 2017 09:13:40 +0100
+Subject: [PATCH 1/8] lxc.service: start after a potential syslog.service
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ config/init/systemd/lxc.service.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/config/init/systemd/lxc.service.in b/config/init/systemd/lxc.service.in
+index cd61996..7754191 100644
+--- a/config/init/systemd/lxc.service.in
++++ b/config/init/systemd/lxc.service.in
+@@ -1,6 +1,6 @@
+ [Unit]
+ Description=LXC Container Initialization and Autoboot Code
+-After=network.target lxc-net.service
++After=syslog.service network.target lxc-net.service
+ Wants=lxc-net.service
+ Documentation=man:lxc-autostart man:lxc
+ 
+-- 
+2.1.4
+

@@ -1,8 +1,8 @@
-fix-systemd-service-depends.patch
-use-forking-systemd-service.patch
-remove-systemd-delegate-flag.patch
-run-lxcnetaddbr.patch
-deny-rw-mounting-of-sys-and-proc.patch
-0001-separate-the-limiting-from-the-namespaced-cgroup-roo.patch
-0002-start-initutils-make-cgroupns-separation-level-confi.patch
-rename-cgns-subdir-to-ns.patch
+0001-lxc.service-start-after-a-potential-syslog.service.patch
+0002-jessie-systemd-remove-Delegate-flag-to-silence-warni.patch
+0003-pve-run-lxcnetaddbr-when-instantiating-veths.patch
+0004-deny-rw-mounting-of-sys-and-proc.patch
+0005-separate-the-limiting-from-the-namespaced-cgroup-roo.patch
+0006-start-initutils-make-cgroupns-separation-level-confi.patch
+0007-rename-cgroup-namespace-directory-to-ns.patch
+0008-possibility-to-run-lxc-monitord-as-a-regular-daemon.patch

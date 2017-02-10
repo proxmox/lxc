@@ -1,7 +1,7 @@
-From e1fecf743d507ea7df458ed7e14222d02fe76cae Mon Sep 17 00:00:00 2001
+From af72260927efd412210ec85842e1ef70ccc0c5e8 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Wed, 16 Nov 2016 09:53:42 +0100
-Subject: [PATCH 2/2] start/initutils: make cgroupns separation level
+Subject: [PATCH 6/8] start/initutils: make cgroupns separation level
  configurable
 
 Adds a new global config variable `lxc.cgroup.separate`
@@ -17,7 +17,7 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  3 files changed, 26 insertions(+), 20 deletions(-)
 
 diff --git a/src/lxc/initutils.c b/src/lxc/initutils.c
-index 3213bd3..d07fd10 100644
+index 8d9016c..0630293 100644
 --- a/src/lxc/initutils.c
 +++ b/src/lxc/initutils.c
 @@ -88,14 +88,15 @@ static char *copy_global_config_value(char *p)
@@ -57,10 +57,10 @@ index c021fd6..443ad02 100644
  extern void lxc_setup_fs(void);
  extern const char *lxc_global_config_value(const char *option_name);
 diff --git a/src/lxc/start.c b/src/lxc/start.c
-index c9d78b7..fe2e335 100644
+index e889421..4217c5d 100644
 --- a/src/lxc/start.c
 +++ b/src/lxc/start.c
-@@ -1067,6 +1067,7 @@ static int lxc_spawn(struct lxc_handler *handler)
+@@ -1050,6 +1050,7 @@ static int lxc_spawn(struct lxc_handler *handler)
  	int saved_ns_fd[LXC_NS_MAX];
  	int preserve_mask = 0, i, flags;
  	int netpipepair[2], nveths;
@@ -68,7 +68,7 @@ index c9d78b7..fe2e335 100644
  
  	netpipe = -1;
  
-@@ -1130,7 +1131,7 @@ static int lxc_spawn(struct lxc_handler *handler)
+@@ -1113,7 +1114,7 @@ static int lxc_spawn(struct lxc_handler *handler)
  	 * it readonly.
  	 * If the container is unprivileged then skip rootfs pinning.
  	 */
@@ -77,7 +77,7 @@ index c9d78b7..fe2e335 100644
  		handler->pinfd = pin_rootfs(handler->conf->rootfs.path);
  		if (handler->pinfd == -1)
  			INFO("Failed to pin the rootfs for container \"%s\".", handler->name);
-@@ -1255,17 +1256,20 @@ static int lxc_spawn(struct lxc_handler *handler)
+@@ -1238,17 +1239,20 @@ static int lxc_spawn(struct lxc_handler *handler)
  	}
  
  	if (cgns_supported()) {
