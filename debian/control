@@ -9,9 +9,9 @@ Homepage: https://linuxcontainers.org
 Package: lxc-pve
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, libcap2, apparmor, python3, bridge-utils, uidmap, libgnutlsxx28, criu (>= 1.5.2-1), lxcfs, libseccomp2
-Conflicts: lxc
-Replaces: lxc
-Provides: lxc
+Conflicts: lxc, liblxc1
+Replaces: lxc, liblxc1
+Provides: lxc, liblxc1
 Description: Linux containers usersapce tools
  Containers provides resource management through control groups and
  resource isolation through namespaces. The linux containers, lxc, aims
