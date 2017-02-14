@@ -88,7 +88,7 @@ index 6b8b5ff..ffb9136 100644
 -After=lxc.service
 +After=lxc.service lxc-monitord.service
  Wants=lxc.service
-+Requires = lxc-monitord.service
++Requires=lxc-monitord.service
  Documentation=man:lxc-start man:lxc
  
  [Service]
