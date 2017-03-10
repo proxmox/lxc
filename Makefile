@@ -43,7 +43,7 @@ distclean: clean
 
 .PHONY: clean
 clean:
-	rm -rf ${SRCDIR} ${SRCDIR}.tmp *_${ARCH}.deb *.changes *.dsc 
+	rm -rf ${SRCDIR} ${SRCDIR}.tmp *_${ARCH}.deb *.changes *.dsc *.buildinfo
 	find . -name '*~' -exec rm {} ';'
 
 .PHONY: dinstall
