@@ -1,3 +1,11 @@
+lxc (2.0.7-4) unstable; urgency=medium
+
+  * fix CVE-2017-5985: lxc-user-nic netns permission verification
+
+  * replace/provide liblxc1
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 10 Mar 2017 09:27:52 +0100
+
 lxc (2.0.7-3) unstable; urgency=medium
 
   * Introduce lxc-monitord.service to avoid spurious lxc-monitord instances
