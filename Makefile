@@ -1,8 +1,6 @@
-RELEASE=4.4
-
 PACKAGE=lxc-pve
 LXCVER=2.0.7
-DEBREL=4
+DEBREL=500
 
 SRCDIR=lxc
 SRCTAR=${SRCDIR}.tgz
@@ -39,7 +37,7 @@ download ${SRCTAR}:
 
 .PHONY: upload
 upload: ${DEBS}
-	tar cf - ${DEBS} | ssh repoman@repo.proxmox.com upload
+	tar cf - ${DEBS} | ssh repoman@repo.proxmox.com upload --product pve --dist stretch
 
 distclean: clean
 

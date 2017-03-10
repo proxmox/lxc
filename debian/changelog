@@ -1,3 +1,9 @@
+lxc (2.0.7-500) unstable; urgency=medium
+
+  * bump version for stretch
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 10 Mar 2017 14:32:45 +0100
+
 lxc (2.0.7-4) unstable; urgency=medium
 
   * fix CVE-2017-5985: lxc-user-nic netns permission verification
