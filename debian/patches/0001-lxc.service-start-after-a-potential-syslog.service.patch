@@ -1,7 +1,7 @@
 From 10bc10054434f20870f812bb710eef5b5e22040b Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Fri, 10 Feb 2017 09:13:40 +0100
-Subject: [PATCH 1/8] lxc.service: start after a potential syslog.service
+Subject: [PATCH 1/9] lxc.service: start after a potential syslog.service
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---

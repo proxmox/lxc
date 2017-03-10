@@ -1,7 +1,7 @@
-From 1bdcf98811093349ca856dac4beb3f5bd0dd501b Mon Sep 17 00:00:00 2001
+From 24af6aaf126f63229b3f9289b7dba58b3f07e847 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Fri, 10 Feb 2017 10:23:36 +0100
-Subject: [PATCH 8/8] possibility to run lxc-monitord as a regular daemon
+Subject: [PATCH 8/9] possibility to run lxc-monitord as a regular daemon
 
 This includes an lxc-monitord.service, required by
 lxc@.service which is now of Type=forking.
@@ -78,7 +78,7 @@ index 0000000..4063516
 +[Install]
 +WantedBy=multi-user.target
 diff --git a/config/init/systemd/lxc@.service.in b/config/init/systemd/lxc@.service.in
-index 6b8b5ff..ffb9136 100644
+index 6b8b5ff..c35526b 100644
 --- a/config/init/systemd/lxc@.service.in
 +++ b/config/init/systemd/lxc@.service.in
 @@ -1,16 +1,17 @@
