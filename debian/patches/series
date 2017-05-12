@@ -6,4 +6,3 @@
 0006-start-initutils-make-cgroupns-separation-level-confi.patch
 0007-rename-cgroup-namespace-directory-to-ns.patch
 0008-possibility-to-run-lxc-monitord-as-a-regular-daemon.patch
-0009-CVE-2017-5985-Ensure-target-netns-is-caller-owned.patch

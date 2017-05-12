@@ -1,7 +1,7 @@
-From e7d6b0d2384070f2c34a46aaa20250ce31f96c9c Mon Sep 17 00:00:00 2001
+From 05337fbce533630e978904db57601eedf498b776 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Fabian=20Gr=C3=BCnbichler?= <f.gruenbichler@proxmox.com>
 Date: Wed, 9 Nov 2016 09:14:26 +0100
-Subject: [PATCH 4/9] deny rw mounting of /sys and /proc
+Subject: [PATCH 4/8] deny rw mounting of /sys and /proc
 
 this would allow root in a privileged container to change
 the permissions of /sys on the host, which could lock out
@@ -14,7 +14,7 @@ if a rw /sys is desired, set "lxc.mount.auto" accordingly
  2 files changed, 10 insertions(+), 2 deletions(-)
 
 diff --git a/config/apparmor/abstractions/container-base b/config/apparmor/abstractions/container-base
-index 06290de..779aadd 100644
+index 06290de2..779aadd4 100644
 --- a/config/apparmor/abstractions/container-base
 +++ b/config/apparmor/abstractions/container-base
 @@ -84,7 +84,6 @@
@@ -38,7 +38,7 @@ index 06290de..779aadd 100644
    # FIXME: This currently doesn't work due to the apparmor parser treating those as allowing all mounts.
  #  mount options=(rw,make-slave) -> **,
 diff --git a/config/apparmor/abstractions/container-base.in b/config/apparmor/abstractions/container-base.in
-index 5bc9b28..5c8e441 100644
+index 5bc9b28b..5c8e441f 100644
 --- a/config/apparmor/abstractions/container-base.in
 +++ b/config/apparmor/abstractions/container-base.in
 @@ -84,7 +84,6 @@
@@ -62,5 +62,5 @@ index 5bc9b28..5c8e441 100644
    # FIXME: This currently doesn't work due to the apparmor parser treating those as allowing all mounts.
  #  mount options=(rw,make-slave) -> **,
 -- 
-2.1.4
+2.11.0
 

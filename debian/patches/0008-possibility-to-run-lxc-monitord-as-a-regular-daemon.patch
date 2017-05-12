@@ -1,7 +1,7 @@
-From 24af6aaf126f63229b3f9289b7dba58b3f07e847 Mon Sep 17 00:00:00 2001
+From eea36cafdc53b5ed2200ea0910f4222bc4e7891f Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Fri, 10 Feb 2017 10:23:36 +0100
-Subject: [PATCH 8/9] possibility to run lxc-monitord as a regular daemon
+Subject: [PATCH 8/8] possibility to run lxc-monitord as a regular daemon
 
 This includes an lxc-monitord.service, required by
 lxc@.service which is now of Type=forking.
@@ -30,7 +30,7 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  create mode 100644 config/init/systemd/lxc-monitord.service.in
 
 diff --git a/config/init/systemd/Makefile.am b/config/init/systemd/Makefile.am
-index c448850..4a4fde5 100644
+index c448850d..4a4fde5e 100644
 --- a/config/init/systemd/Makefile.am
 +++ b/config/init/systemd/Makefile.am
 @@ -2,19 +2,21 @@ EXTRA_DIST = \
@@ -61,7 +61,7 @@ index c448850..4a4fde5 100644
  pkglibexec_SCRIPTS = lxc-apparmor-load
 diff --git a/config/init/systemd/lxc-monitord.service.in b/config/init/systemd/lxc-monitord.service.in
 new file mode 100644
-index 0000000..4063516
+index 00000000..40635168
 --- /dev/null
 +++ b/config/init/systemd/lxc-monitord.service.in
 @@ -0,0 +1,12 @@
@@ -78,7 +78,7 @@ index 0000000..4063516
 +[Install]
 +WantedBy=multi-user.target
 diff --git a/config/init/systemd/lxc@.service.in b/config/init/systemd/lxc@.service.in
-index 6b8b5ff..c35526b 100644
+index 6b8b5ff1..c35526b3 100644
 --- a/config/init/systemd/lxc@.service.in
 +++ b/config/init/systemd/lxc@.service.in
 @@ -1,16 +1,17 @@
@@ -103,10 +103,10 @@ index 6b8b5ff..c35526b 100644
  # Environment=CONSOLETYPE=serial
  StandardOutput=syslog
 diff --git a/configure.ac b/configure.ac
-index 42ece7a..c6b2a78 100644
+index bd2d82f6..fa3926a9 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -694,6 +694,7 @@ AC_CONFIG_FILES([
+@@ -697,6 +697,7 @@ AC_CONFIG_FILES([
  	config/init/systemd/lxc.service
  	config/init/systemd/lxc@.service
  	config/init/systemd/lxc-net.service
@@ -115,7 +115,7 @@ index 42ece7a..c6b2a78 100644
  	config/init/sysvinit/lxc-containers
  	config/init/sysvinit/lxc-net
 diff --git a/lxc.spec.in b/lxc.spec.in
-index 0e64907..f35d81c 100644
+index 0e64907e..f35d81ca 100644
 --- a/lxc.spec.in
 +++ b/lxc.spec.in
 @@ -259,6 +259,7 @@ fi
@@ -127,7 +127,7 @@ index 0e64907..f35d81c 100644
  %{_sysconfdir}/rc.d/init.d/lxc
  %{_sysconfdir}/rc.d/init.d/lxc-net
 diff --git a/src/lxc/lxc_monitord.c b/src/lxc/lxc_monitord.c
-index 62e2121..ad40dbe 100644
+index 62e21211..ad40dbef 100644
 --- a/src/lxc/lxc_monitord.c
 +++ b/src/lxc/lxc_monitord.c
 @@ -344,16 +344,43 @@ static void lxc_monitord_sig_handler(int sig)
@@ -225,5 +225,5 @@ index 62e2121..ad40dbe 100644
  			NOTICE("No remaining clients. lxc-monitord is exiting.");
  			break;
 -- 
-2.1.4
+2.11.0
 

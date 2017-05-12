@@ -1,7 +1,7 @@
-From e68a4291abec1c140fffbc8c954ff9596b17aad4 Mon Sep 17 00:00:00 2001
+From de03e2bff16699c10f1c3a80e4c84a44c0a32bc0 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Fri, 10 Feb 2017 09:14:55 +0100
-Subject: [PATCH 2/9] jessie/systemd: remove Delegate flag to silence warnings
+Subject: [PATCH 2/8] jessie/systemd: remove Delegate flag to silence warnings
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---
@@ -10,7 +10,7 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  2 files changed, 2 deletions(-)
 
 diff --git a/config/init/systemd/lxc.service.in b/config/init/systemd/lxc.service.in
-index 7754191..bdd5828 100644
+index 77541917..bdd58283 100644
 --- a/config/init/systemd/lxc.service.in
 +++ b/config/init/systemd/lxc.service.in
 @@ -12,7 +12,6 @@ ExecStart=@LIBEXECDIR@/lxc/lxc-containers start
@@ -22,7 +22,7 @@ index 7754191..bdd5828 100644
  StandardError=syslog
  
 diff --git a/config/init/systemd/lxc@.service.in b/config/init/systemd/lxc@.service.in
-index 44d11e8..6b8b5ff 100644
+index 44d11e8e..6b8b5ff1 100644
 --- a/config/init/systemd/lxc@.service.in
 +++ b/config/init/systemd/lxc@.service.in
 @@ -13,7 +13,6 @@ TimeoutStopSec=120s
@@ -34,5 +34,5 @@ index 44d11e8..6b8b5ff 100644
  StandardError=syslog
  
 -- 
-2.1.4
+2.11.0
 

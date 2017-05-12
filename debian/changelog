@@ -1,3 +1,9 @@
+lxc (2.0.8-1) unstable; urgency=medium
+
+  * update to lxc-2.0.8
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 12 May 2017 14:59:15 +0200
+
 lxc (2.0.7-500) unstable; urgency=medium
 
   * bump version for stretch
