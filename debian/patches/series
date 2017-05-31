@@ -6,3 +6,9 @@
 0006-start-initutils-make-cgroupns-separation-level-confi.patch
 0007-rename-cgroup-namespace-directory-to-ns.patch
 0008-possibility-to-run-lxc-monitord-as-a-regular-daemon.patch
+0009-conf-implement-resource-limits.patch
+0010-doc-add-lxc.limit-to-lxc.container.conf.patch
+0011-test-resource-limit-config-entries.patch
+0012-start-fix-error-handling-when-limits-fail-to-apply.patch
+0013-start-don-t-call-lxc_map_ids-without-id-map.patch
+0014-Fix-the-bug-of-ts-stdoutfd-did-not-fill-with-paramet.patch

@@ -1,3 +1,11 @@
+lxc (2.0.8-2) unstable; urgency=medium
+
+  * merge: resource limit support via lxc.limit.<RLIMIT_NAME>
+
+  * minor bugfixes
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 31 May 2017 13:59:43 +0200
+
 lxc (2.0.8-1) unstable; urgency=medium
 
   * update to lxc-2.0.8
