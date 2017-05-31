@@ -1,7 +1,7 @@
 From adf5f6720c85fe7059ff98942c136846b16880eb Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Fri, 23 Dec 2016 15:57:24 +0100
-Subject: [PATCH 7/8] rename cgroup namespace directory to ns
+Subject: [PATCH 07/14] rename cgroup namespace directory to ns
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---

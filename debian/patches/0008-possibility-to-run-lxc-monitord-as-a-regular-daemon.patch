@@ -1,7 +1,7 @@
 From eea36cafdc53b5ed2200ea0910f4222bc4e7891f Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Fri, 10 Feb 2017 10:23:36 +0100
-Subject: [PATCH 8/8] possibility to run lxc-monitord as a regular daemon
+Subject: [PATCH 08/14] possibility to run lxc-monitord as a regular daemon
 
 This includes an lxc-monitord.service, required by
 lxc@.service which is now of Type=forking.

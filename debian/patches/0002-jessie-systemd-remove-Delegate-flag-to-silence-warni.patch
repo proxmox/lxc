@@ -1,7 +1,8 @@
 From de03e2bff16699c10f1c3a80e4c84a44c0a32bc0 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Fri, 10 Feb 2017 09:14:55 +0100
-Subject: [PATCH 2/8] jessie/systemd: remove Delegate flag to silence warnings
+Subject: [PATCH 02/14] jessie/systemd: remove Delegate flag to silence
+ warnings
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---
