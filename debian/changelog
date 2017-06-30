@@ -1,3 +1,9 @@
+lxc (2.0.8-3) unstable; urgency=medium
+
+  * fix a segfault when using lxc-attach with the -s option
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 30 Jun 2017 11:01:58 +0200
+
 lxc (2.0.8-2) unstable; urgency=medium
 
   * merge: resource limit support via lxc.limit.<RLIMIT_NAME>
