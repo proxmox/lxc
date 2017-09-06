@@ -1,34 +1,31 @@
-From 405bcb676e3eb07e2e2efab45b15cdc8b799b15c Mon Sep 17 00:00:00 2001
+From 84da55875d3a9468957fe0f0012ea2b39b9f7785 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Fri, 10 Feb 2017 09:15:37 +0100
-Subject: [PATCH 03/14] pve: run lxcnetaddbr when instantiating veths
+Subject: [PATCH 3/9] pve: run lxcnetaddbr when instantiating veths
 
 FIXME: Why aren't we using regular up-scripts?
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---
- src/lxc/conf.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ src/lxc/network.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/src/lxc/conf.c b/src/lxc/conf.c
-index 923a4d90..3bedcf0f 100644
---- a/src/lxc/conf.c
-+++ b/src/lxc/conf.c
-@@ -2742,8 +2742,13 @@ static int instantiate_veth(struct lxc_handler *handler, struct lxc_netdev *netd
+diff --git a/src/lxc/network.c b/src/lxc/network.c
+index a7f054e7..3c0597c7 100644
+--- a/src/lxc/network.c
++++ b/src/lxc/network.c
+@@ -208,6 +208,11 @@ static int instantiate_veth(struct lxc_handler *handler, struct lxc_netdev *netd
  				 "veth", veth1, (char*) NULL);
  		if (err)
  			goto out_delete;
-+	} else if (!netdev->link) {
++	} else if (netdev->link[0] == '\0') {
 +		err = run_script(handler->name, "net", "/usr/share/lxc/lxcnetaddbr", "up",
 +				 "veth", veth1, (char*) NULL);
 +		if (err)
 +			goto out_delete;
  	}
--
-+	
- 	DEBUG("instantiated veth '%s/%s', index is '%d'",
- 	      veth1, veth2, netdev->ifindex);
  
+ 	DEBUG("Instantiated veth \"%s/%s\", index is \"%d\"", veth1, veth2,
 -- 
 2.11.0
 

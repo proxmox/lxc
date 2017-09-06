@@ -1,8 +1,7 @@
-From de03e2bff16699c10f1c3a80e4c84a44c0a32bc0 Mon Sep 17 00:00:00 2001
+From a5ee14df834c008294b790d96982a1fea36c807a Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Fri, 10 Feb 2017 09:14:55 +0100
-Subject: [PATCH 02/14] jessie/systemd: remove Delegate flag to silence
- warnings
+Subject: [PATCH 2/9] jessie/systemd: remove Delegate flag to silence warnings
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---
@@ -23,11 +22,11 @@ index 77541917..bdd58283 100644
  StandardError=syslog
  
 diff --git a/config/init/systemd/lxc@.service.in b/config/init/systemd/lxc@.service.in
-index 44d11e8e..6b8b5ff1 100644
+index a2aa2211..98d5a3a7 100644
 --- a/config/init/systemd/lxc@.service.in
 +++ b/config/init/systemd/lxc@.service.in
-@@ -13,7 +13,6 @@ TimeoutStopSec=120s
- ExecStart=@BINDIR@/lxc-start -F -n %i
+@@ -13,7 +13,6 @@ ExecStart=@BINDIR@/lxc-start -F -n %i
+ ExecStop=@BINDIR@/lxc-stop -n %i
  # Environment=BOOTUP=serial
  # Environment=CONSOLETYPE=serial
 -Delegate=yes

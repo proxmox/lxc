@@ -1,7 +1,7 @@
-From 2b4c8a851ae299a840af3e5e0cdf128ea205b5a4 Mon Sep 17 00:00:00 2001
+From 3ec7cf35c1ca98f976a2c39cd58287d8137d0269 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Wed, 16 Nov 2016 09:53:42 +0100
-Subject: [PATCH 06/14] start/initutils: make cgroupns separation level
+Subject: [PATCH 6/9] start/initutils: make cgroupns separation level
  configurable
 
 Adds a new global config variable `lxc.cgroup.separate`
@@ -13,11 +13,11 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---
  src/lxc/initutils.c | 17 +++++++++--------
  src/lxc/initutils.h |  1 +
- src/lxc/start.c     | 28 ++++++++++++++++------------
- 3 files changed, 26 insertions(+), 20 deletions(-)
+ src/lxc/start.c     | 25 ++++++++++++++-----------
+ 3 files changed, 24 insertions(+), 19 deletions(-)
 
 diff --git a/src/lxc/initutils.c b/src/lxc/initutils.c
-index 8d9016cd..06302935 100644
+index c190d6d5..97650e67 100644
 --- a/src/lxc/initutils.c
 +++ b/src/lxc/initutils.c
 @@ -88,14 +88,15 @@ static char *copy_global_config_value(char *p)
@@ -57,28 +57,11 @@ index c021fd61..443ad026 100644
  extern void lxc_setup_fs(void);
  extern const char *lxc_global_config_value(const char *option_name);
 diff --git a/src/lxc/start.c b/src/lxc/start.c
-index 2d7df0e7..a909c631 100644
+index b653a157..4fec27b9 100644
 --- a/src/lxc/start.c
 +++ b/src/lxc/start.c
-@@ -1061,6 +1061,7 @@ static int lxc_spawn(struct lxc_handler *handler)
- 	int saved_ns_fd[LXC_NS_MAX];
- 	int preserve_mask = 0, i, flags;
- 	int netpipepair[2], nveths;
-+	bool privileged = lxc_list_empty(&handler->conf->id_map);
- 
- 	netpipe = -1;
- 
-@@ -1124,7 +1125,7 @@ static int lxc_spawn(struct lxc_handler *handler)
- 	 * it readonly.
- 	 * If the container is unprivileged then skip rootfs pinning.
- 	 */
--	if (lxc_list_empty(&handler->conf->id_map)) {
-+	if (privileged) {
- 		handler->pinfd = pin_rootfs(handler->conf->rootfs.path);
- 		if (handler->pinfd == -1)
- 			INFO("Failed to pin the rootfs for container \"%s\".", handler->name);
-@@ -1249,17 +1250,20 @@ static int lxc_spawn(struct lxc_handler *handler)
- 	}
+@@ -1334,17 +1334,20 @@ static int lxc_spawn(struct lxc_handler *handler)
+ 	TRACE("Set up cgroup device limits");
  
  	if (cgns_supported()) {
 -		if (!cgroup_create(handler, true)) {
@@ -93,7 +76,7 @@ index 2d7df0e7..a909c631 100644
 -			ERROR("failed chown inner cgroup separation layer");
 -			goto out_delete_net;
 +		const char *tmp = lxc_global_config_value("lxc.cgroup.protect_limits");
-+		if (!strcmp(tmp, "both") || !strcmp(tmp, privileged ? "privileged" : "unprivileged")) {
++		if (!strcmp(tmp, "both") || !strcmp(tmp, wants_to_map_ids ? "unprivileged" : "privileged")) {
 +			if (!cgroup_create(handler, true)) {
 +				ERROR("failed to create inner cgroup separation layer");
 +				goto out_delete_net;

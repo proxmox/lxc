@@ -1,7 +1,7 @@
-From 05337fbce533630e978904db57601eedf498b776 Mon Sep 17 00:00:00 2001
+From 2d651f876f4afa97ddd6081d996776c10355732a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Fabian=20Gr=C3=BCnbichler?= <f.gruenbichler@proxmox.com>
 Date: Wed, 9 Nov 2016 09:14:26 +0100
-Subject: [PATCH 04/14] deny rw mounting of /sys and /proc
+Subject: [PATCH 4/9] deny rw mounting of /sys and /proc
 
 this would allow root in a privileged container to change
 the permissions of /sys on the host, which could lock out
