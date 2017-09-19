@@ -7,3 +7,4 @@
 0007-rename-cgroup-namespace-directory-to-ns.patch
 0008-possibility-to-run-lxc-monitord-as-a-regular-daemon.patch
 0009-network-add-missing-checks-for-empty-links.patch
+0010-start-unshare-cgroup-after-setting-up-device-limits.patch

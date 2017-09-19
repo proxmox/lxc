@@ -1,7 +1,7 @@
 From c1c1e55305a06786ee3dd938e421ca413db73dd1 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Wed, 6 Sep 2017 11:51:03 +0200
-Subject: [PATCH 9/9] network: add missing checks for empty links
+Subject: [PATCH 09/10] network: add missing checks for empty links
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---
