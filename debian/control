@@ -2,37 +2,67 @@ Source: lxc
 Section: admin
 Priority: optional
 Maintainer: Proxmox Support Team <support@proxmox.com>
-Build-Depends: debhelper (>= 9), autotools-dev, libapparmor-dev, docbook2x, libcap-dev, dh-apparmor, graphviz, libgnutls28-dev, linux-libc-dev, dh-autoreconf, libseccomp-dev, quilt, dh-systemd, doxygen, bash-completion
+Build-Depends: autotools-dev,
+               bash-completion,
+               debhelper (>= 9),
+               dh-apparmor,
+               dh-autoreconf,
+               dh-systemd,
+               docbook2x,
+               doxygen,
+               graphviz,
+               libapparmor-dev,
+               libcap-dev,
+               libgnutls28-dev,
+               libseccomp-dev,
+               linux-libc-dev,
+               quilt,
 Standards-Version: 3.9.5
 Homepage: https://linuxcontainers.org
 
 Package: lxc-pve
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libcap2, apparmor, python3, bridge-utils, uidmap, libgnutlsxx28, criu (>= 1.5.2-1), lxcfs, libseccomp2
-Conflicts: lxc, liblxc1
-Replaces: lxc, liblxc1
-Provides: lxc, liblxc1
+Depends: apparmor,
+         bridge-utils,
+         criu (>= 1.5.2-1),
+         libcap2,
+         libgnutlsxx28,
+         libseccomp2,
+         lxcfs,
+         python3,
+         uidmap,
+         ${misc:Depends},
+         ${shlibs:Depends},
+Conflicts: liblxc1,
+           lxc,
+Replaces: liblxc1,
+          lxc,
+Provides: liblxc1,
+          lxc,
 Description: Linux containers usersapce tools
  Containers provides resource management through control groups and
  resource isolation through namespaces. The linux containers, lxc, aims
  to use these new functionalities to provide an userspace container
  object which provides full resource isolation and resource control for
- an applications or a system. 
+ an applications or a system.
 
 Package: lxc-pve-dbg
 Section: debug
 Architecture: any
-Depends: lxc-pve (= ${binary:Version}), lxc-pve-dev (= ${binary:Version}), ${misc:Depends}
+Depends: lxc-pve (= ${binary:Version}),
+         lxc-pve-dev (= ${binary:Version}),
+         ${misc:Depends},
 Description: Debug symbols for LXC
- This package contains the debug symbols for LXC. 
+ This package contains the debug symbols for LXC.
 
 Package: lxc-pve-dev
 Section: libdevel
 Architecture: any
-Depends: lxc-pve (= ${binary:Version}), ${misc:Depends}
+Depends: lxc-pve (= ${binary:Version}),
+         ${misc:Depends},
 Description: Linux Containers userspace tools (development)
  Containers provides resource management through control groups and
  resource isolation through namespaces. The linux containers, lxc, aims
  to use these new functionalities to provide an userspace container
  object which provides full resource isolation and resource control for
- an applications or a system. 
+ an applications or a system.
