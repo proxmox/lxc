@@ -46,15 +46,6 @@ Description: Linux containers usersapce tools
  object which provides full resource isolation and resource control for
  an applications or a system.
 
-Package: lxc-pve-dbg
-Section: debug
-Architecture: any
-Depends: lxc-pve (= ${binary:Version}),
-         lxc-pve-dev (= ${binary:Version}),
-         ${misc:Depends},
-Description: Debug symbols for LXC
- This package contains the debug symbols for LXC.
-
 Package: lxc-pve-dev
 Section: libdevel
 Architecture: any

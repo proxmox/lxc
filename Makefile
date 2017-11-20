@@ -10,7 +10,7 @@ GITVERSION:=$(shell cat .git/refs/heads/master)
 
 DEB1=${PACKAGE}_${LXCVER}-${DEBREL}_${ARCH}.deb
 DEB2=${PACKAGE}-dev_${LXCVER}-${DEBREL}_${ARCH}.deb \
-     ${PACKAGE}-dbg_${LXCVER}-${DEBREL}_${ARCH}.deb
+     ${PACKAGE}-dbgsym_${LXCVER}-${DEBREL}_${ARCH}.deb
 DEBS=$(DEB1) $(DEB2)
 
 all: ${DEBS}
