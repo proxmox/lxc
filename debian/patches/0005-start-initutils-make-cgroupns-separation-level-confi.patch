@@ -1,0 +1,97 @@
+From ef58cfcf70fbe666acee0c407f77a22eeb1eec4f Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Wed, 16 Nov 2016 09:53:42 +0100
+Subject: [PATCH 5/8] start/initutils: make cgroupns separation level
+ configurable
+
+Adds a new global config variable `lxc.cgroup.separate`
+which controls whether a separation directory for cgroup
+namespaces should be used.
+Can be empty, "privileged", "unprivileged" or "both".
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ src/lxc/initutils.c | 17 +++++++++--------
+ src/lxc/initutils.h |  1 +
+ src/lxc/start.c     | 25 ++++++++++++++-----------
+ 3 files changed, 24 insertions(+), 19 deletions(-)
+
+diff --git a/src/lxc/initutils.c b/src/lxc/initutils.c
+index c190d6d5..97650e67 100644
+--- a/src/lxc/initutils.c
++++ b/src/lxc/initutils.c
+@@ -88,14 +88,15 @@ static char *copy_global_config_value(char *p)
+ const char *lxc_global_config_value(const char *option_name)
+ {
+ 	static const char * const options[][2] = {
+-		{ "lxc.bdev.lvm.vg",        DEFAULT_VG      },
+-		{ "lxc.bdev.lvm.thin_pool", DEFAULT_THIN_POOL },
+-		{ "lxc.bdev.zfs.root",      DEFAULT_ZFSROOT },
+-		{ "lxc.bdev.rbd.rbdpool",   DEFAULT_RBDPOOL },
+-		{ "lxc.lxcpath",            NULL            },
+-		{ "lxc.default_config",     NULL            },
+-		{ "lxc.cgroup.pattern",     NULL            },
+-		{ "lxc.cgroup.use",         NULL            },
++		{ "lxc.bdev.lvm.vg",           DEFAULT_VG      },
++		{ "lxc.bdev.lvm.thin_pool",    DEFAULT_THIN_POOL },
++		{ "lxc.bdev.zfs.root",         DEFAULT_ZFSROOT },
++		{ "lxc.bdev.rbd.rbdpool",      DEFAULT_RBDPOOL },
++		{ "lxc.lxcpath",               NULL            },
++		{ "lxc.default_config",        NULL            },
++		{ "lxc.cgroup.pattern",        NULL            },
++		{ "lxc.cgroup.use",            NULL            },
++		{ "lxc.cgroup.protect_limits", DEFAULT_CGPROTECT },
+ 		{ NULL, NULL },
+ 	};
+ 
+diff --git a/src/lxc/initutils.h b/src/lxc/initutils.h
+index c021fd61..443ad026 100644
+--- a/src/lxc/initutils.h
++++ b/src/lxc/initutils.h
+@@ -43,6 +43,7 @@
+ #define DEFAULT_THIN_POOL "lxc"
+ #define DEFAULT_ZFSROOT "lxc"
+ #define DEFAULT_RBDPOOL "lxc"
++#define DEFAULT_CGPROTECT "privileged"
+ 
+ extern void lxc_setup_fs(void);
+ extern const char *lxc_global_config_value(const char *option_name);
+diff --git a/src/lxc/start.c b/src/lxc/start.c
+index 920f3c23..89e9be96 100644
+--- a/src/lxc/start.c
++++ b/src/lxc/start.c
+@@ -1345,17 +1345,20 @@ static int lxc_spawn(struct lxc_handler *handler)
+ 	TRACE("Set up cgroup device limits");
+ 
+ 	if (cgns_supported()) {
+-		if (!cgroup_create(handler, true)) {
+-			ERROR("failed to create inner cgroup separation layer");
+-			goto out_delete_net;
+-		}
+-		if (!cgroup_enter(handler, true)) {
+-			ERROR("failed to enter inner cgroup separation layer");
+-			goto out_delete_net;
+-		}
+-		if (!cgroup_chown(handler, true)) {
+-			ERROR("failed chown inner cgroup separation layer");
+-			goto out_delete_net;
++		const char *tmp = lxc_global_config_value("lxc.cgroup.protect_limits");
++		if (!strcmp(tmp, "both") || !strcmp(tmp, wants_to_map_ids ? "unprivileged" : "privileged")) {
++			if (!cgroup_create(handler, true)) {
++				ERROR("failed to create inner cgroup separation layer");
++				goto out_delete_net;
++			}
++			if (!cgroup_enter(handler, true)) {
++				ERROR("failed to enter inner cgroup separation layer");
++				goto out_delete_net;
++			}
++			if (!cgroup_chown(handler, true)) {
++				ERROR("failed chown inner cgroup separation layer");
++				goto out_delete_net;
++			}
+ 		}
+ 	}
+ 
+-- 
+2.11.0
+

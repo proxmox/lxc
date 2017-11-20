@@ -1,10 +1,8 @@
 0001-lxc.service-start-after-a-potential-syslog.service.patch
-0002-jessie-systemd-remove-Delegate-flag-to-silence-warni.patch
-0003-pve-run-lxcnetaddbr-when-instantiating-veths.patch
-0004-deny-rw-mounting-of-sys-and-proc.patch
-0005-separate-the-limiting-from-the-namespaced-cgroup-roo.patch
-0006-start-initutils-make-cgroupns-separation-level-confi.patch
-0007-rename-cgroup-namespace-directory-to-ns.patch
-0008-possibility-to-run-lxc-monitord-as-a-regular-daemon.patch
-0009-network-add-missing-checks-for-empty-links.patch
-0010-start-unshare-cgroup-after-setting-up-device-limits.patch
+0002-pve-run-lxcnetaddbr-when-instantiating-veths.patch
+0003-deny-rw-mounting-of-sys-and-proc.patch
+0004-separate-the-limiting-from-the-namespaced-cgroup-roo.patch
+0005-start-initutils-make-cgroupns-separation-level-confi.patch
+0006-rename-cgroup-namespace-directory-to-ns.patch
+0007-possibility-to-run-lxc-monitord-as-a-regular-daemon.patch
+0008-Make-lxc-.service-forking.patch

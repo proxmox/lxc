@@ -1,0 +1,3 @@
+[submodule "lxc"]
+	path = lxc
+	url = ../mirror_lxc

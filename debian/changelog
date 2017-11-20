@@ -1,3 +1,9 @@
+lxc (2.1.1-1) unstable; urgency=medium
+
+  * update to lxc-2.1.1
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 20 Nov 2017 11:18:38 +0100
+
 lxc (2.1.0-2) unstable; urgency=medium
 
   * update cgroup namespace separation for conflicting changes in 2.1.0

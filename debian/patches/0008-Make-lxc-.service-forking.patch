@@ -1,0 +1,40 @@
+From 2001f560675efca7d6dcabe8fb8b376442d5d6d0 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Mon, 20 Nov 2017 10:51:36 +0100
+Subject: [PATCH 8/8] Make lxc@.service forking
+
+Previously the init process' output was dumped into the log
+files since the service used Type=simple and
+StandardOutput/Error=syslog.
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ config/init/systemd/lxc@.service.in | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/config/init/systemd/lxc@.service.in b/config/init/systemd/lxc@.service.in
+index a2aa2211..f312763c 100644
+--- a/config/init/systemd/lxc@.service.in
++++ b/config/init/systemd/lxc@.service.in
+@@ -1,15 +1,15 @@
+ [Unit]
+ Description=LXC Container: %i
+ # This pulls in apparmor, dev-setup, lxc-net
+-After=lxc.service
++After=lxc.service lxc-monitord.service
+ Wants=lxc.service
+ Documentation=man:lxc-start man:lxc
+ 
+ [Service]
+-Type=simple
++Type=forking
+ KillMode=mixed
+ TimeoutStopSec=120s
+-ExecStart=@BINDIR@/lxc-start -F -n %i
++ExecStart=@BINDIR@/lxc-start -n %i
+ ExecStop=@BINDIR@/lxc-stop -n %i
+ # Environment=BOOTUP=serial
+ # Environment=CONSOLETYPE=serial
+-- 
+2.11.0
+

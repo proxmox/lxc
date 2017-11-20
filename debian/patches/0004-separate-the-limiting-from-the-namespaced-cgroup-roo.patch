@@ -1,0 +1,709 @@
+From 6ebdc24c00b4dee75aebef3136469a5297e1d9ee Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Tue, 15 Nov 2016 09:20:24 +0100
+Subject: [PATCH 4/8] separate the limiting from the namespaced cgroup root
+
+When cgroup namespaces are enabled a privileged container
+with mixed cgroups has full write access to its own root
+cgroup effectively allowing it to overwrite values written
+from the outside or configured via lxc.cgroup.*.
+
+This patch causes an additional 'ns/' directory to be
+created in all cgroups if cgroup namespaces and cgfsng are
+being used in order to combat this.
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ src/lxc/cgroups/cgfs.c      | 19 ++++++++---
+ src/lxc/cgroups/cgfsng.c    | 79 +++++++++++++++++++++++++++++++++++++--------
+ src/lxc/cgroups/cgmanager.c | 19 ++++++++---
+ src/lxc/cgroups/cgroup.c    | 17 +++++-----
+ src/lxc/cgroups/cgroup.h    | 22 ++++++++-----
+ src/lxc/commands.c          | 76 ++++++++++++++++++++++++++++++++++---------
+ src/lxc/commands.h          |  2 ++
+ src/lxc/criu.c              |  4 +--
+ src/lxc/start.c             | 27 ++++++++++++----
+ 9 files changed, 204 insertions(+), 61 deletions(-)
+
+diff --git a/src/lxc/cgroups/cgfs.c b/src/lxc/cgroups/cgfs.c
+index bcbd6613..573ccb25 100644
+--- a/src/lxc/cgroups/cgfs.c
++++ b/src/lxc/cgroups/cgfs.c
+@@ -2387,12 +2387,15 @@ static void cgfs_destroy(void *hdata, struct lxc_conf *conf)
+ 	free(d);
+ }
+ 
+-static inline bool cgfs_create(void *hdata)
++static inline bool cgfs_create(void *hdata, bool inner)
+ {
+ 	struct cgfs_data *d = hdata;
+ 	struct cgroup_process_info *i;
+ 	struct cgroup_meta_data *md;
+ 
++	if (inner)
++		return true;
++
+ 	if (!d)
+ 		return false;
+ 	md = d->meta;
+@@ -2403,12 +2406,15 @@ static inline bool cgfs_create(void *hdata)
+ 	return true;
+ }
+ 
+-static inline bool cgfs_enter(void *hdata, pid_t pid)
++static inline bool cgfs_enter(void *hdata, pid_t pid, bool inner)
+ {
+ 	struct cgfs_data *d = hdata;
+ 	struct cgroup_process_info *i;
+ 	int ret;
+ 
++	if (inner)
++		return true;
++
+ 	if (!d)
+ 		return false;
+ 	i = d->info;
+@@ -2432,10 +2438,12 @@ static inline bool cgfs_create_legacy(void *hdata, pid_t pid)
+ 	return true;
+ }
+ 
+-static const char *cgfs_get_cgroup(void *hdata, const char *subsystem)
++static const char *cgfs_get_cgroup(void *hdata, const char *subsystem, bool inner)
+ {
+ 	struct cgfs_data *d = hdata;
+ 
++	(void)inner;
++
+ 	if (!d)
+ 		return NULL;
+ 	return lxc_cgroup_get_hierarchy_path_data(subsystem, d);
+@@ -2651,13 +2659,16 @@ static bool do_cgfs_chown(char *cgroup_path, struct lxc_conf *conf)
+ 	return true;
+ }
+ 
+-static bool cgfs_chown(void *hdata, struct lxc_conf *conf)
++static bool cgfs_chown(void *hdata, struct lxc_conf *conf, bool inner)
+ {
+ 	struct cgfs_data *d = hdata;
+ 	struct cgroup_process_info *info_ptr;
+ 	char *cgpath;
+ 	bool r = true;
+ 
++	if (inner)
++		return true;
++
+ 	if (!d)
+ 		return false;
+ 
+diff --git a/src/lxc/cgroups/cgfsng.c b/src/lxc/cgroups/cgfsng.c
+index 897336f0..81c589e0 100644
+--- a/src/lxc/cgroups/cgfsng.c
++++ b/src/lxc/cgroups/cgfsng.c
+@@ -77,6 +77,7 @@ struct hierarchy {
+ 	char *mountpoint;
+ 	char *base_cgroup;
+ 	char *fullcgpath;
++	char *innercgpath;
+ 	bool is_cgroup_v2;
+ };
+ 
+@@ -813,6 +814,7 @@ static void add_controller(char **clist, char *mountpoint, char *base_cgroup)
+ 	new->mountpoint = mountpoint;
+ 	new->base_cgroup = base_cgroup;
+ 	new->fullcgpath = NULL;
++	new->innercgpath = NULL;
+ 
+ 	/* record if this is the cgroup v2 hierarchy */
+ 	if (!strcmp(base_cgroup, "cgroup2"))
+@@ -1302,6 +1304,8 @@ static void cgfsng_destroy(void *hdata, struct lxc_conf *conf)
+ 				free(h->fullcgpath);
+ 				h->fullcgpath = NULL;
+ 			}
++			free(h->innercgpath);
++			h->innercgpath = NULL;
+ 		}
+ 	}
+ 
+@@ -1319,18 +1323,25 @@ struct cgroup_ops *cgfsng_ops_init(void)
+ 	return &cgfsng_ops;
+ }
+ 
+-static bool create_path_for_hierarchy(struct hierarchy *h, char *cgname)
++static bool create_path_for_hierarchy(struct hierarchy *h, char *cgname, bool inner)
+ {
+-	h->fullcgpath = must_make_path(h->mountpoint, h->base_cgroup, cgname, NULL);
+-	if (dir_exists(h->fullcgpath)) { /* it must not already exist */
+-		ERROR("Path \"%s\" already existed.", h->fullcgpath);
++	char *path;
++	if (inner) {
++		path = must_make_path(h->fullcgpath, CGROUP_NAMESPACE_SUBDIR, NULL);
++		h->innercgpath = path;
++	} else {
++		path = must_make_path(h->mountpoint, h->base_cgroup, cgname, NULL);
++		h->fullcgpath = path;
++	}
++	if (dir_exists(path)) { // it must not already exist
++		ERROR("Path \"%s\" already existed.", path);
+ 		return false;
+ 	}
+-	if (!handle_cpuset_hierarchy(h, cgname)) {
++	if (!inner && !handle_cpuset_hierarchy(h, cgname)) {
+ 		ERROR("Failed to handle cgroupfs v1 cpuset controller.");
+ 		return false;
+ 	}
+-	return mkdir_p(h->fullcgpath, 0755) == 0;
++	return mkdir_p(path, 0755) == 0;
+ }
+ 
+ static void remove_path_for_hierarchy(struct hierarchy *h, char *cgname)
+@@ -1341,11 +1352,27 @@ static void remove_path_for_hierarchy(struct hierarchy *h, char *cgname)
+ 	h->fullcgpath = NULL;
+ }
+ 
++static inline bool cgfsng_create_inner(struct cgfsng_handler_data *d)
++{
++	size_t i;
++	bool ret = true;
++	char *cgname = must_make_path(d->container_cgroup, CGROUP_NAMESPACE_SUBDIR, NULL);
++	for (i = 0; hierarchies[i]; i++) {
++		if (!create_path_for_hierarchy(hierarchies[i], cgname, true)) {
++			SYSERROR("Failed to create %s namespace subdirectory: %s", hierarchies[i]->fullcgpath, strerror(errno));
++			ret = false;
++			break;
++		}
++	}
++	free(cgname);
++	return ret;
++}
++
+ /*
+  * Try to create the same cgroup in all hierarchies.
+  * Start with cgroup_pattern; next cgroup_pattern-1, -2, ..., -999
+  */
+-static inline bool cgfsng_create(void *hdata)
++static inline bool cgfsng_create(void *hdata, bool inner)
+ {
+ 	int i;
+ 	size_t len;
+@@ -1357,9 +1384,15 @@ static inline bool cgfsng_create(void *hdata)
+ 		return false;
+ 
+ 	if (d->container_cgroup) {
++		if (inner)
++			return cgfsng_create_inner(d);
+ 		WARN("cgfsng_create called a second time");
+ 		return false;
+ 	}
++	if (inner) {
++		ERROR("cgfsng_create called twice for innner cgroup");
++		return false;
++	}
+ 
+ 	if (d->cgroup_meta.dir)
+ 		tmp = lxc_string_join("/", (const char *[]){d->cgroup_meta.dir, d->name, NULL}, false);
+@@ -1395,7 +1428,7 @@ again:
+ 		}
+ 	}
+ 	for (i = 0; hierarchies[i]; i++) {
+-		if (!create_path_for_hierarchy(hierarchies[i], cgname)) {
++		if (!create_path_for_hierarchy(hierarchies[i], cgname, false)) {
+ 			int j;
+ 			ERROR("Failed to create \"%s\"", hierarchies[i]->fullcgpath);
+ 			free(hierarchies[i]->fullcgpath);
+@@ -1415,7 +1448,7 @@ out_free:
+ 	return false;
+ }
+ 
+-static bool cgfsng_enter(void *hdata, pid_t pid)
++static bool cgfsng_enter(void *hdata, pid_t pid, bool inner)
+ {
+ 	char pidstr[25];
+ 	int i, len;
+@@ -1425,7 +1458,13 @@ static bool cgfsng_enter(void *hdata, pid_t pid)
+ 		return false;
+ 
+ 	for (i = 0; hierarchies[i]; i++) {
+-		char *fullpath = must_make_path(hierarchies[i]->fullcgpath,
++		char *fullpath;
++		if (inner)
++			fullpath = must_make_path(hierarchies[i]->fullcgpath,
++						CGROUP_NAMESPACE_SUBDIR,
++						"cgroup.procs", NULL);
++		else
++			fullpath = must_make_path(hierarchies[i]->fullcgpath,
+ 						"cgroup.procs", NULL);
+ 		if (lxc_write_to_file(fullpath, pidstr, len, false) != 0) {
+ 			SYSERROR("Failed to enter %s", fullpath);
+@@ -1441,6 +1480,7 @@ static bool cgfsng_enter(void *hdata, pid_t pid)
+ struct chown_data {
+ 	struct cgfsng_handler_data *d;
+ 	uid_t origuid; /* target uid in parent namespace */
++	bool inner;
+ };
+ 
+ /*
+@@ -1469,13 +1509,20 @@ static int chown_cgroup_wrapper(void *data)
+ 	for (i = 0; hierarchies[i]; i++) {
+ 		char *fullpath, *path = hierarchies[i]->fullcgpath;
+ 
++		if (arg->inner)
++			path = must_make_path(path, CGROUP_NAMESPACE_SUBDIR, NULL);
++
+ 		if (chown(path, destuid, 0) < 0) {
+ 			SYSERROR("Error chowning %s to %d", path, (int) destuid);
++			if (arg->inner)
++				free(path);
+ 			return -1;
+ 		}
+ 
+ 		if (chmod(path, 0775) < 0) {
+ 			SYSERROR("Error chmoding %s", path);
++			if (arg->inner)
++				free(path);
+ 			return -1;
+ 		}
+ 
+@@ -1501,12 +1548,14 @@ static int chown_cgroup_wrapper(void *data)
+ 		if (chmod(fullpath, 0664) < 0)
+ 			WARN("Error chmoding %s: %s", path, strerror(errno));
+ 		free(fullpath);
++		if (arg->inner)
++			free(path);
+ 	}
+ 
+ 	return 0;
+ }
+ 
+-static bool cgfsns_chown(void *hdata, struct lxc_conf *conf)
++static bool cgfsns_chown(void *hdata, struct lxc_conf *conf, bool inner)
+ {
+ 	struct cgfsng_handler_data *d = hdata;
+ 	struct chown_data wrap;
+@@ -1519,6 +1568,7 @@ static bool cgfsns_chown(void *hdata, struct lxc_conf *conf)
+ 
+ 	wrap.d = d;
+ 	wrap.origuid = geteuid();
++	wrap.inner = inner;
+ 
+ 	if (userns_exec_1(conf, chown_cgroup_wrapper, &wrap,
+ 			  "chown_cgroup_wrapper") < 0) {
+@@ -1815,12 +1865,15 @@ static bool cgfsng_unfreeze(void *hdata)
+ 	return true;
+ }
+ 
+-static const char *cgfsng_get_cgroup(void *hdata, const char *subsystem)
++static const char *cgfsng_get_cgroup(void *hdata, const char *subsystem, bool inner)
+ {
+ 	struct hierarchy *h = get_hierarchy(subsystem);
+ 	if (!h)
+ 		return NULL;
+ 
++	if (inner && h->innercgpath)
++		return h->innercgpath + strlen(h->mountpoint);
++
+ 	return h->fullcgpath ? h->fullcgpath + strlen(h->mountpoint) : NULL;
+ }
+ 
+@@ -1848,7 +1901,7 @@ static bool cgfsng_attach(const char *name, const char *lxcpath, pid_t pid)
+ 		char *path, *fullpath;
+ 		struct hierarchy *h = hierarchies[i];
+ 
+-		path = lxc_cmd_get_cgroup_path(name, lxcpath, h->controllers[0]);
++		path = lxc_cmd_get_attach_cgroup_path(name, lxcpath, h->controllers[0]);
+ 		if (!path) /* not running */
+ 			continue;
+ 
+diff --git a/src/lxc/cgroups/cgmanager.c b/src/lxc/cgroups/cgmanager.c
+index 054eb171..04ae3a16 100644
+--- a/src/lxc/cgroups/cgmanager.c
++++ b/src/lxc/cgroups/cgmanager.c
+@@ -610,7 +610,7 @@ static inline void cleanup_cgroups(char *path)
+ 		cgm_remove_cgroup(slist[i], path);
+ }
+ 
+-static inline bool cgm_create(void *hdata)
++static inline bool cgm_create(void *hdata, bool inner)
+ {
+ 	struct cgm_data *d = hdata;
+ 	char **slist = subsystems;
+@@ -618,6 +618,9 @@ static inline bool cgm_create(void *hdata)
+ 	int32_t existed;
+ 	char result[MAXPATHLEN], *tmp, *cgroup_path;
+ 
++	if (inner)
++		return true;
++
+ 	if (!d)
+ 		return false;
+ 
+@@ -710,13 +713,16 @@ static bool lxc_cgmanager_enter(pid_t pid, const char *controller,
+ 	return true;
+ }
+ 
+-static inline bool cgm_enter(void *hdata, pid_t pid)
++static inline bool cgm_enter(void *hdata, pid_t pid, bool inner)
+ {
+ 	struct cgm_data *d = hdata;
+ 	char **slist = subsystems;
+ 	bool ret = false;
+ 	int i;
+ 
++	if (inner)
++		return true;
++
+ 	if (!d || !d->cgroup_path)
+ 		return false;
+ 
+@@ -738,10 +744,12 @@ out:
+ 	return ret;
+ }
+ 
+-static const char *cgm_get_cgroup(void *hdata, const char *subsystem)
++static const char *cgm_get_cgroup(void *hdata, const char *subsystem, bool inner)
+ {
+ 	struct cgm_data *d = hdata;
+ 
++	(void)inner;
++
+ 	if (!d || !d->cgroup_path)
+ 		return NULL;
+ 	return d->cgroup_path;
+@@ -1542,10 +1550,13 @@ out:
+ 	return ret;
+ }
+ 
+-static bool cgm_chown(void *hdata, struct lxc_conf *conf)
++static bool cgm_chown(void *hdata, struct lxc_conf *conf, bool inner)
+ {
+ 	struct cgm_data *d = hdata;
+ 
++	if (inner)
++		return true;
++
+ 	if (!d || !d->cgroup_path)
+ 		return false;
+ 	if (!cgm_dbus_connect()) {
+diff --git a/src/lxc/cgroups/cgroup.c b/src/lxc/cgroups/cgroup.c
+index 674e3090..6f0d2fe8 100644
+--- a/src/lxc/cgroups/cgroup.c
++++ b/src/lxc/cgroups/cgroup.c
+@@ -80,19 +80,19 @@ void cgroup_destroy(struct lxc_handler *handler)
+ }
+ 
+ /* Create the container cgroups for all requested controllers. */
+-bool cgroup_create(struct lxc_handler *handler)
++bool cgroup_create(struct lxc_handler *handler, bool inner)
+ {
+ 	if (ops)
+-		return ops->create(handler->cgroup_data);
++		return ops->create(handler->cgroup_data, inner);
+ 
+ 	return false;
+ }
+ 
+ /* Enter the container init into its new cgroups for all requested controllers. */
+-bool cgroup_enter(struct lxc_handler *handler)
++bool cgroup_enter(struct lxc_handler *handler, bool inner)
+ {
+ 	if (ops)
+-		return ops->enter(handler->cgroup_data, handler->pid);
++		return ops->enter(handler->cgroup_data, handler->pid, inner);
+ 
+ 	return false;
+ }
+@@ -106,10 +106,11 @@ bool cgroup_create_legacy(struct lxc_handler *handler)
+ }
+ 
+ const char *cgroup_get_cgroup(struct lxc_handler *handler,
+-			      const char *subsystem)
++			      const char *subsystem,
++			      bool inner)
+ {
+ 	if (ops)
+-		return ops->get_cgroup(handler->cgroup_data, subsystem);
++		return ops->get_cgroup(handler->cgroup_data, subsystem, inner);
+ 
+ 	return NULL;
+ }
+@@ -155,10 +156,10 @@ bool cgroup_setup_limits(struct lxc_handler *handler, bool with_devices)
+ 	return false;
+ }
+ 
+-bool cgroup_chown(struct lxc_handler *handler)
++bool cgroup_chown(struct lxc_handler *handler, bool inner)
+ {
+ 	if (ops && ops->chown)
+-		return ops->chown(handler->cgroup_data, handler->conf);
++		return ops->chown(handler->cgroup_data, handler->conf, inner);
+ 
+ 	return true;
+ }
+diff --git a/src/lxc/cgroups/cgroup.h b/src/lxc/cgroups/cgroup.h
+index f17a6abe..f05fda4e 100644
+--- a/src/lxc/cgroups/cgroup.h
++++ b/src/lxc/cgroups/cgroup.h
+@@ -28,6 +28,12 @@
+ #include <stddef.h>
+ #include <sys/types.h>
+ 
++/* When lxc.cgroup.protect_limits is in effect the container's cgroup namespace
++ * will be moved into an additional subdirectory "cgns/" inside the cgroup in
++ * order to prevent it from accessing the outer limiting cgroup.
++ */
++#define CGROUP_NAMESPACE_SUBDIR "cgns"
++
+ struct lxc_handler;
+ struct lxc_conf;
+ struct lxc_list;
+@@ -43,10 +49,10 @@ struct cgroup_ops {
+ 
+ 	void *(*init)(struct lxc_handler *handler);
+ 	void (*destroy)(void *hdata, struct lxc_conf *conf);
+-	bool (*create)(void *hdata);
+-	bool (*enter)(void *hdata, pid_t pid);
++	bool (*create)(void *hdata, bool inner);
++	bool (*enter)(void *hdata, pid_t pid, bool inner);
+ 	bool (*create_legacy)(void *hdata, pid_t pid);
+-	const char *(*get_cgroup)(void *hdata, const char *subsystem);
++	const char *(*get_cgroup)(void *hdata, const char *subsystem, bool inner);
+ 	bool (*escape)();
+ 	int (*num_hierarchies)();
+ 	bool (*get_hierarchies)(int n, char ***out);
+@@ -54,7 +60,7 @@ struct cgroup_ops {
+ 	int (*get)(const char *filename, char *value, size_t len, const char *name, const char *lxcpath);
+ 	bool (*unfreeze)(void *hdata);
+ 	bool (*setup_limits)(void *hdata, struct lxc_list *cgroup_conf, bool with_devices);
+-	bool (*chown)(void *hdata, struct lxc_conf *conf);
++	bool (*chown)(void *hdata, struct lxc_conf *conf, bool inner);
+ 	bool (*attach)(const char *name, const char *lxcpath, pid_t pid);
+ 	bool (*mount_cgroup)(void *hdata, const char *root, int type);
+ 	int (*nrtasks)(void *hdata);
+@@ -66,14 +72,14 @@ extern bool cgroup_attach(const char *name, const char *lxcpath, pid_t pid);
+ extern bool cgroup_mount(const char *root, struct lxc_handler *handler, int type);
+ extern void cgroup_destroy(struct lxc_handler *handler);
+ extern bool cgroup_init(struct lxc_handler *handler);
+-extern bool cgroup_create(struct lxc_handler *handler);
++extern bool cgroup_create(struct lxc_handler *handler, bool inner);
+ extern bool cgroup_setup_limits(struct lxc_handler *handler, bool with_devices);
+-extern bool cgroup_chown(struct lxc_handler *handler);
+-extern bool cgroup_enter(struct lxc_handler *handler);
++extern bool cgroup_chown(struct lxc_handler *handler, bool inner);
++extern bool cgroup_enter(struct lxc_handler *handler, bool inner);
+ extern void cgroup_cleanup(struct lxc_handler *handler);
+ extern bool cgroup_create_legacy(struct lxc_handler *handler);
+ extern int cgroup_nrtasks(struct lxc_handler *handler);
+-extern const char *cgroup_get_cgroup(struct lxc_handler *handler, const char *subsystem);
++extern const char *cgroup_get_cgroup(struct lxc_handler *handler, const char *subsystem, bool inner);
+ extern bool cgroup_escape();
+ extern int cgroup_num_hierarchies();
+ extern bool cgroup_get_hierarchies(int i, char ***out);
+diff --git a/src/lxc/commands.c b/src/lxc/commands.c
+index 68fbd387..ccdbeeba 100644
+--- a/src/lxc/commands.c
++++ b/src/lxc/commands.c
+@@ -410,30 +410,29 @@ static int lxc_cmd_get_clone_flags_callback(int fd, struct lxc_cmd_req *req,
+ 	return lxc_cmd_rsp_send(fd, &rsp);
+ }
+ 
+-/*
+- * lxc_cmd_get_cgroup_path: Calculate a container's cgroup path for a
+- * particular subsystem. This is the cgroup path relative to the root
+- * of the cgroup filesystem.
+- *
+- * @name      : name of container to connect to
+- * @lxcpath   : the lxcpath in which the container is running
+- * @subsystem : the subsystem being asked about
+- *
+- * Returns the path on success, NULL on failure. The caller must free() the
+- * returned path.
+- */
+-char *lxc_cmd_get_cgroup_path(const char *name, const char *lxcpath,
+-	const char *subsystem)
++static char *do_lxc_cmd_get_cgroup_path(const char *name, const char *lxcpath,
++	const char *subsystem,
++	bool inner)
+ {
+ 	int ret, stopped;
++	size_t subsyslen = strlen(subsystem);
++
+ 	struct lxc_cmd_rr cmd = {
+ 		.req = {
+ 			.cmd = LXC_CMD_GET_CGROUP,
+-			.datalen = strlen(subsystem)+1,
++			.datalen = subsyslen+1,
+ 			.data = subsystem,
+ 		},
+ 	};
+ 
++	if (inner) {
++		char *data = alloca(subsyslen+2);
++		memcpy(data, subsystem, subsyslen+1);
++		data[subsyslen+1] = 1;
++		cmd.req.datalen = subsyslen+2,
++		cmd.req.data = data;
++	}
++
+ 	ret = lxc_cmd(name, &cmd, &stopped, lxcpath, NULL);
+ 	if (ret < 0) {
+ 		TRACE("command %s failed for container \"%s\": %s.",
+@@ -458,16 +457,61 @@ char *lxc_cmd_get_cgroup_path(const char *name, const char *lxcpath,
+ 	return cmd.rsp.data;
+ }
+ 
++/*
++ * lxc_cmd_get_cgroup_path: Calculate a container's cgroup path for a
++ * particular subsystem. This is the cgroup path relative to the root
++ * of the cgroup filesystem.
++ *
++ * @name      : name of container to connect to
++ * @lxcpath   : the lxcpath in which the container is running
++ * @subsystem : the subsystem being asked about
++ *
++ * Returns the path on success, NULL on failure. The caller must free() the
++ * returned path.
++ */
++char *lxc_cmd_get_cgroup_path(const char *name, const char *lxcpath,
++	const char *subsystem)
++{
++	return do_lxc_cmd_get_cgroup_path(name, lxcpath, subsystem, false);
++}
++
++/*
++ * lxc_cmd_get_attach_cgroup_path: Calculate a container's inner cgroup path
++ * for a particular subsystem. This is the cgroup path relative to the root
++ * of the cgroup filesystem.
++ *
++ * @name      : name of container to connect to
++ * @lxcpath   : the lxcpath in which the container is running
++ * @subsystem : the subsystem being asked about
++ *
++ * Returns the path on success, NULL on failure. The caller must free() the
++ * returned path.
++ */
++char *lxc_cmd_get_attach_cgroup_path(const char *name, const char *lxcpath,
++	const char *subsystem)
++{
++	return do_lxc_cmd_get_cgroup_path(name, lxcpath, subsystem, true);
++}
++
++
+ static int lxc_cmd_get_cgroup_callback(int fd, struct lxc_cmd_req *req,
+ 				       struct lxc_handler *handler)
+ {
+ 	struct lxc_cmd_rsp rsp;
+ 	const char *path;
++	const char *subsystem;
++	size_t subsyslen;
++	bool inner = false;
+ 
+ 	if (req->datalen < 1)
+ 		return -1;
+ 
+-	path = cgroup_get_cgroup(handler, req->data);
++	subsystem = req->data;
++	subsyslen = strlen(subsystem);
++	if (req->datalen == subsyslen+2)
++		inner = (subsystem[subsyslen+1] == 1);
++
++	path = cgroup_get_cgroup(handler, req->data, inner);
+ 	if (!path)
+ 		return -1;
+ 	rsp.datalen = strlen(path) + 1,
+diff --git a/src/lxc/commands.h b/src/lxc/commands.h
+index 28428c77..9557dcaa 100644
+--- a/src/lxc/commands.h
++++ b/src/lxc/commands.h
+@@ -82,6 +82,8 @@ extern int lxc_cmd_console(const char *name, int *ttynum, int *fd,
+  */
+ extern char *lxc_cmd_get_cgroup_path(const char *name, const char *lxcpath,
+ 			const char *subsystem);
++extern char *lxc_cmd_get_attach_cgroup_path(const char *name,
++			const char *lxcpath, const char *subsystem);
+ extern int lxc_cmd_get_clone_flags(const char *name, const char *lxcpath);
+ extern char *lxc_cmd_get_config_item(const char *name, const char *item, const char *lxcpath);
+ extern char *lxc_cmd_get_name(const char *hashed_sock);
+diff --git a/src/lxc/criu.c b/src/lxc/criu.c
+index 96688edc..539ae8bd 100644
+--- a/src/lxc/criu.c
++++ b/src/lxc/criu.c
+@@ -324,7 +324,7 @@ static void exec_criu(struct criu_opts *opts)
+ 		} else {
+ 			const char *p;
+ 
+-			p = cgroup_get_cgroup(opts->handler, controllers[0]);
++			p = cgroup_get_cgroup(opts->handler, controllers[0], false);
+ 			if (!p) {
+ 				ERROR("failed to get cgroup path for %s", controllers[0]);
+ 				goto err;
+@@ -857,7 +857,7 @@ static void do_restore(struct lxc_container *c, int status_pipe, struct migrate_
+ 		goto out_fini_handler;
+ 	}
+ 
+-	if (!cgroup_create(handler)) {
++	if (!cgroup_create(handler, false)) {
+ 		ERROR("failed creating groups");
+ 		goto out_fini_handler;
+ 	}
+diff --git a/src/lxc/start.c b/src/lxc/start.c
+index a6a40c72..920f3c23 100644
+--- a/src/lxc/start.c
++++ b/src/lxc/start.c
+@@ -1217,7 +1217,7 @@ static int lxc_spawn(struct lxc_handler *handler)
+ 
+ 	cgroups_connected = true;
+ 
+-	if (!cgroup_create(handler)) {
++	if (!cgroup_create(handler, false)) {
+ 		ERROR("Failed creating cgroups.");
+ 		goto out_delete_net;
+ 	}
+@@ -1292,10 +1292,10 @@ static int lxc_spawn(struct lxc_handler *handler)
+ 		goto out_delete_net;
+ 	}
+ 
+-	if (!cgroup_enter(handler))
++	if (!cgroup_enter(handler, false))
+ 		goto out_delete_net;
+ 
+-	if (!cgroup_chown(handler))
++	if (!cgroup_chown(handler, false))
+ 		goto out_delete_net;
+ 
+ 	handler->netnsfd = lxc_preserve_ns(handler->pid, "net");
+@@ -1338,15 +1338,30 @@ static int lxc_spawn(struct lxc_handler *handler)
+ 		goto out_delete_net;
+ 	}
+ 
+-	if (lxc_sync_barrier_child(handler, LXC_SYNC_CGROUP_UNSHARE))
+-		goto out_delete_net;
+-
+ 	if (!cgroup_setup_limits(handler, true)) {
+ 		ERROR("Failed to setup the devices cgroup for container \"%s\".", name);
+ 		goto out_delete_net;
+ 	}
+ 	TRACE("Set up cgroup device limits");
+ 
++	if (cgns_supported()) {
++		if (!cgroup_create(handler, true)) {
++			ERROR("failed to create inner cgroup separation layer");
++			goto out_delete_net;
++		}
++		if (!cgroup_enter(handler, true)) {
++			ERROR("failed to enter inner cgroup separation layer");
++			goto out_delete_net;
++		}
++		if (!cgroup_chown(handler, true)) {
++			ERROR("failed chown inner cgroup separation layer");
++			goto out_delete_net;
++		}
++	}
++
++	if (lxc_sync_barrier_child(handler, LXC_SYNC_CGROUP_UNSHARE))
++		goto out_delete_net;
++
+ 	cgroup_disconnect();
+ 	cgroups_connected = false;
+ 
+-- 
+2.11.0
+
