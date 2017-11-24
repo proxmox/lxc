@@ -1,7 +1,7 @@
 From 6ebdc24c00b4dee75aebef3136469a5297e1d9ee Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Tue, 15 Nov 2016 09:20:24 +0100
-Subject: [PATCH 4/8] separate the limiting from the namespaced cgroup root
+Subject: [PATCH 04/13] separate the limiting from the namespaced cgroup root
 
 When cgroup namespaces are enabled a privileged container
 with mixed cgroups has full write access to its own root

@@ -1,7 +1,7 @@
 From 2001f560675efca7d6dcabe8fb8b376442d5d6d0 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Mon, 20 Nov 2017 10:51:36 +0100
-Subject: [PATCH 8/8] Make lxc@.service forking
+Subject: [PATCH 08/13] Make lxc@.service forking
 
 Previously the init process' output was dumped into the log
 files since the service used Type=simple and

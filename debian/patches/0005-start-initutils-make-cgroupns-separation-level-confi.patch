@@ -1,7 +1,7 @@
 From ef58cfcf70fbe666acee0c407f77a22eeb1eec4f Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Wed, 16 Nov 2016 09:53:42 +0100
-Subject: [PATCH 5/8] start/initutils: make cgroupns separation level
+Subject: [PATCH 05/13] start/initutils: make cgroupns separation level
  configurable
 
 Adds a new global config variable `lxc.cgroup.separate`

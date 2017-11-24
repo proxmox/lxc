@@ -6,3 +6,8 @@
 0006-rename-cgroup-namespace-directory-to-ns.patch
 0007-possibility-to-run-lxc-monitord-as-a-regular-daemon.patch
 0008-Make-lxc-.service-forking.patch
+0009-console-non-functional-changes.patch
+0010-console-non-functional-changes.patch
+0011-console-fix-console-info-message.patch
+0012-console-report-detach-message-on-demand.patch
+0013-console-use-correct-escape-sequence-check.patch

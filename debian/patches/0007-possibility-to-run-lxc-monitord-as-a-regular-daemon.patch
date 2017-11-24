@@ -1,7 +1,7 @@
 From 6811fb42be10c4eaf026be35914c546a95520b9e Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Mon, 20 Nov 2017 10:49:41 +0100
-Subject: [PATCH 7/8] possibility to run lxc-monitord as a regular daemon
+Subject: [PATCH 07/13] possibility to run lxc-monitord as a regular daemon
 
 lxc-monitord instances are spawned on demand and, if this
 happens from a service, the daemon is considered part of

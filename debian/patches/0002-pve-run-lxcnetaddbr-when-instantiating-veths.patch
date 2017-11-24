@@ -1,7 +1,7 @@
 From 6aecf604cf28c5164f3d957b0ad33bf03527fa26 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Fri, 10 Feb 2017 09:15:37 +0100
-Subject: [PATCH 2/8] pve: run lxcnetaddbr when instantiating veths
+Subject: [PATCH 02/13] pve: run lxcnetaddbr when instantiating veths
 
 FIXME: Why aren't we using regular up-scripts?
 
