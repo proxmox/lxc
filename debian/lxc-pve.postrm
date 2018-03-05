@@ -1,0 +1,23 @@
+#! /bin/sh
+
+set -e
+
+# remove diversion of apparmor feature pinning file, see preinst
+aa_feature_remove_diversion() {
+  dpkg-divert --package lxc-pve --remove --rename \
+      --divert /usr/share/apparmor-features/features.stock \
+      /usr/share/apparmor-features/features
+}
+
+case "$1" in
+  abort-upgrade)
+    if dpkg --compare-versions "$2" 'lt' '2.1.1-3'; then
+      aa_feature_remove_diversion
+    fi
+    ;;
+  remove|abort-install|disappear)
+    aa_feature_remove_diversion
+    ;;
+esac
+
+exit 0

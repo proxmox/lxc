@@ -9,3 +9,4 @@ usr/lib/*/lxc/hooks/*
 usr/lib/*/lxc/rootfs/README
 lib/systemd
 etc
+debian/features /usr/share/apparmor-features/

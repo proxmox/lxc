@@ -1,0 +1,25 @@
+#! /bin/sh
+
+set -e
+
+# divert apparmor feature pinning file
+# Debian 9.4+ pins to a kernel 4.9 feature set which breaks mount
+# mediation, among other things
+aa_feature_add_diversion() {
+  dpkg-divert --package lxc-pve --add --rename \
+      --divert /usr/share/apparmor-features/features.stock \
+      /usr/share/apparmor-features/features
+}
+
+case "$1" in
+  upgrade)
+    if dpkg --compare-versions "$2" 'lt' '2.1.1-3'; then
+      aa_feature_add_diversion
+    fi
+    ;;
+  *)
+    aa_feature_add_diversion
+    ;;
+esac
+
+exit 0
