@@ -1,7 +1,7 @@
-From 1341290e8af87aab15e844abb1a1451cb21ec275 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Fri, 23 Dec 2016 15:57:24 +0100
-Subject: [PATCH 06/13] rename cgroup namespace directory to ns
+Subject: [PATCH] rename cgroup namespace directory to ns
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/lxc/cgroups/cgroup.h b/src/lxc/cgroups/cgroup.h
-index f05fda4e..34c9d89c 100644
+index 3a63133d..544742df 100644
 --- a/src/lxc/cgroups/cgroup.h
 +++ b/src/lxc/cgroups/cgroup.h
 @@ -32,7 +32,7 @@

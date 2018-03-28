@@ -1,7 +1,7 @@
-From 6811fb42be10c4eaf026be35914c546a95520b9e Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Mon, 20 Nov 2017 10:49:41 +0100
-Subject: [PATCH 07/13] possibility to run lxc-monitord as a regular daemon
+Subject: [PATCH] possibility to run lxc-monitord as a regular daemon
 
 lxc-monitord instances are spawned on demand and, if this
 happens from a service, the daemon is considered part of
@@ -14,7 +14,7 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  config/init/systemd/lxc-monitord.service.in | 12 ++++++
  configure.ac                                |  1 +
  lxc.spec.in                                 |  1 +
- src/lxc/lxc_monitord.c                      | 60 +++++++++++++++++++++--------
+ src/lxc/cmd/lxc_monitord.c                  | 60 +++++++++++++++++++++--------
  5 files changed, 63 insertions(+), 21 deletions(-)
  create mode 100644 config/init/systemd/lxc-monitord.service.in
 
@@ -67,10 +67,10 @@ index 00000000..40635168
 +[Install]
 +WantedBy=multi-user.target
 diff --git a/configure.ac b/configure.ac
-index 5566d298..31822e58 100644
+index 50c99836..efe56991 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -709,6 +709,7 @@ AC_CONFIG_FILES([
+@@ -658,6 +658,7 @@ AC_CONFIG_FILES([
  	config/init/systemd/lxc.service
  	config/init/systemd/lxc@.service
  	config/init/systemd/lxc-net.service
@@ -79,10 +79,10 @@ index 5566d298..31822e58 100644
  	config/init/sysvinit/lxc-containers
  	config/init/sysvinit/lxc-net
 diff --git a/lxc.spec.in b/lxc.spec.in
-index e31115de..36ab7d9d 100644
+index 004ced26..1adbb6bd 100644
 --- a/lxc.spec.in
 +++ b/lxc.spec.in
-@@ -260,6 +260,7 @@ fi
+@@ -235,6 +235,7 @@ fi
  %{_unitdir}/lxc-net.service
  %{_unitdir}/lxc.service
  %{_unitdir}/lxc@.service
@@ -90,11 +90,11 @@ index e31115de..36ab7d9d 100644
  %else
  %{_sysconfdir}/rc.d/init.d/lxc
  %{_sysconfdir}/rc.d/init.d/lxc-net
-diff --git a/src/lxc/lxc_monitord.c b/src/lxc/lxc_monitord.c
-index c4c2ba0d..c3534e3d 100644
---- a/src/lxc/lxc_monitord.c
-+++ b/src/lxc/lxc_monitord.c
-@@ -345,17 +345,44 @@ static void lxc_monitord_sig_handler(int sig)
+diff --git a/src/lxc/cmd/lxc_monitord.c b/src/lxc/cmd/lxc_monitord.c
+index 99f2bdb8..2bc44dea 100644
+--- a/src/lxc/cmd/lxc_monitord.c
++++ b/src/lxc/cmd/lxc_monitord.c
+@@ -346,17 +346,44 @@ static void lxc_monitord_sig_handler(int sig)
  
  int main(int argc, char *argv[])
  {
@@ -143,7 +143,7 @@ index c4c2ba0d..c3534e3d 100644
  			"NOTE: lxc-monitord is intended for use by lxc internally\n"
  			"      and does not need to be run by hand\n\n");
  		exit(EXIT_FAILURE);
-@@ -377,9 +404,6 @@ int main(int argc, char *argv[])
+@@ -378,9 +405,6 @@ int main(int argc, char *argv[])
  		INFO("Failed to open log file %s, log will be lost.", lxcpath);
  	lxc_log_options_no_override();
  
@@ -153,7 +153,7 @@ index c4c2ba0d..c3534e3d 100644
  	if (sigfillset(&mask) ||
  	    sigdelset(&mask, SIGILL)  ||
  	    sigdelset(&mask, SIGSEGV) ||
-@@ -411,15 +435,17 @@ int main(int argc, char *argv[])
+@@ -412,15 +436,17 @@ int main(int argc, char *argv[])
  		goto on_error;
  	monitord_created = true;
  
@@ -180,9 +180,9 @@ index c4c2ba0d..c3534e3d 100644
  
  	if (lxc_monitord_mainloop_add(&mon)) {
  		ERROR("Failed to add mainloop handlers.");
-@@ -429,7 +455,7 @@ int main(int argc, char *argv[])
+@@ -430,7 +456,7 @@ int main(int argc, char *argv[])
  	NOTICE("lxc-monitord with pid %d is now monitoring lxcpath %s.",
- 	       getpid(), mon.lxcpath);
+ 	       lxc_raw_getpid(), mon.lxcpath);
  	for (;;) {
 -		ret = lxc_mainloop(&mon.descr, 1000 * 30);
 +		ret = lxc_mainloop(&mon.descr, persistent ? -1 : 1000 * 30);

@@ -1,8 +1,7 @@
-From ef58cfcf70fbe666acee0c407f77a22eeb1eec4f Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
-Date: Wed, 16 Nov 2016 09:53:42 +0100
-Subject: [PATCH 05/13] start/initutils: make cgroupns separation level
- configurable
+Date: Wed, 28 Mar 2018 13:41:46 +0200
+Subject: [PATCH] start/initutils: make cgroupns separation level configurable
 
 Adds a new global config variable `lxc.cgroup.separate`
 which controls whether a separation directory for cgroup
@@ -17,10 +16,10 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  3 files changed, 24 insertions(+), 19 deletions(-)
 
 diff --git a/src/lxc/initutils.c b/src/lxc/initutils.c
-index c190d6d5..97650e67 100644
+index 56926fb5..c5f19ca8 100644
 --- a/src/lxc/initutils.c
 +++ b/src/lxc/initutils.c
-@@ -88,14 +88,15 @@ static char *copy_global_config_value(char *p)
+@@ -49,14 +49,15 @@ static char *copy_global_config_value(char *p)
  const char *lxc_global_config_value(const char *option_name)
  {
  	static const char * const options[][2] = {
@@ -45,23 +44,23 @@ index c190d6d5..97650e67 100644
  	};
  
 diff --git a/src/lxc/initutils.h b/src/lxc/initutils.h
-index c021fd61..443ad026 100644
+index ec44554e..6532f301 100644
 --- a/src/lxc/initutils.h
 +++ b/src/lxc/initutils.h
-@@ -43,6 +43,7 @@
+@@ -42,6 +42,7 @@
  #define DEFAULT_THIN_POOL "lxc"
  #define DEFAULT_ZFSROOT "lxc"
  #define DEFAULT_RBDPOOL "lxc"
 +#define DEFAULT_CGPROTECT "privileged"
  
- extern void lxc_setup_fs(void);
- extern const char *lxc_global_config_value(const char *option_name);
+ #ifndef PR_SET_MM
+ #define PR_SET_MM 35
 diff --git a/src/lxc/start.c b/src/lxc/start.c
-index 920f3c23..89e9be96 100644
+index 772eacc2..ae13aae9 100644
 --- a/src/lxc/start.c
 +++ b/src/lxc/start.c
-@@ -1345,17 +1345,20 @@ static int lxc_spawn(struct lxc_handler *handler)
- 	TRACE("Set up cgroup device limits");
+@@ -1721,17 +1721,20 @@ static int lxc_spawn(struct lxc_handler *handler)
+ 	TRACE("Set up legacy device cgroup controller limits");
  
  	if (cgns_supported()) {
 -		if (!cgroup_create(handler, true)) {
