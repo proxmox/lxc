@@ -29,6 +29,10 @@ $(DEB1): | submodule
 	mkdir $(BUILDSRC)
 	cp -a $(SRCDIR)/* $(BUILDSRC)/
 	cp -a debian $(BUILDSRC)/debian
+	mkdir $(BUILDSRC)/debian/config
+	for i in config/*.conf.in; do \
+	  sed -e 's|@LXCTEMPLATECONFIG@|/usr/share/lxc/config|g' $$i > $(BUILDSRC)/debian/$${i%.in} ; \
+	done
 	echo "git clone git://git.proxmox.com/git/lxc.git\\ngit checkout $(GITVERSION)" > $(BUILDSRC)/debian/SOURCE
 	cd $(BUILDSRC); dpkg-buildpackage -rfakeroot -b -us -uc
 	lintian $(DEBS)

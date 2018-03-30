@@ -10,3 +10,4 @@ usr/lib/*/lxc/rootfs/README
 lib/systemd
 etc
 debian/features /usr/share/apparmor-features/
+debian/config/* /usr/share/lxc/config/
