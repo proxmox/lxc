@@ -1,6 +1,6 @@
 PACKAGE=lxc-pve
 LXCVER=3.0.0
-DEBREL=1
+DEBREL=2
 
 SRCDIR=lxc
 BUILDSRC := $(SRCDIR).tmp

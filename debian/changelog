@@ -1,3 +1,9 @@
+lxc (3.0.0-2) unstable; urgency=medium
+
+  * install configs from lxc-templates again
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 30 Mar 2018 10:19:39 +0200
+
 lxc (3.0.0-1) unstable; urgency=medium
 
   * update to lxc-3.0.0
