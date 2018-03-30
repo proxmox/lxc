@@ -6,7 +6,7 @@ SRCDIR=lxc
 BUILDSRC := $(SRCDIR).tmp
 
 ARCH:=$(shell dpkg-architecture -qDEB_BUILD_ARCH)
-GITVERSION:=$(shell cat .git/refs/heads/master)
+GITVERSION:=$(shell git rev-parse HEAD)
 
 DEB1=${PACKAGE}_${LXCVER}-${DEBREL}_${ARCH}.deb
 DEB2=${PACKAGE}-dev_${LXCVER}-${DEBREL}_${ARCH}.deb \
