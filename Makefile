@@ -33,6 +33,15 @@ $(DEB1): | submodule
 	cd $(BUILDSRC); dpkg-buildpackage -rfakeroot -b -us -uc
 	lintian $(DEBS)
 
+.PHONY: update-template-configs
+update-template-configs:
+	test -d lxc-templates || git clone https://github.com/lxc/lxc-templates lxc-templates
+	cd lxc-templates && git pull
+	rm -rf config
+	cp -R lxc-templates/config config
+	rm -f config/*.am config/*.m4
+	git add config
+
 .PHONY: upload
 upload: ${DEBS}
 	tar cf - ${DEBS} | ssh repoman@repo.proxmox.com upload --product pve --dist stretch
