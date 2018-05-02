@@ -6,3 +6,13 @@
 0006-rename-cgroup-namespace-directory-to-ns.patch
 0007-possibility-to-run-lxc-monitord-as-a-regular-daemon.patch
 0008-Make-lxc-.service-forking.patch
+fixes/0001-conf-ret-try-devpts-mount-without-gid-5-on-error.patch
+fixes/0002-Fix-the-memory-leak-in-cgfsng_attach.patch
+fixes/0003-Fix-memory-leak-in-list_active_containers.patch
+fixes/0004-pam-cgfs-ignore-the-system-umask-when-creating-the-c.patch
+fixes/0005-attach-always-drop-supplementary-groups.patch
+fixes/0006-storage-rsync-free-memory-on-error.patch
+fixes/0007-tools-utils-free-memory-on-error.patch
+fixes/0008-fix-signal-sending-in-lxc.init.patch
+fixes/0009-conf-fix-temporary-file-creation.patch
+fixes/0010-ringbuf-fix-temporary-file-creation.patch

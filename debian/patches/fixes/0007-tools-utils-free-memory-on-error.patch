@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: C0deAi <benjamin.bales@assrc.us>
+Date: Fri, 6 Apr 2018 12:56:50 -0400
+Subject: [PATCH] tools/utils: free memory on error
+
+Closes #2262.
+
+Signed-off-by: C0deAi <techsupport@mycode.ai>
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+---
+ src/lxc/tools/tool_utils.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/src/lxc/tools/tool_utils.c b/src/lxc/tools/tool_utils.c
+index ca325456..71e5036b 100644
+--- a/src/lxc/tools/tool_utils.c
++++ b/src/lxc/tools/tool_utils.c
+@@ -794,8 +794,11 @@ int lxc_config_define_add(struct lxc_list *defines, char *arg)
+ 		return -1;
+ 
+ 	dent->elem = parse_line(arg);
+-	if (!dent->elem)
++	if (!dent->elem) {
++		free(dent);
+ 		return -1;
++	}
++
+ 	lxc_list_add_tail(defines, dent);
+ 	return 0;
+ }
+-- 
+2.11.0
+

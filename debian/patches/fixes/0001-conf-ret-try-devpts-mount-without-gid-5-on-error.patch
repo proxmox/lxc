@@ -1,0 +1,67 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Christian Brauner <christian.brauner@ubuntu.com>
+Date: Thu, 12 Apr 2018 11:12:06 +0200
+Subject: [PATCH] conf: ret-try devpts mount without gid=5 on error
+
+We should always default to mounting devpts with gid=5 but we should fallback
+to mounting without gid=5. This let's us cover use-cases such as container
+started with only a single mapping e.g.:
+
+lxc.idmap = u 1000 1000 1
+lxc.idmap = g 1000 1000 1
+
+Closes #2257.
+
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+---
+ src/lxc/conf.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/src/lxc/conf.c b/src/lxc/conf.c
+index fe30800d..a604adbb 100644
+--- a/src/lxc/conf.c
++++ b/src/lxc/conf.c
+@@ -1503,7 +1503,7 @@ static struct id_map *find_mapped_nsid_entry(struct lxc_conf *conf, unsigned id,
+ static int lxc_setup_devpts(struct lxc_conf *conf)
+ {
+ 	int ret;
+-	const char *default_devpts_mntopts;
++	const char *default_devpts_mntopts = "gid=5,newinstance,ptmxmode=0666,mode=0620";
+ 	char devpts_mntopts[256];
+ 
+ 	if (conf->pts <= 0) {
+@@ -1512,11 +1512,6 @@ static int lxc_setup_devpts(struct lxc_conf *conf)
+ 		return 0;
+ 	}
+ 
+-	if (!find_mapped_nsid_entry(conf, 5, ID_TYPE_GID))
+-		default_devpts_mntopts = "newinstance,ptmxmode=0666,mode=0620";
+-	else
+-		default_devpts_mntopts = "newinstance,ptmxmode=0666,mode=0620,gid=5";
+-
+ 	ret = snprintf(devpts_mntopts, sizeof(devpts_mntopts), "%s,max=%d",
+ 		       default_devpts_mntopts, conf->pts);
+ 	if (ret < 0 || (size_t)ret >= sizeof(devpts_mntopts))
+@@ -1540,11 +1535,16 @@ static int lxc_setup_devpts(struct lxc_conf *conf)
+ 		return -1;
+ 	}
+ 
+-	/* Mount new devpts instance. */
++	/* mount new devpts instance */
+ 	ret = mount("devpts", "/dev/pts", "devpts", MS_NOSUID | MS_NOEXEC, devpts_mntopts);
+ 	if (ret < 0) {
+-		SYSERROR("Failed to mount new devpts instance");
+-		return -1;
++		/* try mounting without gid=5 */
++		ret = mount("devpts", "/dev/pts", "devpts",
++			    MS_NOSUID | MS_NOEXEC, devpts_mntopts + sizeof("gid=5"));
++		if (ret < 0) {
++			SYSERROR("Failed to mount new devpts instance");
++			return -1;
++		}
+ 	}
+ 	DEBUG("Mount new devpts instance with options \"%s\"", devpts_mntopts);
+ 
+-- 
+2.11.0
+
