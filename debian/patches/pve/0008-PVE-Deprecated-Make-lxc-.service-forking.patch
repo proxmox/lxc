@@ -1,11 +1,13 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Mon, 20 Nov 2017 10:51:36 +0100
-Subject: [PATCH] Make lxc@.service forking
+Subject: [PATCH] PVE: [Deprecated] Make lxc@.service forking
 
 Previously the init process' output was dumped into the log
 files since the service used Type=simple and
 StandardOutput/Error=syslog.
+
+Deprecated, we provide pve-container@.service instead.
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---

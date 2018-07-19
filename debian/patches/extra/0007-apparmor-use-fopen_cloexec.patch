@@ -1,0 +1,44 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Wed, 25 Jul 2018 12:06:16 +0200
+Subject: [PATCH] apparmor: use fopen_cloexec
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+(cherry picked from commit 7e556d185c49ff99825612bc7d6c93afc34113c8)
+---
+ src/lxc/lsm/apparmor.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/lxc/lsm/apparmor.c b/src/lxc/lsm/apparmor.c
+index 95b61943..5fe6d525 100644
+--- a/src/lxc/lsm/apparmor.c
++++ b/src/lxc/lsm/apparmor.c
+@@ -32,6 +32,7 @@
+ #include "lsm.h"
+ #include "conf.h"
+ #include "utils.h"
++#include "initutils.h"
+ 
+ lxc_log_define(apparmor, lsm);
+ 
+@@ -68,7 +69,7 @@ static int apparmor_enabled(void)
+ 	char e;
+ 	int ret;
+ 
+-	fin = fopen(AA_ENABLED_FILE, "r");
++	fin = fopen_cloexec(AA_ENABLED_FILE, "r");
+ 	if (!fin)
+ 		return 0;
+ 	ret = fscanf(fin, "%c", &e);
+@@ -95,7 +96,7 @@ static char *apparmor_process_label_get(pid_t pid)
+ 		return NULL;
+ 	}
+ again:
+-	f = fopen(path, "r");
++	f = fopen_cloexec(path, "r");
+ 	if (!f) {
+ 		SYSERROR("opening %s", path);
+ 		free(buf);
+-- 
+2.11.0
+

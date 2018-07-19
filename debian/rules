@@ -24,7 +24,8 @@ override_dh_auto_configure:
 	--disable-python \
 	--disable-lua \
 	--disable-examples \
-	--enable-seccomp
+	--enable-seccomp \
+	--disable-static
 
 override_dh_fixperms:
 	dh_fixperms -Xusr/lib/$(DEB_HOST_MULTIARCH)/lxc/lxc-user-nic

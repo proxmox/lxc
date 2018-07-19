@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Christian Brauner <christian.brauner@ubuntu.com>
+Date: Mon, 16 Jul 2018 15:22:13 +0200
+Subject: [PATCH] tests: add lxc.monitor.signal.pdeath
+
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+(cherry picked from commit e53cd6d899bd50e07c8bb760371bfa2d5d4c56ef)
+---
+ src/tests/parse_config_file.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/src/tests/parse_config_file.c b/src/tests/parse_config_file.c
+index 73b8fc3c..b6034ef2 100644
+--- a/src/tests/parse_config_file.c
++++ b/src/tests/parse_config_file.c
+@@ -911,6 +911,12 @@ int main(int argc, char *argv[])
+ 		goto non_test_error;
+ 	}
+ 
++	ret = set_get_compare_clear_save_load(c, "lxc.monitor.signal.pdeath", "SIGKILL", tmpf, true);
++	if (ret == 0) {
++		lxc_error("%s\n", "lxc.hook.version");
++		goto non_test_error;
++	}
++
+ 	fret = EXIT_SUCCESS;
+ 
+ non_test_error:
+-- 
+2.11.0
+

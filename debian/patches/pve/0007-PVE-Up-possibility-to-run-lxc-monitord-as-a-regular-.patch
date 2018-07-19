@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Mon, 20 Nov 2017 10:49:41 +0100
-Subject: [PATCH] possibility to run lxc-monitord as a regular daemon
+Subject: [PATCH] PVE: [Up] possibility to run lxc-monitord as a regular daemon
 
 lxc-monitord instances are spawned on demand and, if this
 happens from a service, the daemon is considered part of
@@ -10,14 +10,27 @@ can be avoided by leaving it running permanently.
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---
+ .gitignore                                  |  1 +
  config/init/systemd/Makefile.am             | 10 +++--
  config/init/systemd/lxc-monitord.service.in | 12 ++++++
  configure.ac                                |  1 +
  lxc.spec.in                                 |  1 +
  src/lxc/cmd/lxc_monitord.c                  | 60 +++++++++++++++++++++--------
- 5 files changed, 63 insertions(+), 21 deletions(-)
+ 6 files changed, 64 insertions(+), 21 deletions(-)
  create mode 100644 config/init/systemd/lxc-monitord.service.in
 
+diff --git a/.gitignore b/.gitignore
+index 0d266c20..b2a4b020 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -115,6 +115,7 @@ config/bash/lxc
+ config/init/common/lxc-containers
+ config/init/common/lxc-net
+ config/init/systemd/lxc-autostart-helper
++config/init/systemd/lxc-monitord.service
+ config/init/systemd/lxc-net.service
+ config/init/systemd/lxc.service
+ config/init/systemd/lxc@.service
 diff --git a/config/init/systemd/Makefile.am b/config/init/systemd/Makefile.am
 index c448850d..4a4fde5e 100644
 --- a/config/init/systemd/Makefile.am
@@ -67,10 +80,10 @@ index 00000000..40635168
 +[Install]
 +WantedBy=multi-user.target
 diff --git a/configure.ac b/configure.ac
-index 50c99836..efe56991 100644
+index 59a0d410..ea312bf3 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -658,6 +658,7 @@ AC_CONFIG_FILES([
+@@ -674,6 +674,7 @@ AC_CONFIG_FILES([
  	config/init/systemd/lxc.service
  	config/init/systemd/lxc@.service
  	config/init/systemd/lxc-net.service
@@ -79,7 +92,7 @@ index 50c99836..efe56991 100644
  	config/init/sysvinit/lxc-containers
  	config/init/sysvinit/lxc-net
 diff --git a/lxc.spec.in b/lxc.spec.in
-index 004ced26..1adbb6bd 100644
+index 87978feb..fcf307fa 100644
 --- a/lxc.spec.in
 +++ b/lxc.spec.in
 @@ -235,6 +235,7 @@ fi
@@ -91,10 +104,10 @@ index 004ced26..1adbb6bd 100644
  %{_sysconfdir}/rc.d/init.d/lxc
  %{_sysconfdir}/rc.d/init.d/lxc-net
 diff --git a/src/lxc/cmd/lxc_monitord.c b/src/lxc/cmd/lxc_monitord.c
-index 99f2bdb8..2bc44dea 100644
+index 38eee0a9..ffa6deca 100644
 --- a/src/lxc/cmd/lxc_monitord.c
 +++ b/src/lxc/cmd/lxc_monitord.c
-@@ -346,17 +346,44 @@ static void lxc_monitord_sig_handler(int sig)
+@@ -354,17 +354,44 @@ static void lxc_monitord_sig_handler(int sig)
  
  int main(int argc, char *argv[])
  {
@@ -143,8 +156,8 @@ index 99f2bdb8..2bc44dea 100644
  			"NOTE: lxc-monitord is intended for use by lxc internally\n"
  			"      and does not need to be run by hand\n\n");
  		exit(EXIT_FAILURE);
-@@ -378,9 +405,6 @@ int main(int argc, char *argv[])
- 		INFO("Failed to open log file %s, log will be lost.", lxcpath);
+@@ -387,9 +414,6 @@ int main(int argc, char *argv[])
+ 		INFO("Failed to open log file %s, log will be lost", lxcpath);
  	lxc_log_options_no_override();
  
 -	if (lxc_safe_int(argv[2], &pipefd) < 0)
@@ -153,7 +166,7 @@ index 99f2bdb8..2bc44dea 100644
  	if (sigfillset(&mask) ||
  	    sigdelset(&mask, SIGILL)  ||
  	    sigdelset(&mask, SIGSEGV) ||
-@@ -412,15 +436,17 @@ int main(int argc, char *argv[])
+@@ -422,15 +446,17 @@ int main(int argc, char *argv[])
  		goto on_error;
  	monitord_created = true;
  
@@ -179,10 +192,10 @@ index 99f2bdb8..2bc44dea 100644
 +	}
  
  	if (lxc_monitord_mainloop_add(&mon)) {
- 		ERROR("Failed to add mainloop handlers.");
-@@ -430,7 +456,7 @@ int main(int argc, char *argv[])
- 	NOTICE("lxc-monitord with pid %d is now monitoring lxcpath %s.",
+ 		ERROR("Failed to add mainloop handlers");
+@@ -441,7 +467,7 @@ int main(int argc, char *argv[])
  	       lxc_raw_getpid(), mon.lxcpath);
+ 
  	for (;;) {
 -		ret = lxc_mainloop(&mon.descr, 1000 * 30);
 +		ret = lxc_mainloop(&mon.descr, persistent ? -1 : 1000 * 30);

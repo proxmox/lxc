@@ -1,7 +1,8 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Wed, 28 Mar 2018 13:41:46 +0200
-Subject: [PATCH] start/initutils: make cgroupns separation level configurable
+Subject: [PATCH] PVE: [Up] start/initutils: make cgroupns separation level
+ configurable
 
 Adds a new global config variable `lxc.cgroup.separate`
 which controls whether a separation directory for cgroup
@@ -16,10 +17,10 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  3 files changed, 24 insertions(+), 19 deletions(-)
 
 diff --git a/src/lxc/initutils.c b/src/lxc/initutils.c
-index 56926fb5..c5f19ca8 100644
+index 6ab39a7d..2c142bd4 100644
 --- a/src/lxc/initutils.c
 +++ b/src/lxc/initutils.c
-@@ -49,14 +49,15 @@ static char *copy_global_config_value(char *p)
+@@ -57,14 +57,15 @@ static char *copy_global_config_value(char *p)
  const char *lxc_global_config_value(const char *option_name)
  {
  	static const char * const options[][2] = {
@@ -44,7 +45,7 @@ index 56926fb5..c5f19ca8 100644
  	};
  
 diff --git a/src/lxc/initutils.h b/src/lxc/initutils.h
-index ec44554e..6532f301 100644
+index b815cd19..4d005679 100644
 --- a/src/lxc/initutils.h
 +++ b/src/lxc/initutils.h
 @@ -42,6 +42,7 @@
@@ -56,35 +57,35 @@ index ec44554e..6532f301 100644
  #ifndef PR_SET_MM
  #define PR_SET_MM 35
 diff --git a/src/lxc/start.c b/src/lxc/start.c
-index 772eacc2..ae13aae9 100644
+index 6944b310..bccd5807 100644
 --- a/src/lxc/start.c
 +++ b/src/lxc/start.c
-@@ -1721,17 +1721,20 @@ static int lxc_spawn(struct lxc_handler *handler)
+@@ -1762,17 +1762,20 @@ static int lxc_spawn(struct lxc_handler *handler)
  	TRACE("Set up legacy device cgroup controller limits");
  
  	if (cgns_supported()) {
--		if (!cgroup_create(handler, true)) {
+-		if (!cgroup_ops->create(cgroup_ops, handler, true)) {
 -			ERROR("failed to create inner cgroup separation layer");
 -			goto out_delete_net;
 -		}
--		if (!cgroup_enter(handler, true)) {
+-		if (!cgroup_ops->enter(cgroup_ops, handler->pid, true)) {
 -			ERROR("failed to enter inner cgroup separation layer");
 -			goto out_delete_net;
 -		}
--		if (!cgroup_chown(handler, true)) {
+-		if (!cgroup_ops->chown(cgroup_ops, handler->conf, true)) {
 -			ERROR("failed chown inner cgroup separation layer");
 -			goto out_delete_net;
 +		const char *tmp = lxc_global_config_value("lxc.cgroup.protect_limits");
 +		if (!strcmp(tmp, "both") || !strcmp(tmp, wants_to_map_ids ? "unprivileged" : "privileged")) {
-+			if (!cgroup_create(handler, true)) {
++			if (!cgroup_ops->create(cgroup_ops, handler, true)) {
 +				ERROR("failed to create inner cgroup separation layer");
 +				goto out_delete_net;
 +			}
-+			if (!cgroup_enter(handler, true)) {
++			if (!cgroup_ops->enter(cgroup_ops, handler->pid, true)) {
 +				ERROR("failed to enter inner cgroup separation layer");
 +				goto out_delete_net;
 +			}
-+			if (!cgroup_chown(handler, true)) {
++			if (!cgroup_ops->chown(cgroup_ops, handler->conf, true)) {
 +				ERROR("failed chown inner cgroup separation layer");
 +				goto out_delete_net;
 +			}

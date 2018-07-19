@@ -1,0 +1,45 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KATOH Yasufumi <karma@jazz.email.ne.jp>
+Date: Tue, 17 Jul 2018 01:14:06 +0900
+Subject: [PATCH] doc: Translate lxc.monitor.signal.pdeath into Japanese in
+ lxc.container.conf(5)
+
+Signed-off-by: KATOH Yasufumi <karma@jazz.email.ne.jp>
+(cherry picked from commit fd5de0292195a2a6ba9dc6c3727de202b015c02c)
+---
+ doc/ja/lxc.container.conf.sgml.in | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/doc/ja/lxc.container.conf.sgml.in b/doc/ja/lxc.container.conf.sgml.in
+index ee93f3bf..7aee768b 100644
+--- a/doc/ja/lxc.container.conf.sgml.in
++++ b/doc/ja/lxc.container.conf.sgml.in
+@@ -3158,6 +3158,25 @@ by KATOH Yasufumi <karma at jazz.email.ne.jp>
+         </varlistentry>
+         <varlistentry>
+           <term>
++            <option>lxc.monitor.signal.pdeath</option>
++          </term>
++          <listitem>
++            <para>
++	      <!--
++              Set the signal to be sent to the container's init when the lxc
++              monitor exits. By default it is set to SIGKILL which will cause
++              all container processes to be killed when the lxc monitor process
++              dies.
++              To ensure that containers stay alive even if lxc monitor dies set
++              this to 0.
++		-->
++	      lxc のモニタプロセスが終了した際に、コンテナの init プロセスに送出するシグナルを指定します。デフォルトでは、lxc のモニタプロセスが終了した場合には、すべてのコンテナ内のプロセスが停止するように SIGKILL が設定されています。
++	      lxc のモニタプロセスが終了しても、コンテナがすべて確実に動作しつづけるようにするには、この値を 0 に設定します。
++            </para>
++          </listitem>
++        </varlistentry>
++        <varlistentry>
++          <term>
+             <option>lxc.group</option>
+           </term>
+           <listitem>
+-- 
+2.11.0
+

@@ -1,6 +1,6 @@
 PACKAGE=lxc-pve
-LXCVER=3.0.0
-DEBREL=3
+LXCVER=3.0.1+pve1
+DEBREL=1
 
 SRCDIR=lxc
 BUILDSRC := $(SRCDIR).tmp
@@ -26,8 +26,7 @@ $(DEB2): $(DEB1)
 $(DEB1): | submodule
 	rm -f *.deb
 	rm -rf $(BUILDSRC)
-	mkdir $(BUILDSRC)
-	cp -a $(SRCDIR)/* $(BUILDSRC)/
+	cp -a $(SRCDIR) $(BUILDSRC)
 	cp -a debian $(BUILDSRC)/debian
 	mkdir $(BUILDSRC)/debian/config
 	for i in config/*.conf.in; do \
