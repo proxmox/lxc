@@ -1,5 +1,5 @@
 PACKAGE=lxc-pve
-LXCVER=3.0.1+pve1
+LXCVER=3.0.1+pve2
 DEBREL=1
 
 SRCDIR=lxc
