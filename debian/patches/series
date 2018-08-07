@@ -18,3 +18,4 @@ extra/0009-apparmor-update-current-profiles.patch
 extra/0010-apparmor-profile-generation.patch
 extra/0011-apparmor-allow-start-container-to-change-to-lxc.patch
 extra/0012-tests-add-test-for-generated-apparmor-profiles.patch
+extra/0013-CVE-2018-6556-verify-netns-fd-in-lxc-user-nic.patch
