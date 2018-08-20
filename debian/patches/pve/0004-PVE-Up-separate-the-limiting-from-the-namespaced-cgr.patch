@@ -24,10 +24,10 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  6 files changed, 180 insertions(+), 49 deletions(-)
 
 diff --git a/src/lxc/cgroups/cgfsng.c b/src/lxc/cgroups/cgfsng.c
-index 935b868b..9281cee0 100644
+index 56c8db54..265cf2cb 100644
 --- a/src/lxc/cgroups/cgfsng.c
 +++ b/src/lxc/cgroups/cgfsng.c
-@@ -818,6 +818,7 @@ static struct hierarchy *add_hierarchy(struct hierarchy ***h, char **clist, char
+@@ -817,6 +817,7 @@ static struct hierarchy *add_hierarchy(struct hierarchy ***h, char **clist, char
  	new->mountpoint = mountpoint;
  	new->base_cgroup = base_cgroup;
  	new->fullcgpath = NULL;
@@ -35,7 +35,7 @@ index 935b868b..9281cee0 100644
  	new->version = type;
  
  	newentry = append_null_to_list((void ***)h);
-@@ -1060,6 +1061,9 @@ static int cgroup_rmdir(struct hierarchy **hierarchies,
+@@ -1057,6 +1058,9 @@ static int cgroup_rmdir(struct hierarchy **hierarchies,
  
  		free(h->fullcgpath);
  		h->fullcgpath = NULL;
@@ -45,7 +45,7 @@ index 935b868b..9281cee0 100644
  	}
  
  	return 0;
-@@ -1071,6 +1075,7 @@ struct generic_userns_exec_data {
+@@ -1068,6 +1072,7 @@ struct generic_userns_exec_data {
  	struct lxc_conf *conf;
  	uid_t origuid; /* target uid in parent namespace */
  	char *path;
@@ -53,7 +53,7 @@ index 935b868b..9281cee0 100644
  };
  
  static int cgroup_rmdir_wrapper(void *data)
-@@ -1112,6 +1117,7 @@ static void cgfsng_destroy(struct cgroup_ops *ops, struct lxc_handler *handler)
+@@ -1109,6 +1114,7 @@ static void cgfsng_destroy(struct cgroup_ops *ops, struct lxc_handler *handler)
  	wrap.container_cgroup = ops->container_cgroup;
  	wrap.hierarchies = ops->hierarchies;
  	wrap.conf = handler->conf;
@@ -61,7 +61,7 @@ index 935b868b..9281cee0 100644
  
  	if (handler->conf && !lxc_list_empty(&handler->conf->id_map))
  		ret = userns_exec_1(handler->conf, cgroup_rmdir_wrapper, &wrap,
-@@ -1192,22 +1198,29 @@ on_error:
+@@ -1189,22 +1195,29 @@ on_error:
  	return bret;
  }
  
@@ -96,7 +96,7 @@ index 935b868b..9281cee0 100644
  	if (ret < 0) {
  		ERROR("Failed to create cgroup \"%s\"", h->fullcgpath);
  		return false;
-@@ -1228,11 +1241,29 @@ static void remove_path_for_hierarchy(struct hierarchy *h, char *cgname)
+@@ -1225,11 +1238,29 @@ static void remove_path_for_hierarchy(struct hierarchy *h, char *cgname)
  	h->fullcgpath = NULL;
  }
  
@@ -127,7 +127,7 @@ index 935b868b..9281cee0 100644
  {
  	int i;
  	size_t len;
-@@ -1241,10 +1272,17 @@ static inline bool cgfsng_create(struct cgroup_ops *ops,
+@@ -1238,10 +1269,17 @@ static inline bool cgfsng_create(struct cgroup_ops *ops,
  	struct lxc_conf *conf = handler->conf;
  
  	if (ops->container_cgroup) {
@@ -145,7 +145,7 @@ index 935b868b..9281cee0 100644
  	if (!conf)
  		return false;
  
-@@ -1285,7 +1323,7 @@ again:
+@@ -1282,7 +1320,7 @@ again:
  	}
  
  	for (i = 0; ops->hierarchies[i]; i++) {
@@ -154,7 +154,7 @@ index 935b868b..9281cee0 100644
  			int j;
  			ERROR("Failed to create cgroup \"%s\"", ops->hierarchies[i]->fullcgpath);
  			free(ops->hierarchies[i]->fullcgpath);
-@@ -1307,7 +1345,7 @@ out_free:
+@@ -1304,7 +1342,7 @@ out_free:
  	return false;
  }
  
@@ -163,7 +163,7 @@ index 935b868b..9281cee0 100644
  {
  	int i, len;
  	char pidstr[25];
-@@ -1320,8 +1358,13 @@ static bool cgfsng_enter(struct cgroup_ops *ops, pid_t pid)
+@@ -1317,8 +1355,13 @@ static bool cgfsng_enter(struct cgroup_ops *ops, pid_t pid)
  		int ret;
  		char *fullpath;
  
@@ -179,7 +179,7 @@ index 935b868b..9281cee0 100644
  		ret = lxc_write_to_file(fullpath, pidstr, len, false, 0666);
  		if (ret != 0) {
  			SYSERROR("Failed to enter cgroup \"%s\"", fullpath);
-@@ -1395,9 +1438,15 @@ static int chown_cgroup_wrapper(void *data)
+@@ -1392,9 +1435,15 @@ static int chown_cgroup_wrapper(void *data)
  		char *fullpath;
  		char *path = arg->hierarchies[i]->fullcgpath;
  
@@ -196,7 +196,7 @@ index 935b868b..9281cee0 100644
  
  		/* Failures to chown() these are inconvenient but not
  		 * detrimental We leave these owned by the container launcher,
-@@ -1416,8 +1465,11 @@ static int chown_cgroup_wrapper(void *data)
+@@ -1413,8 +1462,11 @@ static int chown_cgroup_wrapper(void *data)
  		(void)chowmod(fullpath, destuid, nsgid, 0664);
  		free(fullpath);
  
@@ -209,7 +209,7 @@ index 935b868b..9281cee0 100644
  
  		fullpath = must_make_path(path, "cgroup.subtree_control", NULL);
  		(void)chowmod(fullpath, destuid, nsgid, 0664);
-@@ -1426,12 +1478,15 @@ static int chown_cgroup_wrapper(void *data)
+@@ -1423,12 +1475,15 @@ static int chown_cgroup_wrapper(void *data)
  		fullpath = must_make_path(path, "cgroup.threads", NULL);
  		(void)chowmod(fullpath, destuid, nsgid, 0664);
  		free(fullpath);
@@ -226,7 +226,7 @@ index 935b868b..9281cee0 100644
  {
  	struct generic_userns_exec_data wrap;
  
-@@ -1442,6 +1497,7 @@ static bool cgfsng_chown(struct cgroup_ops *ops, struct lxc_conf *conf)
+@@ -1439,6 +1494,7 @@ static bool cgfsng_chown(struct cgroup_ops *ops, struct lxc_conf *conf)
  	wrap.path = NULL;
  	wrap.hierarchies = ops->hierarchies;
  	wrap.conf = conf;
@@ -234,7 +234,7 @@ index 935b868b..9281cee0 100644
  
  	if (userns_exec_1(conf, chown_cgroup_wrapper, &wrap,
  			  "chown_cgroup_wrapper") < 0) {
-@@ -1821,7 +1877,8 @@ static bool cgfsng_unfreeze(struct cgroup_ops *ops)
+@@ -1818,7 +1874,8 @@ static bool cgfsng_unfreeze(struct cgroup_ops *ops)
  }
  
  static const char *cgfsng_get_cgroup(struct cgroup_ops *ops,
@@ -244,7 +244,7 @@ index 935b868b..9281cee0 100644
  {
  	struct hierarchy *h;
  
-@@ -1832,6 +1889,9 @@ static const char *cgfsng_get_cgroup(struct cgroup_ops *ops,
+@@ -1829,6 +1886,9 @@ static const char *cgfsng_get_cgroup(struct cgroup_ops *ops,
  		return NULL;
  	}
  
@@ -254,7 +254,7 @@ index 935b868b..9281cee0 100644
  	return h->fullcgpath ? h->fullcgpath + strlen(h->mountpoint) : NULL;
  }
  
-@@ -1863,7 +1923,7 @@ static int __cg_unified_attach(const struct hierarchy *h, const char *name,
+@@ -1860,7 +1920,7 @@ static int __cg_unified_attach(const struct hierarchy *h, const char *name,
  	int fret = -1, idx = 0;
  	char *base_path = NULL, *container_cgroup = NULL, *full_path = NULL;
  
@@ -263,7 +263,7 @@ index 935b868b..9281cee0 100644
  	/* not running */
  	if (!container_cgroup)
  		return 0;
-@@ -1943,7 +2003,7 @@ static bool cgfsng_attach(struct cgroup_ops *ops, const char *name,
+@@ -1940,7 +2000,7 @@ static bool cgfsng_attach(struct cgroup_ops *ops, const char *name,
  			continue;
  		}
  
@@ -460,7 +460,7 @@ index 816cd748..e16c0d79 100644
  extern char *lxc_cmd_get_config_item(const char *name, const char *item, const char *lxcpath);
  extern char *lxc_cmd_get_name(const char *hashed_sock);
 diff --git a/src/lxc/criu.c b/src/lxc/criu.c
-index c3642162..456d19cf 100644
+index dc567d34..398e8e94 100644
 --- a/src/lxc/criu.c
 +++ b/src/lxc/criu.c
 @@ -328,7 +328,7 @@ static void exec_criu(struct cgroup_ops *cgroup_ops, struct criu_opts *opts)
@@ -482,10 +482,10 @@ index c3642162..456d19cf 100644
  		goto out_fini_handler;
  	}
 diff --git a/src/lxc/start.c b/src/lxc/start.c
-index 739866d8..6944b310 100644
+index 23b7de06..cf053d20 100644
 --- a/src/lxc/start.c
 +++ b/src/lxc/start.c
-@@ -1597,7 +1597,7 @@ static int lxc_spawn(struct lxc_handler *handler)
+@@ -1599,7 +1599,7 @@ static int lxc_spawn(struct lxc_handler *handler)
  		}
  	}
  
@@ -494,7 +494,7 @@ index 739866d8..6944b310 100644
  		ERROR("Failed creating cgroups");
  		goto out_delete_net;
  	}
-@@ -1691,10 +1691,10 @@ static int lxc_spawn(struct lxc_handler *handler)
+@@ -1693,10 +1693,10 @@ static int lxc_spawn(struct lxc_handler *handler)
  		goto out_delete_net;
  	}
  
@@ -507,7 +507,7 @@ index 739866d8..6944b310 100644
  		goto out_delete_net;
  
  	/* Now we're ready to preserve the network namespace */
-@@ -1755,16 +1755,30 @@ static int lxc_spawn(struct lxc_handler *handler)
+@@ -1765,16 +1765,30 @@ static int lxc_spawn(struct lxc_handler *handler)
  		}
  	}
  

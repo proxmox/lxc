@@ -19,10 +19,10 @@ Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
  5 files changed, 64 insertions(+)
 
 diff --git a/doc/lxc.container.conf.sgml.in b/doc/lxc.container.conf.sgml.in
-index 4ac26058..3e9e4e03 100644
+index 8caee9ee..2d85ab7f 100644
 --- a/doc/lxc.container.conf.sgml.in
 +++ b/doc/lxc.container.conf.sgml.in
-@@ -2380,6 +2380,21 @@ dev/null proc/kcore none bind,relative 0 0
+@@ -2382,6 +2382,21 @@ dev/null proc/kcore none bind,relative 0 0
          </varlistentry>
          <varlistentry>
            <term>
@@ -45,10 +45,10 @@ index 4ac26058..3e9e4e03 100644
            </term>
            <listitem>
 diff --git a/src/lxc/conf.c b/src/lxc/conf.c
-index c5d6f5b1..d36987c8 100644
+index 85ae6cd2..4dd063e6 100644
 --- a/src/lxc/conf.c
 +++ b/src/lxc/conf.c
-@@ -2683,6 +2683,7 @@ struct lxc_conf *lxc_conf_init(void)
+@@ -2707,6 +2707,7 @@ struct lxc_conf *lxc_conf_init(void)
  	new->console.name[0] = '\0';
  	memset(&new->console.ringbuf, 0, sizeof(struct lxc_ringbuf));
  	new->maincmd_fd = -1;
@@ -57,10 +57,10 @@ index c5d6f5b1..d36987c8 100644
  	new->rootfs.mount = strdup(default_rootfs_mount);
  	if (!new->rootfs.mount) {
 diff --git a/src/lxc/conf.h b/src/lxc/conf.h
-index ea3a71df..f7a879c3 100644
+index d87b3347..1c029fea 100644
 --- a/src/lxc/conf.h
 +++ b/src/lxc/conf.h
-@@ -303,6 +303,7 @@ struct lxc_conf {
+@@ -307,6 +307,7 @@ struct lxc_conf {
  
  	/* unshare the mount namespace in the monitor */
  	unsigned int monitor_unshare;
@@ -69,7 +69,7 @@ index ea3a71df..f7a879c3 100644
  	/* list of included files */
  	struct lxc_list includes;
 diff --git a/src/lxc/confile.c b/src/lxc/confile.c
-index 4f46d7bf..8a7505da 100644
+index f4a01b04..3bc86790 100644
 --- a/src/lxc/confile.c
 +++ b/src/lxc/confile.c
 @@ -111,6 +111,7 @@ lxc_config_define(log_file);
@@ -117,7 +117,7 @@ index 4f46d7bf..8a7505da 100644
  static int set_config_group(const char *key, const char *value,
  			    struct lxc_conf *lxc_conf, void *data)
  {
-@@ -3406,6 +3430,13 @@ static int get_config_monitor(const char *key, char *retv, int inlen,
+@@ -3413,6 +3437,13 @@ static int get_config_monitor(const char *key, char *retv, int inlen,
  	return lxc_get_conf_int(c, retv, inlen, c->monitor_unshare);
  }
  
@@ -131,7 +131,7 @@ index 4f46d7bf..8a7505da 100644
  static int get_config_group(const char *key, char *retv, int inlen,
  			    struct lxc_conf *c, void *data)
  {
-@@ -3957,6 +3988,13 @@ static inline int clr_config_monitor(const char *key, struct lxc_conf *c,
+@@ -3968,6 +3999,13 @@ static inline int clr_config_monitor(const char *key, struct lxc_conf *c,
  	return 0;
  }
  
@@ -146,10 +146,10 @@ index 4f46d7bf..8a7505da 100644
  				   void *data)
  {
 diff --git a/src/lxc/start.c b/src/lxc/start.c
-index bccd5807..3343f9bf 100644
+index 827a9ee9..f67e3f66 100644
 --- a/src/lxc/start.c
 +++ b/src/lxc/start.c
-@@ -1383,6 +1383,15 @@ static int do_start(void *data)
+@@ -1385,6 +1385,15 @@ static int do_start(void *data)
  		goto out_warn_father;
  	}
  

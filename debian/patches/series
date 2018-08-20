@@ -9,13 +9,6 @@ pve/0008-PVE-Deprecated-Make-lxc-.service-forking.patch
 extra/0001-confile-add-lxc.monitor.signal.pdeath.patch
 extra/0002-tests-add-lxc.monitor.signal.pdeath.patch
 extra/0003-doc-Translate-lxc.monitor.signal.pdeath-into-Japanes.patch
-extra/0004-tests-lxc-test-apparmor-mount-show-a-log-on-error.patch
-extra/0005-tests-lxc-test-apparmor-mount-check-environment-earl.patch
-extra/0006-lsm-fixup-lsm_process_label_set_at-return-values.patch
-extra/0007-apparmor-use-fopen_cloexec.patch
-extra/0008-utils-add-must_concat-helper.patch
-extra/0009-apparmor-update-current-profiles.patch
-extra/0010-apparmor-profile-generation.patch
-extra/0011-apparmor-allow-start-container-to-change-to-lxc.patch
-extra/0012-tests-add-test-for-generated-apparmor-profiles.patch
-extra/0013-CVE-2018-6556-verify-netns-fd-in-lxc-user-nic.patch
+extra/0004-apparmor-profile-generation.patch
+extra/0005-tests-add-test-for-generated-apparmor-profiles.patch
+extra/0006-conf-fix-path-lxcpath-mixups-in-tty-setup.patch

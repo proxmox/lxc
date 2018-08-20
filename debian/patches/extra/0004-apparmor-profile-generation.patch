@@ -57,7 +57,7 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  12 files changed, 1134 insertions(+), 56 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index ea312bf3..739e100a 100644
+index bcf7ab64..71fe63b0 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -469,6 +469,13 @@ AC_ARG_WITH([cgroup-pattern],
@@ -83,10 +83,10 @@ index ea312bf3..739e100a 100644
  
  # We need the install path so criu knows where to reference the hook scripts.
 diff --git a/src/lxc/Makefile.am b/src/lxc/Makefile.am
-index c5e46ac2..1359eb3e 100644
+index c3f11176..14db7cb4 100644
 --- a/src/lxc/Makefile.am
 +++ b/src/lxc/Makefile.am
-@@ -174,6 +174,7 @@ AM_CFLAGS = -DLXCROOTFSMOUNT=\"$(LXCROOTFSMOUNT)\" \
+@@ -176,6 +176,7 @@ AM_CFLAGS = -DLXCROOTFSMOUNT=\"$(LXCROOTFSMOUNT)\" \
  	    -DDEFAULT_CGROUP_PATTERN=\"$(DEFAULT_CGROUP_PATTERN)\" \
  	    -DRUNTIME_PATH=\"$(RUNTIME_PATH)\" \
  	    -DSBINDIR=\"$(SBINDIR)\" \
@@ -95,10 +95,10 @@ index c5e46ac2..1359eb3e 100644
  	    -I $(top_srcdir)/src/lxc \
  	    -I $(top_srcdir)/src/lxc/storage \
 diff --git a/src/lxc/conf.c b/src/lxc/conf.c
-index d36987c8..df805e6c 100644
+index 4dd063e6..8c9dce36 100644
 --- a/src/lxc/conf.c
 +++ b/src/lxc/conf.c
-@@ -2334,7 +2334,23 @@ static int setup_mount(const struct lxc_conf *conf,
+@@ -2356,7 +2356,23 @@ static int setup_mount(const struct lxc_conf *conf,
  	return ret;
  }
  
@@ -123,7 +123,7 @@ index d36987c8..df805e6c 100644
  {
  	int ret;
  	char *mount_entry;
-@@ -2376,6 +2392,13 @@ FILE *make_anonymous_mount_file(struct lxc_list *mount)
+@@ -2398,6 +2414,13 @@ FILE *make_anonymous_mount_file(struct lxc_list *mount)
  			goto on_error;
  	}
  
@@ -137,7 +137,7 @@ index d36987c8..df805e6c 100644
  	ret = lseek(fd, 0, SEEK_SET);
  	if (ret < 0)
  		goto on_error;
-@@ -2396,7 +2419,7 @@ static int setup_mount_entries(const struct lxc_conf *conf,
+@@ -2418,7 +2441,7 @@ static int setup_mount_entries(const struct lxc_conf *conf,
  	int ret;
  	FILE *f;
  
@@ -146,7 +146,7 @@ index d36987c8..df805e6c 100644
  	if (!f)
  		return -1;
  
-@@ -2712,6 +2735,7 @@ struct lxc_conf *lxc_conf_init(void)
+@@ -2736,6 +2759,7 @@ struct lxc_conf *lxc_conf_init(void)
  	lxc_list_init(&new->groups);
  	lxc_list_init(&new->state_clients);
  	new->lsm_aa_profile = NULL;
@@ -154,7 +154,7 @@ index d36987c8..df805e6c 100644
  	new->lsm_se_context = NULL;
  	new->tmp_umount_proc = false;
  
-@@ -3996,6 +4020,19 @@ void lxc_clear_includes(struct lxc_conf *conf)
+@@ -4021,6 +4045,19 @@ void lxc_clear_includes(struct lxc_conf *conf)
  	}
  }
  
@@ -174,7 +174,7 @@ index d36987c8..df805e6c 100644
  void lxc_conf_free(struct lxc_conf *conf)
  {
  	if (!conf)
-@@ -4023,6 +4060,7 @@ void lxc_conf_free(struct lxc_conf *conf)
+@@ -4048,6 +4085,7 @@ void lxc_conf_free(struct lxc_conf *conf)
  	free(conf->syslog);
  	lxc_free_networks(&conf->network);
  	free(conf->lsm_aa_profile);
@@ -182,7 +182,7 @@ index d36987c8..df805e6c 100644
  	free(conf->lsm_se_context);
  	lxc_seccomp_free(conf);
  	lxc_clear_config_caps(conf);
-@@ -4039,6 +4077,7 @@ void lxc_conf_free(struct lxc_conf *conf)
+@@ -4064,6 +4102,7 @@ void lxc_conf_free(struct lxc_conf *conf)
  	lxc_clear_limits(conf, "lxc.prlimit");
  	lxc_clear_sysctls(conf, "lxc.sysctl");
  	lxc_clear_procs(conf, "lxc.proc");
@@ -191,10 +191,10 @@ index d36987c8..df805e6c 100644
  	free(conf->cgroup_meta.controllers);
  	free(conf);
 diff --git a/src/lxc/conf.h b/src/lxc/conf.h
-index f7a879c3..f5085d8c 100644
+index 1c029fea..f9864b35 100644
 --- a/src/lxc/conf.h
 +++ b/src/lxc/conf.h
-@@ -272,7 +272,11 @@ struct lxc_conf {
+@@ -276,7 +276,11 @@ struct lxc_conf {
  	};
  
  	char *lsm_aa_profile;
@@ -206,7 +206,7 @@ index f7a879c3..f5085d8c 100644
  	char *lsm_se_context;
  	bool tmp_umount_proc;
  	char *seccomp;  /* filename with the seccomp rules */
-@@ -417,7 +421,8 @@ extern int parse_mntopts(const char *mntopts, unsigned long *mntflags,
+@@ -422,7 +426,8 @@ extern int parse_propagationopts(const char *mntopts, unsigned long *pflags);
  extern void tmp_proc_unmount(struct lxc_conf *lxc_conf);
  extern void remount_all_slave(void);
  extern void suggest_default_idmap(void);
@@ -216,7 +216,7 @@ index f7a879c3..f5085d8c 100644
  extern struct lxc_list *sort_cgroup_settings(struct lxc_list *cgroup_settings);
  extern unsigned long add_required_remount_flags(const char *s, const char *d,
  						unsigned long flags);
-@@ -431,5 +436,6 @@ extern int setup_sysctl_parameters(struct lxc_list *sysctls);
+@@ -436,5 +441,6 @@ extern int setup_sysctl_parameters(struct lxc_list *sysctls);
  extern int lxc_clear_sysctls(struct lxc_conf *c, const char *key);
  extern int setup_proc_filesystem(struct lxc_list *procs, pid_t pid);
  extern int lxc_clear_procs(struct lxc_conf *c, const char *key);
@@ -224,7 +224,7 @@ index f7a879c3..f5085d8c 100644
  
  #endif /* __LXC_CONF_H */
 diff --git a/src/lxc/confile.c b/src/lxc/confile.c
-index 8a7505da..097b8806 100644
+index 3bc86790..ec795aa4 100644
 --- a/src/lxc/confile.c
 +++ b/src/lxc/confile.c
 @@ -84,7 +84,9 @@ lxc_log_define(confile, lxc);
@@ -246,7 +246,7 @@ index 8a7505da..097b8806 100644
  	{ "lxc.autodev",                   set_config_autodev,                     get_config_autodev,                     clr_config_autodev,                   },
  	{ "lxc.cap.drop",                  set_config_cap_drop,                    get_config_cap_drop,                    clr_config_cap_drop,                  },
  	{ "lxc.cap.keep",                  set_config_cap_keep,                    get_config_cap_keep,                    clr_config_cap_keep,                  },
-@@ -1118,6 +1122,52 @@ static int set_config_apparmor_allow_incomplete(const char *key,
+@@ -1115,6 +1119,52 @@ static int set_config_apparmor_allow_incomplete(const char *key,
  	return 0;
  }
  
@@ -299,7 +299,7 @@ index 8a7505da..097b8806 100644
  static int set_config_selinux_context(const char *key, const char *value,
  				      struct lxc_conf *lxc_conf, void *data)
  {
-@@ -2959,6 +3009,34 @@ static int get_config_apparmor_allow_incomplete(const char *key, char *retv,
+@@ -2966,6 +3016,34 @@ static int get_config_apparmor_allow_incomplete(const char *key, char *retv,
  				c->lsm_aa_allow_incomplete);
  }
  
@@ -334,7 +334,7 @@ index 8a7505da..097b8806 100644
  static int get_config_selinux_context(const char *key, char *retv, int inlen,
  				      struct lxc_conf *c, void *data)
  {
-@@ -3749,6 +3827,21 @@ static inline int clr_config_apparmor_allow_incomplete(const char *key,
+@@ -3756,6 +3834,21 @@ static inline int clr_config_apparmor_allow_incomplete(const char *key,
  	return 0;
  }
  
@@ -356,7 +356,7 @@ index 8a7505da..097b8806 100644
  static inline int clr_config_selinux_context(const char *key,
  					     struct lxc_conf *c, void *data)
  {
-@@ -4941,7 +5034,9 @@ int lxc_list_subkeys(struct lxc_conf *conf, const char *key, char *retv,
+@@ -4952,7 +5045,9 @@ int lxc_list_subkeys(struct lxc_conf *conf, const char *key, char *retv,
  
  	if (!strcmp(key, "lxc.apparmor")) {
  		strprint(retv, inlen, "allow_incomplete\n");
@@ -367,7 +367,7 @@ index 8a7505da..097b8806 100644
  		strprint(retv, inlen, "dir\n");
  	} else if (!strcmp(key, "lxc.selinux")) {
 diff --git a/src/lxc/criu.c b/src/lxc/criu.c
-index 456d19cf..02d301ac 100644
+index 398e8e94..72ba0a95 100644
 --- a/src/lxc/criu.c
 +++ b/src/lxc/criu.c
 @@ -378,7 +378,8 @@ static void exec_criu(struct cgroup_ops *cgroup_ops, struct criu_opts *opts)
@@ -1559,7 +1559,7 @@ index c88c18e3..9f7b7bc3 100644
  		label = DEFAULT_LABEL;
  	}
 diff --git a/src/lxc/start.c b/src/lxc/start.c
-index 3343f9bf..6d6dc7ee 100644
+index f67e3f66..71bc841b 100644
 --- a/src/lxc/start.c
 +++ b/src/lxc/start.c
 @@ -863,9 +863,19 @@ int lxc_init(const char *name, struct lxc_handler *handler)
@@ -1591,7 +1591,7 @@ index 3343f9bf..6d6dc7ee 100644
  	cgroup_ops->destroy(cgroup_ops, handler);
  	cgroup_exit(cgroup_ops);
  
-@@ -1235,7 +1247,7 @@ static int do_start(void *data)
+@@ -1236,7 +1248,7 @@ static int do_start(void *data)
  	}
  
  	/* Set the label to change to when we exec(2) the container's init. */
