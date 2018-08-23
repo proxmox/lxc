@@ -20,3 +20,5 @@ lxc.include = @LXCTEMPLATECONFIG@/common.conf
 # lxc.cap.drop = setpcap          # big big login delays in Fedora 20 systemd
 # lxc.cap.drop = setfcap
 lxc.cap.drop = sys_nice sys_pacct sys_rawio
+
+lxc.tty.dir =
