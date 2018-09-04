@@ -1,3 +1,9 @@
+lxc (3.0.2+pve1-2) stable; urgency=medium
+
+  * clear lxc.tty.dir in opensuse.common.conf
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 04 Sep 2018 14:50:48 +0200
+
 lxc (3.0.2+pve1-1) unstable; urgency=medium
 
   * update to lxc-3.0.2
