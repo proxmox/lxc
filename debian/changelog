@@ -1,3 +1,11 @@
+lxc (3.0.2+pve1-3) stable; urgency=medium
+
+  * fix ns/ sub cgroup not being created by default for unprivileged containers
+
+  * this also affects which cgroups lxc-attach/'pct enter' attached to
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 11 Oct 2018 11:52:15 +0200
+
 lxc (3.0.2+pve1-2) stable; urgency=medium
 
   * clear lxc.tty.dir in opensuse.common.conf
