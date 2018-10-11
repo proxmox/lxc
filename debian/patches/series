@@ -3,7 +3,7 @@ pve/0002-PVE-Down-run-lxcnetaddbr-when-instantiating-veths.patch
 pve/0003-PVE-Config-deny-rw-mounting-of-sys-and-proc.patch
 pve/0004-PVE-Up-separate-the-limiting-from-the-namespaced-cgr.patch
 pve/0005-PVE-Up-start-initutils-make-cgroupns-separation-leve.patch
-pve/0006-PVE-Config-rename-cgroup-namespace-directory-to-ns.patch
+pve/0006-PVE-Config-namespace-separation.patch
 pve/0007-PVE-Up-possibility-to-run-lxc-monitord-as-a-regular-.patch
 pve/0008-PVE-Deprecated-Make-lxc-.service-forking.patch
 extra/0001-confile-add-lxc.monitor.signal.pdeath.patch

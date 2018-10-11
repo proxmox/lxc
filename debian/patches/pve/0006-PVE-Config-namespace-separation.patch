@@ -1,12 +1,16 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Fri, 23 Dec 2016 15:57:24 +0100
-Subject: [PATCH] PVE: [Config] rename cgroup namespace directory to ns
+Subject: [PATCH] PVE: [Config] namespace separation
+
+* rename cgroup namespace directory to ns
+* set lxc.cgroup.protect_limits default to 'both'
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---
  src/lxc/cgroups/cgroup.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ src/lxc/initutils.h      | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/src/lxc/cgroups/cgroup.h b/src/lxc/cgroups/cgroup.h
 index b12c1f4c..6b8df1b3 100644
@@ -21,6 +25,19 @@ index b12c1f4c..6b8df1b3 100644
  
  struct lxc_handler;
  struct lxc_conf;
+diff --git a/src/lxc/initutils.h b/src/lxc/initutils.h
+index 4d005679..653869b5 100644
+--- a/src/lxc/initutils.h
++++ b/src/lxc/initutils.h
+@@ -42,7 +42,7 @@
+ #define DEFAULT_THIN_POOL "lxc"
+ #define DEFAULT_ZFSROOT "lxc"
+ #define DEFAULT_RBDPOOL "lxc"
+-#define DEFAULT_CGPROTECT "privileged"
++#define DEFAULT_CGPROTECT "both"
+ 
+ #ifndef PR_SET_MM
+ #define PR_SET_MM 35
 -- 
 2.11.0
 
