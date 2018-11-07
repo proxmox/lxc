@@ -1,4 +1,4 @@
-lxc (3.0.2+pve1-3) stable; urgency=medium
+lxc-pve (3.0.2+pve1-3) stable; urgency=medium
 
   * fix ns/ sub cgroup not being created by default for unprivileged containers
 

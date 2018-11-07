@@ -1,4 +1,4 @@
-Source: lxc
+Source: lxc-pve
 Section: admin
 Priority: optional
 Maintainer: Proxmox Support Team <support@proxmox.com>
