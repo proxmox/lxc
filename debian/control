@@ -16,6 +16,7 @@ Build-Depends: autotools-dev,
                libgnutls28-dev,
                libseccomp-dev,
                linux-libc-dev,
+               pkg-config,
                quilt,
 Standards-Version: 3.9.5
 Homepage: https://linuxcontainers.org
