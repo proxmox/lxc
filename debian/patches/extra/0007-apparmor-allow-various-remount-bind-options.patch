@@ -1,0 +1,99 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Thu, 15 Nov 2018 11:51:34 +0100
+Subject: [PATCH] apparmor: allow various remount,bind options
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ config/apparmor/abstractions/container-base    | 10 ++++++++++
+ config/apparmor/abstractions/container-base.in | 11 ++++++++++-
+ src/lxc/lsm/apparmor.c                         | 26 +++++++++-----------------
+ 3 files changed, 29 insertions(+), 18 deletions(-)
+
+diff --git a/config/apparmor/abstractions/container-base b/config/apparmor/abstractions/container-base
+index 4c3a4ba8..fbd70fdf 100644
+--- a/config/apparmor/abstractions/container-base
++++ b/config/apparmor/abstractions/container-base
+@@ -124,6 +124,16 @@
+   mount options=(rw,bind) /sy[^s]*{,/**},
+   mount options=(rw,bind) /sys?*{,/**},
+ 
++  # allow various ro-bind-*re*-mounts
++  mount options=(ro,remount,bind),
++  mount options=(ro,remount,bind,nosuid),
++  mount options=(ro,remount,bind,noexec),
++  mount options=(ro,remount,bind,nodev),
++  mount options=(ro,remount,bind,nosuid,noexec),
++  mount options=(ro,remount,bind,noexec,nodev),
++  mount options=(ro,remount,bind,nodev,nosuid),
++  mount options=(ro,remount,bind,nosuid,noexec,nodev),
++
+   # allow moving mounts except for /proc, /sys and /dev
+   mount options=(rw,move) /[^spd]*{,/**},
+   mount options=(rw,move) /d[^e]*{,/**},
+diff --git a/config/apparmor/abstractions/container-base.in b/config/apparmor/abstractions/container-base.in
+index 0844fdbb..39abf348 100644
+--- a/config/apparmor/abstractions/container-base.in
++++ b/config/apparmor/abstractions/container-base.in
+@@ -123,6 +123,16 @@
+   mount options=(rw,bind) /sy[^s]*{,/**},
+   mount options=(rw,bind) /sys?*{,/**},
+ 
++  # allow various ro-bind-*re*-mounts
++  mount options=(ro,remount,bind),
++  mount options=(ro,remount,bind,nosuid),
++  mount options=(ro,remount,bind,noexec),
++  mount options=(ro,remount,bind,nodev),
++  mount options=(ro,remount,bind,nosuid,noexec),
++  mount options=(ro,remount,bind,noexec,nodev),
++  mount options=(ro,remount,bind,nodev,nosuid),
++  mount options=(ro,remount,bind,nosuid,noexec,nodev),
++
+   # allow moving mounts except for /proc, /sys and /dev
+   mount options=(rw,move) /[^spd]*{,/**},
+   mount options=(rw,move) /d[^e]*{,/**},
+@@ -140,4 +150,3 @@
+   mount options=(rw,move) /s[^y]*{,/**},
+   mount options=(rw,move) /sy[^s]*{,/**},
+   mount options=(rw,move) /sys?*{,/**},
+-
+diff --git a/src/lxc/lsm/apparmor.c b/src/lxc/lsm/apparmor.c
+index ec3f805d..bba4f6cb 100644
+--- a/src/lxc/lsm/apparmor.c
++++ b/src/lxc/lsm/apparmor.c
+@@ -163,23 +163,15 @@ static const char AA_PROFILE_BASE[] =
+ "  mount options=(rw,bind) /sy[^s]*{,/**},\n"
+ "  mount options=(rw,bind) /sys?*{,/**},\n"
+ "\n"
+-"  # allow read-only bind-mounts of anything except /proc, /sys and /dev\n"
+-"  mount options=(ro,remount,bind) -> /[^spd]*{,/**},\n"
+-"  mount options=(ro,remount,bind) -> /d[^e]*{,/**},\n"
+-"  mount options=(ro,remount,bind) -> /de[^v]*{,/**},\n"
+-"  mount options=(ro,remount,bind) -> /dev/.[^l]*{,/**},\n"
+-"  mount options=(ro,remount,bind) -> /dev/.l[^x]*{,/**},\n"
+-"  mount options=(ro,remount,bind) -> /dev/.lx[^c]*{,/**},\n"
+-"  mount options=(ro,remount,bind) -> /dev/.lxc?*{,/**},\n"
+-"  mount options=(ro,remount,bind) -> /dev/[^.]*{,/**},\n"
+-"  mount options=(ro,remount,bind) -> /dev?*{,/**},\n"
+-"  mount options=(ro,remount,bind) -> /p[^r]*{,/**},\n"
+-"  mount options=(ro,remount,bind) -> /pr[^o]*{,/**},\n"
+-"  mount options=(ro,remount,bind) -> /pro[^c]*{,/**},\n"
+-"  mount options=(ro,remount,bind) -> /proc?*{,/**},\n"
+-"  mount options=(ro,remount,bind) -> /s[^y]*{,/**},\n"
+-"  mount options=(ro,remount,bind) -> /sy[^s]*{,/**},\n"
+-"  mount options=(ro,remount,bind) -> /sys?*{,/**},\n"
++"  # allow various ro-bind-*re*-mounts\n"
++"  mount options=(ro,remount,bind),\n"
++"  mount options=(ro,remount,bind,nosuid),\n"
++"  mount options=(ro,remount,bind,noexec),\n"
++"  mount options=(ro,remount,bind,nodev),\n"
++"  mount options=(ro,remount,bind,nosuid,noexec),\n"
++"  mount options=(ro,remount,bind,noexec,nodev),\n"
++"  mount options=(ro,remount,bind,nodev,nosuid),\n"
++"  mount options=(ro,remount,bind,nosuid,noexec,nodev),\n"
+ "\n"
+ "  # allow moving mounts except for /proc, /sys and /dev\n"
+ "  mount options=(rw,move) /[^spd]*{,/**},\n"
+-- 
+2.11.0
+

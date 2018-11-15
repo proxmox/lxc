@@ -12,3 +12,4 @@ extra/0003-doc-Translate-lxc.monitor.signal.pdeath-into-Japanes.patch
 extra/0004-apparmor-profile-generation.patch
 extra/0005-tests-add-test-for-generated-apparmor-profiles.patch
 extra/0006-conf-fix-path-lxcpath-mixups-in-tty-setup.patch
+extra/0007-apparmor-allow-various-remount-bind-options.patch
