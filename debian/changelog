@@ -1,3 +1,9 @@
+lxc-pve (3.0.2+pve1-5) stable; urgency=medium
+
+  * packaging fixup
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 19 Nov 2018 12:16:46 +0100
+
 lxc-pve (3.0.2+pve1-4) stable; urgency=medium
 
   * apparmor: allow various read-only-bind-remount combinations required for
