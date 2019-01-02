@@ -17,10 +17,10 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  3 files changed, 24 insertions(+), 19 deletions(-)
 
 diff --git a/src/lxc/initutils.c b/src/lxc/initutils.c
-index cadd8275..8cc18932 100644
+index 11c80866..8b5e2542 100644
 --- a/src/lxc/initutils.c
 +++ b/src/lxc/initutils.c
-@@ -58,14 +58,15 @@ static char *copy_global_config_value(char *p)
+@@ -63,14 +63,15 @@ static char *copy_global_config_value(char *p)
  const char *lxc_global_config_value(const char *option_name)
  {
  	static const char * const options[][2] = {
@@ -45,7 +45,7 @@ index cadd8275..8cc18932 100644
  	};
  
 diff --git a/src/lxc/initutils.h b/src/lxc/initutils.h
-index b815cd19..4d005679 100644
+index 6bf23a70..b542e601 100644
 --- a/src/lxc/initutils.h
 +++ b/src/lxc/initutils.h
 @@ -42,6 +42,7 @@
@@ -57,18 +57,18 @@ index b815cd19..4d005679 100644
  #ifndef PR_SET_MM
  #define PR_SET_MM 35
 diff --git a/src/lxc/start.c b/src/lxc/start.c
-index cf053d20..827a9ee9 100644
+index f3b29d6c..1cf792aa 100644
 --- a/src/lxc/start.c
 +++ b/src/lxc/start.c
-@@ -1772,17 +1772,20 @@ static int lxc_spawn(struct lxc_handler *handler)
+@@ -1820,17 +1820,20 @@ static int lxc_spawn(struct lxc_handler *handler)
  	TRACE("Set up legacy device cgroup controller limits");
  
  	if (cgns_supported()) {
--		if (!cgroup_ops->create(cgroup_ops, handler, true)) {
+-		if (!cgroup_ops->payload_create(cgroup_ops, handler, true)) {
 -			ERROR("failed to create inner cgroup separation layer");
 -			goto out_delete_net;
 -		}
--		if (!cgroup_ops->enter(cgroup_ops, handler->pid, true)) {
+-		if (!cgroup_ops->payload_enter(cgroup_ops, handler->pid, true)) {
 -			ERROR("failed to enter inner cgroup separation layer");
 -			goto out_delete_net;
 -		}
@@ -77,11 +77,11 @@ index cf053d20..827a9ee9 100644
 -			goto out_delete_net;
 +		const char *tmp = lxc_global_config_value("lxc.cgroup.protect_limits");
 +		if (!strcmp(tmp, "both") || !strcmp(tmp, wants_to_map_ids ? "unprivileged" : "privileged")) {
-+			if (!cgroup_ops->create(cgroup_ops, handler, true)) {
++			if (!cgroup_ops->payload_create(cgroup_ops, handler, true)) {
 +				ERROR("failed to create inner cgroup separation layer");
 +				goto out_delete_net;
 +			}
-+			if (!cgroup_ops->enter(cgroup_ops, handler->pid, true)) {
++			if (!cgroup_ops->payload_enter(cgroup_ops, handler->pid, true)) {
 +				ERROR("failed to enter inner cgroup separation layer");
 +				goto out_delete_net;
 +			}

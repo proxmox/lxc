@@ -5,11 +5,4 @@ pve/0004-PVE-Up-separate-the-limiting-from-the-namespaced-cgr.patch
 pve/0005-PVE-Up-start-initutils-make-cgroupns-separation-leve.patch
 pve/0006-PVE-Config-namespace-separation.patch
 pve/0007-PVE-Up-possibility-to-run-lxc-monitord-as-a-regular-.patch
-pve/0008-PVE-Deprecated-Make-lxc-.service-forking.patch
-extra/0001-confile-add-lxc.monitor.signal.pdeath.patch
-extra/0002-tests-add-lxc.monitor.signal.pdeath.patch
-extra/0003-doc-Translate-lxc.monitor.signal.pdeath-into-Japanes.patch
-extra/0004-apparmor-profile-generation.patch
-extra/0005-tests-add-test-for-generated-apparmor-profiles.patch
-extra/0006-conf-fix-path-lxcpath-mixups-in-tty-setup.patch
-extra/0007-apparmor-allow-various-remount-bind-options.patch
+pve/0008-PVE-Config-Disable-lxc.monitor-cgroup.patch

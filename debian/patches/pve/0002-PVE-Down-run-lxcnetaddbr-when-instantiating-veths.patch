@@ -11,10 +11,10 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  1 file changed, 5 insertions(+)
 
 diff --git a/src/lxc/network.c b/src/lxc/network.c
-index dd294cd9..871a6e6b 100644
+index d0f14e63..9337ad4d 100644
 --- a/src/lxc/network.c
 +++ b/src/lxc/network.c
-@@ -194,6 +194,11 @@ static int instantiate_veth(struct lxc_handler *handler, struct lxc_netdev *netd
+@@ -195,6 +195,11 @@ static int instantiate_veth(struct lxc_handler *handler, struct lxc_netdev *netd
  				netdev->upscript, "up", argv);
  		if (err < 0)
  			goto out_delete;

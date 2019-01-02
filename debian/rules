@@ -25,7 +25,8 @@ override_dh_auto_configure:
 	--disable-lua \
 	--disable-examples \
 	--enable-seccomp \
-	--disable-static
+	--disable-static \
+	--with-cgroup-pattern='lxc/%n'
 
 override_dh_fixperms:
 	dh_fixperms -Xusr/lib/$(DEB_HOST_MULTIARCH)/lxc/lxc-user-nic
