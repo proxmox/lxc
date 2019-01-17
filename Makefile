@@ -1,16 +1,16 @@
 PACKAGE=lxc-pve
-LXCVER=3.1.0
-DEBREL=1
+PKGVER != dpkg-parsechangelog -Sversion | cut -d- -f1
+PKGREL != dpkg-parsechangelog -Sversion | cut -d- -f2
 
 SRCDIR=lxc
-BUILDSRC := $(PACKAGE)-$(LXCVER)
+BUILDSRC := $(PACKAGE)-$(PKGVER)
 
 ARCH:=$(shell dpkg-architecture -qDEB_BUILD_ARCH)
 
-DEB_BASE=$(PACKAGE)_$(LXCVER)-$(DEBREL)
+DEB_BASE=$(PACKAGE)_$(PKGVER)-$(PKGREL)
 DEB1=$(DEB_BASE)_$(ARCH).deb
-DEB2=$(PACKAGE)-dev_$(LXCVER)-$(DEBREL)_$(ARCH).deb \
-     $(PACKAGE)-dbgsym_$(LXCVER)-$(DEBREL)_$(ARCH).deb
+DEB2=$(PACKAGE)-dev_$(PKGVER)-$(PKGREL)_$(ARCH).deb \
+     $(PACKAGE)-dbgsym_$(PKGVER)-$(PKGREL)_$(ARCH).deb
 DEBS=$(DEB1) $(DEB2)
 DSC=$(DEB_BASE).dsc
 TARGZ=$(DEB_BASE).tar.gz
