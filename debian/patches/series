@@ -6,3 +6,5 @@ pve/0005-PVE-Up-start-initutils-make-cgroupns-separation-leve.patch
 pve/0006-PVE-Config-namespace-separation.patch
 pve/0007-PVE-Up-possibility-to-run-lxc-monitord-as-a-regular-.patch
 pve/0008-PVE-Config-Disable-lxc.monitor-cgroup.patch
+extra/0001-conf-use-SYSERROR-on-lxc_write_to_file-errors.patch
+extra/0002-Revert-conf-remove-extra-MS_BIND-with-sysfs-mixed.patch
