@@ -1,3 +1,11 @@
+lxc-pve (3.1.0-2) stable; urgency=medium
+
+  * merge a fixup to allow privileged Ubuntu 14.04 containers to boot again
+
+  * merge a patch for improved error output in some error cases
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 17 Jan 2019 09:23:17 +0100
+
 lxc-pve (3.1.0-1) stable; urgency=medium
 
   * update to lxc-3.1.0
