@@ -1,3 +1,9 @@
+lxc-pve (3.1.0-3) stable; urgency=medium
+
+  * include fix for CVE-2019-5736
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 12 Feb 2019 08:05:51 +0100
+
 lxc-pve (3.1.0-2) stable; urgency=medium
 
   * merge a fixup to allow privileged Ubuntu 14.04 containers to boot again
