@@ -1,16 +1,15 @@
+include /usr/share/dpkg/pkg-info.mk
+include /usr/share/dpkg/architecture.mk
+
 PACKAGE=lxc-pve
-PKGVER != dpkg-parsechangelog -Sversion | cut -d- -f1
-PKGREL != dpkg-parsechangelog -Sversion | cut -d- -f2
 
 SRCDIR=lxc
-BUILDSRC := $(PACKAGE)-$(PKGVER)
+BUILDSRC := $(PACKAGE)-$(DEB_VERSION_UPSTREAM)
 
-ARCH:=$(shell dpkg-architecture -qDEB_BUILD_ARCH)
-
-DEB_BASE=$(PACKAGE)_$(PKGVER)-$(PKGREL)
-DEB1=$(DEB_BASE)_$(ARCH).deb
-DEB2=$(PACKAGE)-dev_$(PKGVER)-$(PKGREL)_$(ARCH).deb \
-     $(PACKAGE)-dbgsym_$(PKGVER)-$(PKGREL)_$(ARCH).deb
+DEB_BASE=$(PACKAGE)_$(DEB_VERSION_UPSTREAM_REVISION)
+DEB1=$(DEB_BASE)_$(DEB_BUILD_ARCH).deb
+DEB2=$(PACKAGE)-dev_$(DEB_VERSION_UPSTREAM_REVISION)_$(DEB_BUILD_ARCH).deb \
+     $(PACKAGE)-dbgsym_$(DEB_VERSION_UPSTREAM_REVISION)_$(DEB_BUILD_ARCH).deb
 DEBS=$(DEB1) $(DEB2)
 DSC=$(DEB_BASE).dsc
 TARGZ=$(DEB_BASE).tar.gz
@@ -55,7 +54,7 @@ distclean: clean
 
 .PHONY: clean
 clean:
-	rm -rf $(BUILDSRC) *_$(ARCH).deb  *_$(ARCH).dsc *.tar.gz *.changes *.dsc *.buildinfo
+	rm -rf $(BUILDSRC) *.deb  *.dsc *.tar.gz *.changes *.dsc *.buildinfo
 
 .PHONY: dinstall
 dinstall: $(DEBS)
