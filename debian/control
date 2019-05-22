@@ -2,12 +2,9 @@ Source: lxc-pve
 Section: admin
 Priority: optional
 Maintainer: Proxmox Support Team <support@proxmox.com>
-Build-Depends: autotools-dev,
-               bash-completion,
-               debhelper (>= 9),
+Build-Depends: bash-completion,
+               debhelper (>= 10),
                dh-apparmor,
-               dh-autoreconf,
-               dh-systemd,
                docbook2x,
                doxygen,
                graphviz,
@@ -18,7 +15,7 @@ Build-Depends: autotools-dev,
                linux-libc-dev,
                pkg-config,
                quilt,
-Standards-Version: 3.9.5
+Standards-Version: 4.3.0
 Homepage: https://linuxcontainers.org
 
 Package: lxc-pve
