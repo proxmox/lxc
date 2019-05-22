@@ -1,3 +1,9 @@
+lxc-pve (3.1.0-60) pve; urgency=medium
+
+  * Rebuild for Debian Buster / PVE 6
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 22 May 2019 12:29:48 +0200
+
 lxc-pve (3.1.0-3) stable; urgency=medium
 
   * include fix for CVE-2019-5736
