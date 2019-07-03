@@ -14,8 +14,8 @@ override_dh_auto_configure:
 	dh_auto_configure -- \
 	--with-distro=debian \
 	--with-init-script=systemd \
-	--enable-apparmor	\
-	--enable-doc	\
+	--enable-apparmor \
+	--enable-doc \
 	--enable-api-docs \
 	--disable-rpath \
 	--disable-selinux \
