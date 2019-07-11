@@ -8,7 +8,7 @@ DPKG_EXPORT_BUILDFLAGS = 1
 include /usr/share/dpkg/default.mk
 
 %:
-	dh $@ --with autoreconf,quilt,systemd
+	dh $@ --with autoreconf,quilt
 
 override_dh_auto_configure:
 	dh_auto_configure -- \
