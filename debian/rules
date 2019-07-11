@@ -37,5 +37,6 @@ override_dh_install:
 	dh_apparmor -p lxc-pve --profile-name=lxc-containers
 	dh_install --fail-missing
 
-override_dh_systemd_start:
-	dh_systemd_start --no-restart-on-upgrade
+override_dh_installsystemd:
+	dh_installsystemd -plxc-pve -r lxc-monitord.service lxc-net.service
+	dh_installsystemd -plxc-pve -r --no-restart-after-upgrade lxc.service
