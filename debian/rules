@@ -38,4 +38,5 @@ override_dh_install:
 	dh_install --fail-missing
 
 override_dh_systemd_start:
-	dh_systemd_start --no-restart-on-upgrade
+	dh_systemd_start -plxc-pve -r lxc-monitord.service lxc-net.service
+	dh_systemd_start -plxc-pve -r --no-restart-after-upgrade lxc.service
