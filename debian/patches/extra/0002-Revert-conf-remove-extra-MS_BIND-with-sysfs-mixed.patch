@@ -15,7 +15,7 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/src/lxc/conf.c b/src/lxc/conf.c
-index 0d86d66e..7263d0e1 100644
+index 0d86d66e5..7263d0e1a 100644
 --- a/src/lxc/conf.c
 +++ b/src/lxc/conf.c
 @@ -690,6 +690,7 @@ static int lxc_mount_auto_mounts(struct lxc_conf *conf, int flags, struct lxc_ha
@@ -27,5 +27,5 @@ index 0d86d66e..7263d0e1 100644
  		{ LXC_AUTO_SYS_MASK,  LXC_AUTO_SYS_MIXED,  "sysfs",                                          "%r/sys/devices/virtual/net", "sysfs", 0,                                               NULL },
  		{ LXC_AUTO_SYS_MASK,  LXC_AUTO_SYS_MIXED,  "%r/sys/devices/virtual/net/devices/virtual/net", "%r/sys/devices/virtual/net", NULL,    MS_BIND,                                         NULL },
 -- 
-2.11.0
+2.20.1
 
