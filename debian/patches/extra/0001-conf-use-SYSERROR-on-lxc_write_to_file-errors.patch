@@ -9,7 +9,7 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/src/lxc/conf.c b/src/lxc/conf.c
-index 3d0e4a19..0d86d66e 100644
+index 3d0e4a192..0d86d66e5 100644
 --- a/src/lxc/conf.c
 +++ b/src/lxc/conf.c
 @@ -2681,8 +2681,8 @@ int setup_sysctl_parameters(struct lxc_list *sysctls)
@@ -35,5 +35,5 @@ index 3d0e4a19..0d86d66e 100644
  		}
  	}
 -- 
-2.11.0
+2.20.1
 
