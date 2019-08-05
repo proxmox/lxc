@@ -1,3 +1,10 @@
+lxc-pve (3.1.0-62) pve; urgency=medium
+
+  * update apparmor profile to better support newer systemd based
+    distributions in unprivileged containers
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 05 Aug 2019 09:23:25 +0200
+
 lxc-pve (3.1.0-61) pve; urgency=medium
 
   * packaging fixup: prevent lxc.service from being restarted on package
