@@ -1,3 +1,10 @@
+lxc-pve (3.1.0-4) stable; urgency=medium
+
+  * update apparmor profile to better support newer systemd based
+    distributions in unprivileged containers
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 07 Aug 2019 10:20:02 +0200
+
 lxc-pve (3.1.0-3) stable; urgency=medium
 
   * include fix for CVE-2019-5736
