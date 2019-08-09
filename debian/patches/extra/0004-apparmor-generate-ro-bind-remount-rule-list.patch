@@ -1,0 +1,215 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Fri, 2 Aug 2019 12:57:42 +0200
+Subject: [PATCH] apparmor: generate ro,bind,remount rule list
+
+initially based on changes to lxd
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ src/lxc/lsm/apparmor.c | 156 ++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 140 insertions(+), 16 deletions(-)
+
+diff --git a/src/lxc/lsm/apparmor.c b/src/lxc/lsm/apparmor.c
+index e32b12531..08966a246 100644
+--- a/src/lxc/lsm/apparmor.c
++++ b/src/lxc/lsm/apparmor.c
+@@ -149,6 +149,16 @@ static const char AA_PROFILE_BASE[] =
+ "#  mount options=(rw,make-unbindable) -> **,\n"
+ "#  mount options=(rw,make-runbindable) -> **,\n"
+ "\n"
++"# Allow limited modification of mount propagation\n"
++"  mount options=(rw,make-slave) -> /,\n"
++"  mount options=(rw,make-rslave) -> /,\n"
++"  mount options=(rw,make-shared) -> /,\n"
++"  mount options=(rw,make-rshared) -> /,\n"
++"  mount options=(rw,make-private) -> /,\n"
++"  mount options=(rw,make-rprivate) -> /,\n"
++"  mount options=(rw,make-unbindable) -> /,\n"
++"  mount options=(rw,make-runbindable) -> /,\n"
++"\n"
+ "  # allow bind-mounts of anything except /proc, /sys and /dev\n"
+ "  mount options=(rw,bind) /[^spd]*{,/**},\n"
+ "  mount options=(rw,bind) /d[^e]*{,/**},\n"
+@@ -167,15 +177,18 @@ static const char AA_PROFILE_BASE[] =
+ "  mount options=(rw,bind) /sy[^s]*{,/**},\n"
+ "  mount options=(rw,bind) /sys?*{,/**},\n"
+ "\n"
+-"  # allow various ro-bind-*re*-mounts\n"
+-"  mount options=(ro,remount,bind),\n"
+-"  mount options=(ro,remount,bind,nosuid),\n"
+-"  mount options=(ro,remount,bind,noexec),\n"
+-"  mount options=(ro,remount,bind,nodev),\n"
+-"  mount options=(ro,remount,bind,nosuid,noexec),\n"
+-"  mount options=(ro,remount,bind,noexec,nodev),\n"
+-"  mount options=(ro,remount,bind,nodev,nosuid),\n"
+-"  mount options=(ro,remount,bind,nosuid,noexec,nodev),\n"
++"  # Allow rbind-mounts of anything except /, /dev, /proc and /sys\n"
++"  mount options=(rw,rbind) /[^spd]*{,/**},\n"
++"  mount options=(rw,rbind) /d[^e]*{,/**},\n"
++"  mount options=(rw,rbind) /de[^v]*{,/**},\n"
++"  mount options=(rw,rbind) /dev?*{,/**},\n"
++"  mount options=(rw,rbind) /p[^r]*{,/**},\n"
++"  mount options=(rw,rbind) /pr[^o]*{,/**},\n"
++"  mount options=(rw,rbind) /pro[^c]*{,/**},\n"
++"  mount options=(rw,rbind) /proc?*{,/**},\n"
++"  mount options=(rw,rbind) /s[^y]*{,/**},\n"
++"  mount options=(rw,rbind) /sy[^s]*{,/**},\n"
++"  mount options=(rw,rbind) /sys?*{,/**},\n"
+ "\n"
+ "  # allow moving mounts except for /proc, /sys and /dev\n"
+ "  mount options=(rw,move) /[^spd]*{,/**},\n"
+@@ -339,18 +352,57 @@ static const char AA_PROFILE_NESTING_BASE[] =
+ "  deny /dev/.lxc/proc/** rw,\n"
+ "  deny /dev/.lxc/sys/** rw,\n"
+ "\n"
++"  # Allow modifying mount propagation\n"
++"  mount options=(rw,make-slave) -> **,\n"
++"  mount options=(rw,make-rslave) -> **,\n"
++"  mount options=(rw,make-shared) -> **,\n"
++"  mount options=(rw,make-rshared) -> **,\n"
++"  mount options=(rw,make-private) -> **,\n"
++"  mount options=(rw,make-rprivate) -> **,\n"
++"  mount options=(rw,make-unbindable) -> **,\n"
++"  mount options=(rw,make-runbindable) -> **,\n"
++"\n"
+ "  mount fstype=proc -> /usr/lib/*/lxc/**,\n"
+ "  mount fstype=sysfs -> /usr/lib/*/lxc/**,\n"
+ "  mount options=(rw,bind),\n"
+ "  mount options=(rw,rbind),\n"
+-"  mount options=(rw,make-rshared),\n"
+ "\n"
+-   /* FIXME: What's the state here on apparmor's side? */
+-"  # there doesn't seem to be a way to ask for:\n"
+-"  # mount options=(ro,nosuid,nodev,noexec,remount,bind),\n"
+-"  # as we always get mount to $cdir/proc/sys with those flags denied\n"
+-"  # So allow all mounts until that is straightened out:\n"
+-"  mount,\n"
++"  # Allow common combinations of bind/remount\n"
++"  # NOTE: AppArmor bug effectively turns those into wildcards mount allow\n"
++"  mount options=(ro,remount,bind),\n"
++"  mount options=(ro,remount,bind,nodev),\n"
++"  mount options=(ro,remount,bind,nodev,nosuid),\n"
++"  mount options=(ro,remount,bind,noexec),\n"
++"  mount options=(ro,remount,bind,noexec,nodev),\n"
++"  mount options=(ro,remount,bind,nosuid),\n"
++"  mount options=(ro,remount,bind,nosuid,nodev),\n"
++"  mount options=(ro,remount,bind,nosuid,noexec),\n"
++"  mount options=(ro,remount,bind,nosuid,noexec,nodev),\n"
++
++"  mount options=(ro,remount,bind,strictatime),\n"
++"  mount options=(ro,remount,bind,strictatime,nodev),\n"
++"  mount options=(ro,remount,bind,strictatime,nodev,nosuid),\n"
++"  mount options=(ro,remount,bind,strictatime,noexec),\n"
++"  mount options=(ro,remount,bind,strictatime,noexec,nodev),\n"
++"  mount options=(ro,remount,bind,strictatime,nosuid),\n"
++"  mount options=(ro,remount,bind,strictatime,nosuid,nodev),\n"
++"  mount options=(ro,remount,bind,strictatime,nosuid,noexec),\n"
++"  mount options=(ro,remount,bind,strictatime,nosuid,noexec,nodev),\n"
++
++"  mount options=(ro,remount,bind,noatime),\n"
++"  mount options=(ro,remount,bind,noatime,nodev),\n"
++"  mount options=(ro,remount,bind,noatime,nodev,nosuid),\n"
++"  mount options=(ro,remount,bind,noatime,noexec),\n"
++"  mount options=(ro,remount,bind,noatime,noexec,nodev),\n"
++"  mount options=(ro,remount,bind,noatime,nosuid),\n"
++"  mount options=(ro,remount,bind,noatime,nosuid,nodev),\n"
++"  mount options=(ro,remount,bind,noatime,nosuid,noexec),\n"
++"  mount options=(ro,remount,bind,noatime,nosuid,noexec,nodev),\n"
++
++"\n"
++"  # Allow remounting things read-only\n"
++"  mount options=(ro,remount) /,\n"
++"  mount options=(ro,remount) /**,\n"
+ ;
+ 
+ static const char AA_PROFILE_UNPRIVILEGED[] =
+@@ -648,6 +700,76 @@ static bool is_privileged(struct lxc_conf *conf)
+ 	return lxc_list_empty(&conf->id_map);
+ }
+ 
++static const char* AA_ALL_DEST_PATH_LIST[] = {
++	" -> /[^spd]*{,/**},\n",
++	" -> /d[^e]*{,/**},\n",
++	" -> /de[^v]*{,/**},\n",
++	" -> /dev/.[^l]*{,/**},\n",
++	" -> /dev/.l[^x]*{,/**},\n",
++	" -> /dev/.lx[^c]*{,/**},\n",
++	" -> /dev/.lxc?*{,/**},\n",
++	" -> /dev/[^.]*{,/**},\n",
++	" -> /dev?*{,/**},\n",
++	" -> /p[^r]*{,/**},\n",
++	" -> /pr[^o]*{,/**},\n",
++	" -> /pro[^c]*{,/**},\n",
++	" -> /proc?*{,/**},\n",
++	" -> /s[^y]*{,/**},\n",
++	" -> /sy[^s]*{,/**},\n",
++	" -> /sys?*{,/**},\n",
++	NULL,
++};
++
++static void append_remount_rule(char **profile, size_t *size, const char *rule)
++{
++	size_t rule_len = strlen(rule);
++
++	for (const char **dest = AA_ALL_DEST_PATH_LIST; *dest; ++dest) {
++		must_append_sized(profile, size, rule, rule_len);
++		must_append_sized(profile, size, *dest, strlen(*dest));
++	}
++}
++
++static void append_all_remount_rules(char **profile, size_t *size)
++{
++	must_append_sized(profile, size,
++			  "# allow various ro-bind-*re*mounts\n",
++			  sizeof("# allow various ro-bind-*re*mounts\n")-1);
++
++	static struct mntopt_t {
++		const char *opt;
++		size_t len;
++	} mnt_opt_list[] = {
++		{ ",nodev", sizeof(",nodev")-1 },
++		{ ",nosuid", sizeof(",nosuid")-1 },
++		{ ",noexec", sizeof(",noexec")-1 },
++	};
++
++	const size_t opt_count = sizeof(mnt_opt_list) / sizeof(mnt_opt_list[0]);
++
++	char buf[128] = "mount options=(ro,remount,bind";
++	const size_t start = strlen(buf);
++	for (size_t i = 0; i != 1 << opt_count; ++i) {
++		size_t at = start;
++		unsigned opt_bit = 1;
++
++		for (size_t o = 0; o != opt_count; ++o, opt_bit <<= 1) {
++			if (i & opt_bit) {
++				struct mntopt_t *opt = &mnt_opt_list[o];
++				memcpy(&buf[at], opt->opt, opt->len);
++				at += opt->len;
++			}
++		}
++
++		memcpy(&buf[at], ")", sizeof(")"));
++		append_remount_rule(profile, size, buf);
++		memcpy(&buf[at], ",noatime)", sizeof(",noatime)"));
++		append_remount_rule(profile, size, buf);
++		memcpy(&buf[at], ",strictatime)", sizeof(",strictatime)"));
++		append_remount_rule(profile, size, buf);
++	}
++}
++
+ static char *get_apparmor_profile_content(struct lxc_conf *conf, const char *lxcpath)
+ {
+ 	char *profile, *profile_name_full;
+@@ -665,6 +787,8 @@ static char *get_apparmor_profile_content(struct lxc_conf *conf, const char *lxc
+ 	must_append_sized(&profile, &size, AA_PROFILE_BASE,
+ 	                  STRARRAYLEN(AA_PROFILE_BASE));
+ 
++	append_all_remount_rules(&profile, &size);
++
+ 	if (aa_supports_unix)
+ 		must_append_sized(&profile, &size, AA_PROFILE_UNIX_SOCKETS,
+ 		                  STRARRAYLEN(AA_PROFILE_UNIX_SOCKETS));
+-- 
+2.20.1
+
