@@ -1,3 +1,9 @@
+lxc-pve (3.1.0-5) stable; urgency=medium
+
+  * some more apparmor profile improvements for systemd compatibility
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 09 Aug 2019 10:49:52 +0200
+
 lxc-pve (3.1.0-4) stable; urgency=medium
 
   * update apparmor profile to better support newer systemd based
