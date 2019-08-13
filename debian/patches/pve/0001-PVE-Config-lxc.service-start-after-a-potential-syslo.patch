@@ -10,7 +10,7 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/config/init/systemd/lxc.service.in b/config/init/systemd/lxc.service.in
-index cd619967..77541917 100644
+index cd6199671..77541917e 100644
 --- a/config/init/systemd/lxc.service.in
 +++ b/config/init/systemd/lxc.service.in
 @@ -1,6 +1,6 @@
@@ -22,5 +22,5 @@ index cd619967..77541917 100644
  Documentation=man:lxc-autostart man:lxc
  
 -- 
-2.11.0
+2.20.1
 

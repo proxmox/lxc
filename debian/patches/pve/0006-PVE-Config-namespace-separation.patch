@@ -13,7 +13,7 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/src/lxc/cgroups/cgroup.h b/src/lxc/cgroups/cgroup.h
-index 59445b5a..7d6135c1 100644
+index 59445b5a5..7d6135c19 100644
 --- a/src/lxc/cgroups/cgroup.h
 +++ b/src/lxc/cgroups/cgroup.h
 @@ -36,7 +36,7 @@
@@ -26,7 +26,7 @@ index 59445b5a..7d6135c1 100644
  struct lxc_handler;
  struct lxc_conf;
 diff --git a/src/lxc/initutils.h b/src/lxc/initutils.h
-index b542e601..78d3f2b1 100644
+index b542e6015..78d3f2b10 100644
 --- a/src/lxc/initutils.h
 +++ b/src/lxc/initutils.h
 @@ -42,7 +42,7 @@
@@ -39,5 +39,5 @@ index b542e601..78d3f2b1 100644
  #ifndef PR_SET_MM
  #define PR_SET_MM 35
 -- 
-2.11.0
+2.20.1
 

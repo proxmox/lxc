@@ -17,7 +17,7 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  3 files changed, 24 insertions(+), 19 deletions(-)
 
 diff --git a/src/lxc/initutils.c b/src/lxc/initutils.c
-index 11c80866..8b5e2542 100644
+index 11c808662..8b5e2542a 100644
 --- a/src/lxc/initutils.c
 +++ b/src/lxc/initutils.c
 @@ -63,14 +63,15 @@ static char *copy_global_config_value(char *p)
@@ -45,7 +45,7 @@ index 11c80866..8b5e2542 100644
  	};
  
 diff --git a/src/lxc/initutils.h b/src/lxc/initutils.h
-index 6bf23a70..b542e601 100644
+index 6bf23a706..b542e6015 100644
 --- a/src/lxc/initutils.h
 +++ b/src/lxc/initutils.h
 @@ -42,6 +42,7 @@
@@ -57,7 +57,7 @@ index 6bf23a70..b542e601 100644
  #ifndef PR_SET_MM
  #define PR_SET_MM 35
 diff --git a/src/lxc/start.c b/src/lxc/start.c
-index f3b29d6c..1cf792aa 100644
+index f3b29d6cd..1cf792aa2 100644
 --- a/src/lxc/start.c
 +++ b/src/lxc/start.c
 @@ -1820,17 +1820,20 @@ static int lxc_spawn(struct lxc_handler *handler)
@@ -93,5 +93,5 @@ index f3b29d6c..1cf792aa 100644
  	}
  
 -- 
-2.11.0
+2.20.1
 

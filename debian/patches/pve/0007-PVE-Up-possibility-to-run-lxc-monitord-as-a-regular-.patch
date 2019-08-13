@@ -11,16 +11,16 @@ can be avoided by leaving it running permanently.
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---
  .gitignore                                  |  1 +
- config/init/systemd/Makefile.am             | 10 +++--
- config/init/systemd/lxc-monitord.service.in | 12 ++++++
+ config/init/systemd/Makefile.am             | 10 ++--
+ config/init/systemd/lxc-monitord.service.in | 12 +++++
  configure.ac                                |  1 +
  lxc.spec.in                                 |  1 +
- src/lxc/cmd/lxc_monitord.c                  | 60 +++++++++++++++++++++--------
+ src/lxc/cmd/lxc_monitord.c                  | 60 +++++++++++++++------
  6 files changed, 64 insertions(+), 21 deletions(-)
  create mode 100644 config/init/systemd/lxc-monitord.service.in
 
 diff --git a/.gitignore b/.gitignore
-index 45377714..69e6e7ff 100644
+index 45377714c..69e6e7ffe 100644
 --- a/.gitignore
 +++ b/.gitignore
 @@ -116,6 +116,7 @@ config/bash/lxc
@@ -32,7 +32,7 @@ index 45377714..69e6e7ff 100644
  config/init/systemd/lxc.service
  config/init/systemd/lxc@.service
 diff --git a/config/init/systemd/Makefile.am b/config/init/systemd/Makefile.am
-index c448850d..4a4fde5e 100644
+index c448850d1..4a4fde5e7 100644
 --- a/config/init/systemd/Makefile.am
 +++ b/config/init/systemd/Makefile.am
 @@ -2,19 +2,21 @@ EXTRA_DIST = \
@@ -63,7 +63,7 @@ index c448850d..4a4fde5e 100644
  pkglibexec_SCRIPTS = lxc-apparmor-load
 diff --git a/config/init/systemd/lxc-monitord.service.in b/config/init/systemd/lxc-monitord.service.in
 new file mode 100644
-index 00000000..40635168
+index 000000000..406351688
 --- /dev/null
 +++ b/config/init/systemd/lxc-monitord.service.in
 @@ -0,0 +1,12 @@
@@ -80,7 +80,7 @@ index 00000000..40635168
 +[Install]
 +WantedBy=multi-user.target
 diff --git a/configure.ac b/configure.ac
-index 9a6ba83c..9f3b8fb3 100644
+index 9a6ba83c2..9f3b8fb3c 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -747,6 +747,7 @@ AC_CONFIG_FILES([
@@ -92,7 +92,7 @@ index 9a6ba83c..9f3b8fb3 100644
  	config/init/sysvinit/lxc-containers
  	config/init/sysvinit/lxc-net
 diff --git a/lxc.spec.in b/lxc.spec.in
-index 7fcd811f..59597f46 100644
+index 7fcd811ff..59597f469 100644
 --- a/lxc.spec.in
 +++ b/lxc.spec.in
 @@ -247,6 +247,7 @@ fi
@@ -104,7 +104,7 @@ index 7fcd811f..59597f46 100644
  %{_sysconfdir}/rc.d/init.d/lxc
  %{_sysconfdir}/rc.d/init.d/lxc-net
 diff --git a/src/lxc/cmd/lxc_monitord.c b/src/lxc/cmd/lxc_monitord.c
-index 3b931b36..d3cc3597 100644
+index 3b931b361..d3cc35978 100644
 --- a/src/lxc/cmd/lxc_monitord.c
 +++ b/src/lxc/cmd/lxc_monitord.c
 @@ -359,17 +359,44 @@ static void lxc_monitord_sig_handler(int sig)
@@ -203,5 +203,5 @@ index 3b931b36..d3cc3597 100644
  			ERROR("mainloop returned an error");
  			break;
 -- 
-2.11.0
+2.20.1
 

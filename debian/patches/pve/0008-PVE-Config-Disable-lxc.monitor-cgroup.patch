@@ -13,7 +13,7 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  1 file changed, 9 insertions(+), 9 deletions(-)
 
 diff --git a/src/lxc/start.c b/src/lxc/start.c
-index 1cf792aa..24f387de 100644
+index 1cf792aa2..24f387de6 100644
 --- a/src/lxc/start.c
 +++ b/src/lxc/start.c
 @@ -1954,15 +1954,15 @@ int __lxc_start(const char *name, struct lxc_handler *handler,
@@ -42,5 +42,5 @@ index 1cf792aa..24f387de 100644
  	if (geteuid() == 0 && !lxc_list_empty(&conf->id_map)) {
  		/* If the backing store is a device, mount it here and now. */
 -- 
-2.11.0
+2.20.1
 

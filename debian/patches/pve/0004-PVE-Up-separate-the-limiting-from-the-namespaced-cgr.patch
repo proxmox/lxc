@@ -15,16 +15,16 @@ being used in order to combat this.
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---
- src/lxc/cgroups/cgfsng.c | 94 +++++++++++++++++++++++++++++++++++++++---------
- src/lxc/cgroups/cgroup.h | 18 +++++++---
- src/lxc/commands.c       | 87 +++++++++++++++++++++++++++++++++-----------
- src/lxc/commands.h       |  2 ++
- src/lxc/criu.c           |  4 +--
- src/lxc/start.c          | 28 +++++++++++----
+ src/lxc/cgroups/cgfsng.c | 94 +++++++++++++++++++++++++++++++++-------
+ src/lxc/cgroups/cgroup.h | 18 ++++++--
+ src/lxc/commands.c       | 87 ++++++++++++++++++++++++++++---------
+ src/lxc/commands.h       |  2 +
+ src/lxc/criu.c           |  4 +-
+ src/lxc/start.c          | 28 +++++++++---
  6 files changed, 183 insertions(+), 50 deletions(-)
 
 diff --git a/src/lxc/cgroups/cgfsng.c b/src/lxc/cgroups/cgfsng.c
-index ab99b47c..ac8f469b 100644
+index ab99b47c5..ac8f469bb 100644
 --- a/src/lxc/cgroups/cgfsng.c
 +++ b/src/lxc/cgroups/cgfsng.c
 @@ -818,6 +818,7 @@ static struct hierarchy *add_hierarchy(struct hierarchy ***h, char **clist, char
@@ -282,7 +282,7 @@ index ab99b47c..ac8f469b 100644
  		if (!path)
  			continue;
 diff --git a/src/lxc/cgroups/cgroup.h b/src/lxc/cgroups/cgroup.h
-index d4dcd506..59445b5a 100644
+index d4dcd506b..59445b5a5 100644
 --- a/src/lxc/cgroups/cgroup.h
 +++ b/src/lxc/cgroups/cgroup.h
 @@ -32,6 +32,12 @@
@@ -339,7 +339,7 @@ index d4dcd506..59445b5a 100644
  		       const char *lxcpath, pid_t pid);
  	bool (*mount)(struct cgroup_ops *ops, struct lxc_handler *handler,
 diff --git a/src/lxc/commands.c b/src/lxc/commands.c
-index 133384d7..b41a7600 100644
+index 133384d72..b41a76000 100644
 --- a/src/lxc/commands.c
 +++ b/src/lxc/commands.c
 @@ -427,20 +427,8 @@ static int lxc_cmd_get_clone_flags_callback(int fd, struct lxc_cmd_req *req,
@@ -465,7 +465,7 @@ index 133384d7..b41a7600 100644
  
  		if (cgroup_ops->unfreeze(cgroup_ops))
 diff --git a/src/lxc/commands.h b/src/lxc/commands.h
-index 2c024b65..7c4c00b1 100644
+index 2c024b65d..7c4c00b1e 100644
 --- a/src/lxc/commands.h
 +++ b/src/lxc/commands.h
 @@ -88,6 +88,8 @@ extern int lxc_cmd_console(const char *name, int *ttynum, int *fd,
@@ -478,7 +478,7 @@ index 2c024b65..7c4c00b1 100644
  extern char *lxc_cmd_get_config_item(const char *name, const char *item, const char *lxcpath);
  extern char *lxc_cmd_get_name(const char *hashed_sock);
 diff --git a/src/lxc/criu.c b/src/lxc/criu.c
-index 3d857b54..ec9bcb7e 100644
+index 3d857b541..ec9bcb7e4 100644
 --- a/src/lxc/criu.c
 +++ b/src/lxc/criu.c
 @@ -332,7 +332,7 @@ static void exec_criu(struct cgroup_ops *cgroup_ops, struct lxc_conf *conf,
@@ -500,7 +500,7 @@ index 3d857b54..ec9bcb7e 100644
  		goto out_fini_handler;
  	}
 diff --git a/src/lxc/start.c b/src/lxc/start.c
-index dae3bcfe..f3b29d6c 100644
+index dae3bcfe5..f3b29d6cd 100644
 --- a/src/lxc/start.c
 +++ b/src/lxc/start.c
 @@ -1649,7 +1649,7 @@ static int lxc_spawn(struct lxc_handler *handler)
@@ -561,5 +561,5 @@ index dae3bcfe..f3b29d6c 100644
  		/* Now we're ready to preserve the cgroup namespace */
  		ret = lxc_try_preserve_ns(handler->pid, "cgroup");
 -- 
-2.11.0
+2.20.1
 
