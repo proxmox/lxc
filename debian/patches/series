@@ -12,3 +12,4 @@ extra/0001-conf-use-SYSERROR-on-lxc_write_to_file-errors.patch
 extra/0002-Revert-conf-remove-extra-MS_BIND-with-sysfs-mixed.patch
 extra/0003-CVE-2019-5736-runC-rexec-callers-as-memfd.patch
 extra/0004-apparmor-generate-ro-bind-remount-rule-list.patch
+extra/0005-attach-don-t-close-stdout-of-getent.patch
