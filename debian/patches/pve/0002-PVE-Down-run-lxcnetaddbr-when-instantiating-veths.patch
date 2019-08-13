@@ -11,7 +11,7 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  1 file changed, 5 insertions(+)
 
 diff --git a/src/lxc/network.c b/src/lxc/network.c
-index d0f14e63..9337ad4d 100644
+index d0f14e632..9337ad4d9 100644
 --- a/src/lxc/network.c
 +++ b/src/lxc/network.c
 @@ -195,6 +195,11 @@ static int instantiate_veth(struct lxc_handler *handler, struct lxc_netdev *netd
@@ -27,5 +27,5 @@ index d0f14e63..9337ad4d 100644
  
  	DEBUG("Instantiated veth \"%s/%s\", index is \"%d\"", veth1, veth2,
 -- 
-2.11.0
+2.20.1
 

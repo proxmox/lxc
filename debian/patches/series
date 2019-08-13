@@ -7,6 +7,7 @@ pve/0006-PVE-Config-namespace-separation.patch
 pve/0007-PVE-Up-possibility-to-run-lxc-monitord-as-a-regular-.patch
 pve/0008-PVE-Config-Disable-lxc.monitor-cgroup.patch
 pve/0009-init-add-ExecReload-to-lxc.service-to-only-reload-pr.patch
+pve/0010-PVE-Config-attach-always-use-getent.patch
 extra/0001-conf-use-SYSERROR-on-lxc_write_to_file-errors.patch
 extra/0002-Revert-conf-remove-extra-MS_BIND-with-sysfs-mixed.patch
 extra/0003-CVE-2019-5736-runC-rexec-callers-as-memfd.patch
