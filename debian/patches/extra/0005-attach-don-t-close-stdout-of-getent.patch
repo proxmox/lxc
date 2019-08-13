@@ -1,0 +1,26 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Tue, 13 Aug 2019 14:17:30 +0200
+Subject: [PATCH] attach: don't close stdout of getent
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ src/lxc/attach.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/lxc/attach.c b/src/lxc/attach.c
+index 8b34a412e..6075688c2 100644
+--- a/src/lxc/attach.c
++++ b/src/lxc/attach.c
+@@ -488,7 +488,7 @@ static char *lxc_attach_getpwshell(uid_t uid)
+ 			close(STDERR_FILENO);
+ 		} else {
+ 			(void)dup3(fd, STDIN_FILENO, O_CLOEXEC);
+-			(void)dup3(fd, STDOUT_FILENO, O_CLOEXEC);
++			(void)dup3(fd, STDERR_FILENO, O_CLOEXEC);
+ 			close(fd);
+ 		}
+ 
+-- 
+2.20.1
+
