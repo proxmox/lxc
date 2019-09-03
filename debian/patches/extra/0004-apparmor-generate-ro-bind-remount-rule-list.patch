@@ -3,15 +3,15 @@ From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Fri, 2 Aug 2019 12:57:42 +0200
 Subject: [PATCH] apparmor: generate ro,bind,remount rule list
 
-initially based on changes to lxd
+and update to changes based on lxd
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---
- src/lxc/lsm/apparmor.c | 156 ++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 140 insertions(+), 16 deletions(-)
+ src/lxc/lsm/apparmor.c | 114 ++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 100 insertions(+), 14 deletions(-)
 
 diff --git a/src/lxc/lsm/apparmor.c b/src/lxc/lsm/apparmor.c
-index e32b12531..08966a246 100644
+index e32b12531..47f825866 100644
 --- a/src/lxc/lsm/apparmor.c
 +++ b/src/lxc/lsm/apparmor.c
 @@ -149,6 +149,16 @@ static const char AA_PROFILE_BASE[] =
@@ -59,72 +59,26 @@ index e32b12531..08966a246 100644
  "\n"
  "  # allow moving mounts except for /proc, /sys and /dev\n"
  "  mount options=(rw,move) /[^spd]*{,/**},\n"
-@@ -339,18 +352,57 @@ static const char AA_PROFILE_NESTING_BASE[] =
- "  deny /dev/.lxc/proc/** rw,\n"
- "  deny /dev/.lxc/sys/** rw,\n"
+@@ -341,12 +354,13 @@ static const char AA_PROFILE_NESTING_BASE[] =
  "\n"
-+"  # Allow modifying mount propagation\n"
-+"  mount options=(rw,make-slave) -> **,\n"
-+"  mount options=(rw,make-rslave) -> **,\n"
-+"  mount options=(rw,make-shared) -> **,\n"
-+"  mount options=(rw,make-rshared) -> **,\n"
-+"  mount options=(rw,make-private) -> **,\n"
-+"  mount options=(rw,make-rprivate) -> **,\n"
-+"  mount options=(rw,make-unbindable) -> **,\n"
-+"  mount options=(rw,make-runbindable) -> **,\n"
-+"\n"
  "  mount fstype=proc -> /usr/lib/*/lxc/**,\n"
  "  mount fstype=sysfs -> /usr/lib/*/lxc/**,\n"
- "  mount options=(rw,bind),\n"
- "  mount options=(rw,rbind),\n"
+-"  mount options=(rw,bind),\n"
+-"  mount options=(rw,rbind),\n"
 -"  mount options=(rw,make-rshared),\n"
  "\n"
 -   /* FIXME: What's the state here on apparmor's side? */
 -"  # there doesn't seem to be a way to ask for:\n"
--"  # mount options=(ro,nosuid,nodev,noexec,remount,bind),\n"
--"  # as we always get mount to $cdir/proc/sys with those flags denied\n"
--"  # So allow all mounts until that is straightened out:\n"
--"  mount,\n"
-+"  # Allow common combinations of bind/remount\n"
-+"  # NOTE: AppArmor bug effectively turns those into wildcards mount allow\n"
-+"  mount options=(ro,remount,bind),\n"
-+"  mount options=(ro,remount,bind,nodev),\n"
-+"  mount options=(ro,remount,bind,nodev,nosuid),\n"
-+"  mount options=(ro,remount,bind,noexec),\n"
-+"  mount options=(ro,remount,bind,noexec,nodev),\n"
-+"  mount options=(ro,remount,bind,nosuid),\n"
-+"  mount options=(ro,remount,bind,nosuid,nodev),\n"
-+"  mount options=(ro,remount,bind,nosuid,noexec),\n"
-+"  mount options=(ro,remount,bind,nosuid,noexec,nodev),\n"
-+
-+"  mount options=(ro,remount,bind,strictatime),\n"
-+"  mount options=(ro,remount,bind,strictatime,nodev),\n"
-+"  mount options=(ro,remount,bind,strictatime,nodev,nosuid),\n"
-+"  mount options=(ro,remount,bind,strictatime,noexec),\n"
-+"  mount options=(ro,remount,bind,strictatime,noexec,nodev),\n"
-+"  mount options=(ro,remount,bind,strictatime,nosuid),\n"
-+"  mount options=(ro,remount,bind,strictatime,nosuid,nodev),\n"
-+"  mount options=(ro,remount,bind,strictatime,nosuid,noexec),\n"
-+"  mount options=(ro,remount,bind,strictatime,nosuid,noexec,nodev),\n"
-+
-+"  mount options=(ro,remount,bind,noatime),\n"
-+"  mount options=(ro,remount,bind,noatime,nodev),\n"
-+"  mount options=(ro,remount,bind,noatime,nodev,nosuid),\n"
-+"  mount options=(ro,remount,bind,noatime,noexec),\n"
-+"  mount options=(ro,remount,bind,noatime,noexec,nodev),\n"
-+"  mount options=(ro,remount,bind,noatime,nosuid),\n"
-+"  mount options=(ro,remount,bind,noatime,nosuid,nodev),\n"
-+"  mount options=(ro,remount,bind,noatime,nosuid,noexec),\n"
-+"  mount options=(ro,remount,bind,noatime,nosuid,noexec,nodev),\n"
-+
++"  # Allow nested LXD\n"
++"  mount none -> /var/lib/lxd/shmounts/,\n"
++"  mount /var/lib/lxd/shmounts/ -> /var/lib/lxd/shmounts/,\n"
++"  mount options=bind /var/lib/lxd/shmounts/** -> /var/lib/lxd/**,\n"
 +"\n"
-+"  # Allow remounting things read-only\n"
-+"  mount options=(ro,remount) /,\n"
-+"  mount options=(ro,remount) /**,\n"
- ;
- 
- static const char AA_PROFILE_UNPRIVILEGED[] =
-@@ -648,6 +700,76 @@ static bool is_privileged(struct lxc_conf *conf)
++"  # FIXME: There doesn't seem to be a way to ask for:\n"
+ "  # mount options=(ro,nosuid,nodev,noexec,remount,bind),\n"
+ "  # as we always get mount to $cdir/proc/sys with those flags denied\n"
+ "  # So allow all mounts until that is straightened out:\n"
+@@ -648,6 +662,76 @@ static bool is_privileged(struct lxc_conf *conf)
  	return lxc_list_empty(&conf->id_map);
  }
  
@@ -201,7 +155,7 @@ index e32b12531..08966a246 100644
  static char *get_apparmor_profile_content(struct lxc_conf *conf, const char *lxcpath)
  {
  	char *profile, *profile_name_full;
-@@ -665,6 +787,8 @@ static char *get_apparmor_profile_content(struct lxc_conf *conf, const char *lxc
+@@ -665,6 +749,8 @@ static char *get_apparmor_profile_content(struct lxc_conf *conf, const char *lxc
  	must_append_sized(&profile, &size, AA_PROFILE_BASE,
  	                  STRARRAYLEN(AA_PROFILE_BASE));
  
