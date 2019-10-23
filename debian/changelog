@@ -1,3 +1,11 @@
+lxc-pve (3.2.1-1) pve; urgency=medium
+
+  * update to lxc-3.2.1 with some fixups from git-master
+
+  * build with newer libseccomp to enable seccomp-notify syscall interception
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 23 Oct 2019 11:03:54 +0200
+
 lxc-pve (3.1.0-65) pve; urgency=medium
 
   * update apparmor profile
