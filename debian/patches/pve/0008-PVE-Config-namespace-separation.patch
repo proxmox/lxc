@@ -13,7 +13,7 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/src/lxc/cgroups/cgroup.h b/src/lxc/cgroups/cgroup.h
-index 59445b5a5..7d6135c19 100644
+index 35d207feb..be9df33a2 100644
 --- a/src/lxc/cgroups/cgroup.h
 +++ b/src/lxc/cgroups/cgroup.h
 @@ -36,7 +36,7 @@

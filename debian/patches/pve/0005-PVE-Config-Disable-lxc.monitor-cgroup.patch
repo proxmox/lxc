@@ -9,33 +9,37 @@ empty.
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---
- src/lxc/start.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ src/lxc/start.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
 diff --git a/src/lxc/start.c b/src/lxc/start.c
-index 1cf792aa2..24f387de6 100644
+index a9a07bc83..0169cf8e3 100644
 --- a/src/lxc/start.c
 +++ b/src/lxc/start.c
-@@ -1954,15 +1954,15 @@ int __lxc_start(const char *name, struct lxc_handler *handler,
+@@ -2026,17 +2026,17 @@ int __lxc_start(const char *name, struct lxc_handler *handler,
  		goto out_fini_nonet;
  	}
  
 -	if (!cgroup_ops->monitor_create(cgroup_ops, handler)) {
 -		ERROR("Failed to create monitor cgroup");
+-		ret = -1;
 -		goto out_fini_nonet;
 -	}
 -
 -	if (!cgroup_ops->monitor_enter(cgroup_ops, handler->monitor_pid)) {
 -		ERROR("Failed to enter monitor cgroup");
+-		ret = -1;
 -		goto out_fini_nonet;
 -	}
 +	//if (!cgroup_ops->monitor_create(cgroup_ops, handler)) {
 +	//	ERROR("Failed to create monitor cgroup");
++	//	ret = -1;
 +	//	goto out_fini_nonet;
 +	//}
 +
 +	//if (!cgroup_ops->monitor_enter(cgroup_ops, handler->monitor_pid)) {
 +	//	ERROR("Failed to enter monitor cgroup");
++	//	ret = -1;
 +	//	goto out_fini_nonet;
 +	//}
  

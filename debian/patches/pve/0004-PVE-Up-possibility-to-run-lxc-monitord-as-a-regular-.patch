@@ -20,10 +20,10 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  create mode 100644 config/init/systemd/lxc-monitord.service.in
 
 diff --git a/.gitignore b/.gitignore
-index 45377714c..69e6e7ffe 100644
+index b2d4657c4..36d0b7013 100644
 --- a/.gitignore
 +++ b/.gitignore
-@@ -116,6 +116,7 @@ config/bash/lxc
+@@ -119,6 +119,7 @@ config/bash/lxc
  config/init/common/lxc-containers
  config/init/common/lxc-net
  config/init/systemd/lxc-autostart-helper
@@ -80,10 +80,10 @@ index 000000000..406351688
 +[Install]
 +WantedBy=multi-user.target
 diff --git a/configure.ac b/configure.ac
-index 9a6ba83c2..9f3b8fb3c 100644
+index 645a2166d..6260f483f 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -747,6 +747,7 @@ AC_CONFIG_FILES([
+@@ -796,6 +796,7 @@ AC_CONFIG_FILES([
  	config/init/systemd/lxc.service
  	config/init/systemd/lxc@.service
  	config/init/systemd/lxc-net.service
@@ -92,10 +92,10 @@ index 9a6ba83c2..9f3b8fb3c 100644
  	config/init/sysvinit/lxc-containers
  	config/init/sysvinit/lxc-net
 diff --git a/lxc.spec.in b/lxc.spec.in
-index 7fcd811ff..59597f469 100644
+index ec6321c33..ea6789fb6 100644
 --- a/lxc.spec.in
 +++ b/lxc.spec.in
-@@ -247,6 +247,7 @@ fi
+@@ -251,6 +251,7 @@ fi
  %{_unitdir}/lxc-net.service
  %{_unitdir}/lxc.service
  %{_unitdir}/lxc@.service
