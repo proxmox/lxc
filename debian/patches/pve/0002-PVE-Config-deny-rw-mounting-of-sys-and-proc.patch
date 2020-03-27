@@ -1,7 +1,10 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From a1a53a511f065d68520337cbbba627b4164da865 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Fabian=20Gr=C3=BCnbichler?= <f.gruenbichler@proxmox.com>
 Date: Wed, 9 Nov 2016 09:14:26 +0100
-Subject: [PATCH] PVE: [Config] deny rw mounting of /sys and /proc
+Subject: [PATCH lxc 2/3] PVE: [Config] deny rw mounting of /sys and /proc
+
+Note that we don't actually make use of this anymore, since
+we switched to the generated profiles which already do this.
 
 this would allow root in a privileged container to change
 the permissions of /sys on the host, which could lock out

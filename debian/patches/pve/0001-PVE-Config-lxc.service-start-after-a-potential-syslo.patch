@@ -1,8 +1,10 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From 55e20fb88be7512c80baa7514bc815e4cec4d22c Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Fri, 10 Feb 2017 09:13:40 +0100
-Subject: [PATCH] PVE: [Config] lxc.service: start after a potential
+Subject: [PATCH lxc 1/3] PVE: [Config] lxc.service: start after a potential
  syslog.service
+
+We could add this as a snippet from pve-container instead.
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---
@@ -10,14 +12,14 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/config/init/systemd/lxc.service.in b/config/init/systemd/lxc.service.in
-index cd6199671..77541917e 100644
+index e3745dc2d..fbe46f1d7 100644
 --- a/config/init/systemd/lxc.service.in
 +++ b/config/init/systemd/lxc.service.in
 @@ -1,6 +1,6 @@
  [Unit]
  Description=LXC Container Initialization and Autoboot Code
--After=network.target lxc-net.service
-+After=syslog.service network.target lxc-net.service
+-After=network.target lxc-net.service remote-fs.target
++After=network.target lxc-net.service remote-fs.target syslog.target
  Wants=lxc-net.service
  Documentation=man:lxc-autostart man:lxc
  

@@ -1,7 +1,7 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From 08f4569b8f5fb9769ed6a76ddd1040a577d0b2fe Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Tue, 13 Aug 2019 13:57:22 +0200
-Subject: [PATCH] PVE: [Config] attach: always use getent
+Subject: [PATCH lxc 3/3] PVE: [Config] attach: always use getent
 
 In debian buster, some libnss plugins (if installed) can
 cause getpwent to segfault instead of erroring out cleanly.
@@ -13,10 +13,10 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  1 file changed, 2 insertions(+), 26 deletions(-)
 
 diff --git a/src/lxc/attach.c b/src/lxc/attach.c
-index 80c41fe26..f30f192e3 100644
+index 406b8ec74..0a82c0a5d 100644
 --- a/src/lxc/attach.c
 +++ b/src/lxc/attach.c
-@@ -1506,12 +1506,8 @@ int lxc_attach_run_command(void *payload)
+@@ -1454,12 +1454,8 @@ int lxc_attach_run_command(void *payload)
  
  int lxc_attach_run_shell(void* payload)
  {
@@ -29,7 +29,7 @@ index 80c41fe26..f30f192e3 100644
  	int ret;
  
  	/* Ignore payload parameter. */
-@@ -1519,32 +1515,13 @@ int lxc_attach_run_shell(void* payload)
+@@ -1467,32 +1463,13 @@ int lxc_attach_run_shell(void* payload)
  
  	uid = getuid();
  
@@ -63,7 +63,7 @@ index 80c41fe26..f30f192e3 100644
  	if (user_shell)
  		execlp(user_shell, user_shell, (char *)NULL);
  
-@@ -1554,8 +1531,7 @@ int lxc_attach_run_shell(void* payload)
+@@ -1502,8 +1479,7 @@ int lxc_attach_run_shell(void* payload)
  	execlp("/bin/sh", "/bin/sh", (char *)NULL);
  
  	SYSERROR("Failed to execute shell");
