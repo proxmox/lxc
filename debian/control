@@ -36,7 +36,7 @@ Replaces: liblxc1,
           lxc,
 Provides: liblxc1,
           lxc,
-Breaks: pve-container (<= 3.0-24),
+Breaks: pve-container (<< 3.1-1),
 Description: Linux containers userspace tools
  Containers provides resource management through control groups and
  resource isolation through namespaces. The linux containers, lxc, aims
