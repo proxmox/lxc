@@ -1,3 +1,9 @@
+lxc-pve (4.0.0-2) pve; urgency=medium
+
+  * update to include devices cgroup fixes for cgroup isolation
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 07 Apr 2020 10:53:32 +0200
+
 lxc-pve (4.0.0-1) pve; urgency=medium
 
   * update to lxc-4.0.0 with some fixups from git-master & cgroup isolation
