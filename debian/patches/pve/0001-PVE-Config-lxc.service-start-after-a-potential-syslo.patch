@@ -1,4 +1,4 @@
-From 55e20fb88be7512c80baa7514bc815e4cec4d22c Mon Sep 17 00:00:00 2001
+From 04922f2a329f7a8144efd38ac95aaf8c57c3f2fc Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Fri, 10 Feb 2017 09:13:40 +0100
 Subject: [PATCH lxc 1/3] PVE: [Config] lxc.service: start after a potential

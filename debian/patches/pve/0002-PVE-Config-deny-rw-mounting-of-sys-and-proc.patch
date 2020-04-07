@@ -1,4 +1,4 @@
-From a1a53a511f065d68520337cbbba627b4164da865 Mon Sep 17 00:00:00 2001
+From b27de3448f4e1254f8a91c9241877e8bb768b752 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Fabian=20Gr=C3=BCnbichler?= <f.gruenbichler@proxmox.com>
 Date: Wed, 9 Nov 2016 09:14:26 +0100
 Subject: [PATCH lxc 2/3] PVE: [Config] deny rw mounting of /sys and /proc
