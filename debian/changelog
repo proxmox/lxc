@@ -1,3 +1,9 @@
+lxc-pve (4.0.2-1) pve; urgency=medium
+
+  * update teo lxc-4.0.2
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 20 Apr 2020 11:48:54 +0200
+
 lxc-pve (4.0.0-2) pve; urgency=medium
 
   * update to include devices cgroup fixes for cgroup isolation

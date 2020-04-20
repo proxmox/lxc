@@ -1,7 +1,7 @@
-From 04922f2a329f7a8144efd38ac95aaf8c57c3f2fc Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Fri, 10 Feb 2017 09:13:40 +0100
-Subject: [PATCH lxc 1/3] PVE: [Config] lxc.service: start after a potential
+Subject: [PATCH lxc] PVE: [Config] lxc.service: start after a potential
  syslog.service
 
 We could add this as a snippet from pve-container instead.
@@ -23,6 +23,3 @@ index e3745dc2d..fbe46f1d7 100644
  Wants=lxc-net.service
  Documentation=man:lxc-autostart man:lxc
  
--- 
-2.20.1
-
