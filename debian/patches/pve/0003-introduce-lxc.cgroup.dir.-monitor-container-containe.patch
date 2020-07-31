@@ -1,0 +1,288 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Thu, 2 Apr 2020 10:01:37 +0200
+Subject: [PATCH] introduce lxc.cgroup.dir.{monitor,container,container.inner}
+
+This is a new approach to #1302 with a container-side
+configuration instead of a global boolean flag.
+
+Contrary to the previous PR using an optional additional
+parameter for the get-cgroup command, this introduces two
+new additional commands to get the limiting cgroup path and
+cgroup2 file descriptor. If the limiting option is not in
+use, these behave identical to their full-path counterparts.
+
+If these variables are used the payload will end up in the
+concatenation of lxc.cgroup.dir.container and
+lxc.cgroup.dir.container.inner (which may be empty), and the
+monitor will end up in lxc.cgruop.dir.monitor. The
+directories are fixed, no retry count logic is applied,
+failing to create these directories will simply be a hard
+error.
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ doc/lxc.container.conf.sgml.in |  47 +++++++++++++
+ src/lxc/commands.c             |   5 +-
+ src/lxc/conf.c                 |   3 +
+ src/lxc/confile.c              | 124 +++++++++++++++++++++++++++++++++
+ 4 files changed, 177 insertions(+), 2 deletions(-)
+
+diff --git a/doc/lxc.container.conf.sgml.in b/doc/lxc.container.conf.sgml.in
+index 3ed71c214..a9c87fe2a 100644
+--- a/doc/lxc.container.conf.sgml.in
++++ b/doc/lxc.container.conf.sgml.in
+@@ -1571,6 +1571,53 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+             </para>
+           </listitem>
+         </varlistentry>
++        <varlistentry>
++          <term>
++            <option>lxc.cgroup.dir.container</option>
++          </term>
++          <listitem>
++            <para>
++              This is similar to <option>lxc.cgroup.dir</option>, but must be
++              used together with <option>lxc.cgroup.dir.monitor</option> and
++              affects only the container's cgroup path. This option is mutually
++              exclusive with <option>lxc.cgroup.dir</option>.
++              Note that the final path the container attaches to may be
++              extended further by the
++              <option>lxc.cgroup.dir.container.namespace</option> option.
++            </para>
++          </listitem>
++        </varlistentry>
++        <varlistentry>
++          <term>
++            <option>lxc.cgroup.dir.monitor</option>
++          </term>
++          <listitem>
++            <para>
++              This is the monitor process counterpart to
++              <option>lxc.cgroup.dir.container</option>.
++            </para>
++          </listitem>
++        </varlistentry>
++        <varlistentry>
++          <term>
++            <option>lxc.cgroup.dir.container.namespace</option>
++          </term>
++          <listitem>
++            <para>
++              Specify an additional subdirectory where the cgroup namespace
++              will be created. With this option, the cgroup limits will be
++              applied to the outer path specified in
++              <option>lxc.cgroup.dir.container</option>, which is not accessible
++              from within the container, making it possible to better enforce
++              limits for privileged containers in a way they cannot override
++              them.
++              This only works in conjunction with the
++              <option>lxc.cgroup.dir.container</option> and
++              <option>lxc.cgroup.dir.monitor</option> options and has otherwise
++              no effect.
++            </para>
++          </listitem>
++        </varlistentry>
+         <varlistentry>
+           <term>
+             <option>lxc.cgroup.relative</option>
+diff --git a/src/lxc/commands.c b/src/lxc/commands.c
+index b6ae101fc..44714f9ba 100644
+--- a/src/lxc/commands.c
++++ b/src/lxc/commands.c
+@@ -622,7 +622,7 @@ static int lxc_cmd_get_limiting_cgroup_callback(int fd, struct lxc_cmd_req *req,
+ 						struct lxc_handler *handler,
+ 						struct lxc_epoll_descr *descr)
+ {
+-	return ret_errno(ENOSYS);
++	return lxc_cmd_get_cgroup_callback_do(fd, req, handler, descr, true);
+ }
+ 
+ /*
+@@ -1472,7 +1472,8 @@ static int lxc_cmd_get_limiting_cgroup2_fd_callback(int fd,
+ 						    struct lxc_handler *handler,
+ 						    struct lxc_epoll_descr *descr)
+ {
+-	return ret_errno(ENOSYS);
++	return lxc_cmd_get_cgroup2_fd_callback_do(fd, req, handler, descr,
++						  true);
+ }
+ 
+ static int lxc_cmd_process(int fd, struct lxc_cmd_req *req,
+diff --git a/src/lxc/conf.c b/src/lxc/conf.c
+index 00789961c..4aafca3cb 100644
+--- a/src/lxc/conf.c
++++ b/src/lxc/conf.c
+@@ -3750,6 +3750,9 @@ void lxc_conf_free(struct lxc_conf *conf)
+ 	lxc_clear_apparmor_raw(conf);
+ 	lxc_clear_namespace(conf);
+ 	free(conf->cgroup_meta.dir);
++	free(conf->cgroup_meta.monitor_dir);
++	free(conf->cgroup_meta.container_dir);
++	free(conf->cgroup_meta.namespace_dir);
+ 	free(conf->cgroup_meta.controllers);
+ 	free(conf->shmount.path_host);
+ 	free(conf->shmount.path_cont);
+diff --git a/src/lxc/confile.c b/src/lxc/confile.c
+index 4c27e7d4b..899dcd454 100644
+--- a/src/lxc/confile.c
++++ b/src/lxc/confile.c
+@@ -71,6 +71,9 @@ lxc_config_define(cap_keep);
+ lxc_config_define(cgroup_controller);
+ lxc_config_define(cgroup2_controller);
+ lxc_config_define(cgroup_dir);
++lxc_config_define(cgroup_monitor_dir);
++lxc_config_define(cgroup_container_dir);
++lxc_config_define(cgroup_container_inner_dir);
+ lxc_config_define(cgroup_relative);
+ lxc_config_define(console_buffer_size);
+ lxc_config_define(console_logfile);
+@@ -170,6 +173,9 @@ static struct lxc_config_t config_jump_table[] = {
+ 	{ "lxc.cap.drop",                  set_config_cap_drop,                    get_config_cap_drop,                    clr_config_cap_drop,                  },
+ 	{ "lxc.cap.keep",                  set_config_cap_keep,                    get_config_cap_keep,                    clr_config_cap_keep,                  },
+ 	{ "lxc.cgroup2",                   set_config_cgroup2_controller,          get_config_cgroup2_controller,          clr_config_cgroup2_controller,        },
++	{ "lxc.cgroup.dir.monitor",        set_config_cgroup_monitor_dir,          get_config_cgroup_monitor_dir,          clr_config_cgroup_monitor_dir,        },
++	{ "lxc.cgroup.dir.container",      set_config_cgroup_container_dir,        get_config_cgroup_container_dir,        clr_config_cgroup_container_dir,      },
++	{ "lxc.cgroup.dir.container.inner",set_config_cgroup_container_inner_dir,  get_config_cgroup_container_inner_dir,  clr_config_cgroup_container_inner_dir,},
+ 	{ "lxc.cgroup.dir",                set_config_cgroup_dir,                  get_config_cgroup_dir,                  clr_config_cgroup_dir,                },
+ 	{ "lxc.cgroup.relative",           set_config_cgroup_relative,             get_config_cgroup_relative,             clr_config_cgroup_relative,           },
+ 	{ "lxc.cgroup",                    set_config_cgroup_controller,           get_config_cgroup_controller,           clr_config_cgroup_controller,         },
+@@ -1725,6 +1731,48 @@ static int set_config_cgroup_dir(const char *key, const char *value,
+ 	return set_config_string_item(&lxc_conf->cgroup_meta.dir, value);
+ }
+ 
++static int set_config_cgroup_monitor_dir(const char *key, const char *value,
++					 struct lxc_conf *lxc_conf, void *data)
++{
++	if (lxc_config_value_empty(value))
++		return clr_config_cgroup_monitor_dir(key, lxc_conf, NULL);
++
++	return set_config_string_item(&lxc_conf->cgroup_meta.monitor_dir,
++				      value);
++}
++
++static int set_config_cgroup_container_dir(const char *key, const char *value,
++					   struct lxc_conf *lxc_conf,
++					   void *data)
++{
++	if (lxc_config_value_empty(value))
++		return clr_config_cgroup_container_dir(key, lxc_conf, NULL);
++
++	return set_config_string_item(&lxc_conf->cgroup_meta.container_dir,
++				      value);
++}
++
++static int set_config_cgroup_container_inner_dir(const char *key,
++						 const char *value,
++						 struct lxc_conf *lxc_conf,
++						 void *data)
++{
++	if (lxc_config_value_empty(value))
++		return clr_config_cgroup_container_inner_dir(key, lxc_conf,
++							     NULL);
++
++	if (strchr(value, '/') ||
++	    strcmp(value, ".") == 0 ||
++	    strcmp(value, "..") == 0)
++	{
++		ERROR("lxc.cgroup.dir.container.inner must be a single directory name");
++		return -1;
++	}
++
++	return set_config_string_item(&lxc_conf->cgroup_meta.namespace_dir,
++				      value);
++}
++
+ static int set_config_cgroup_relative(const char *key, const char *value,
+ 				      struct lxc_conf *lxc_conf, void *data)
+ {
+@@ -3648,6 +3696,58 @@ static int get_config_cgroup_dir(const char *key, char *retv, int inlen,
+ 	return fulllen;
+ }
+ 
++static int get_config_cgroup_monitor_dir(const char *key, char *retv, int inlen,
++					 struct lxc_conf *lxc_conf, void *data)
++{
++	int len;
++	int fulllen = 0;
++
++	if (!retv)
++		inlen = 0;
++	else
++		memset(retv, 0, inlen);
++
++	strprint(retv, inlen, "%s", lxc_conf->cgroup_meta.monitor_dir);
++
++	return fulllen;
++}
++
++static int get_config_cgroup_container_dir(const char *key, char *retv,
++					   int inlen,
++					   struct lxc_conf *lxc_conf,
++					   void *data)
++{
++	int len;
++	int fulllen = 0;
++
++	if (!retv)
++		inlen = 0;
++	else
++		memset(retv, 0, inlen);
++
++	strprint(retv, inlen, "%s", lxc_conf->cgroup_meta.container_dir);
++
++	return fulllen;
++}
++
++static int get_config_cgroup_container_inner_dir(const char *key, char *retv,
++						 int inlen,
++						 struct lxc_conf *lxc_conf,
++						 void *data)
++{
++	int len;
++	int fulllen = 0;
++
++	if (!retv)
++		inlen = 0;
++	else
++		memset(retv, 0, inlen);
++
++	strprint(retv, inlen, "%s", lxc_conf->cgroup_meta.namespace_dir);
++
++	return fulllen;
++}
++
+ static inline int get_config_cgroup_relative(const char *key, char *retv,
+ 					     int inlen, struct lxc_conf *lxc_conf,
+ 					     void *data)
+@@ -4462,6 +4562,30 @@ static int clr_config_cgroup_dir(const char *key, struct lxc_conf *lxc_conf,
+ 	return 0;
+ }
+ 
++static int clr_config_cgroup_monitor_dir(const char *key,
++					 struct lxc_conf *lxc_conf,
++					 void *data)
++{
++	free_disarm(lxc_conf->cgroup_meta.monitor_dir);
++	return 0;
++}
++
++static int clr_config_cgroup_container_dir(const char *key,
++					   struct lxc_conf *lxc_conf,
++					   void *data)
++{
++	free_disarm(lxc_conf->cgroup_meta.container_dir);
++	return 0;
++}
++
++static int clr_config_cgroup_container_inner_dir(const char *key,
++						 struct lxc_conf *lxc_conf,
++						 void *data)
++{
++	free_disarm(lxc_conf->cgroup_meta.namespace_dir);
++	return 0;
++}
++
+ static inline int clr_config_cgroup_relative(const char *key,
+ 					     struct lxc_conf *lxc_conf,
+ 					     void *data)

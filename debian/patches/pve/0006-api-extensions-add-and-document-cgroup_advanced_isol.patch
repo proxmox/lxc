@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Christian Brauner <christian.brauner@ubuntu.com>
+Date: Sat, 4 Apr 2020 12:07:43 +0200
+Subject: [PATCH] api-extensions: add and document cgroup_advanced_isolation
+
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+---
+ doc/api-extensions.md    | 4 ++++
+ src/lxc/api_extensions.h | 1 +
+ 2 files changed, 5 insertions(+)
+
+diff --git a/doc/api-extensions.md b/doc/api-extensions.md
+index 5767583af..e8b5eb089 100644
+--- a/doc/api-extensions.md
++++ b/doc/api-extensions.md
+@@ -118,3 +118,7 @@ This adds a new API function `init_pidfd()` which allows to retrieve a pidfd for
+ ## pidfd
+ 
+ When running on kernels that support pidfds LXC will rely on them for most operations. This makes interacting with containers not just more reliable it also makes it significantly safer and eliminates various races inherent to PID-based kernel APIs. LXC will require that the running kernel at least support `pidfd_send_signal()`, `CLONE_PIDFD`, `P_PIDFD`, and pidfd polling support. Any kernel starting with `Linux 5.4` should have full support for pidfds.
++
++## cgroup\_advanced\_isolation
++
++Privileged containers will usually be able to override the cgroup limits given to them. This introduces three new configuration keys `lxc.cgroup.dir.monitor`, `lxc.cgroup.dir.container`, and `lxc.cgroup.dir.container.inner`. The `lxc.cgroup.dir.monitor` and `lxc.cgroup.dir.container` keys can be used to set to place the `monitor` and the `container` into different cgroups. The `lxc.cgroup.dir.container.inner` key can be set to a cgroup that is concatenated with `lxc.cgroup.dir.container`. When `lxc.cgroup.dir.container.inner` is set the container will be placed into the `lxc.cgroup.dir.container.inner` cgroup but the limits will be set in the `lxc.cgroup.dir.container` cgroup. This way privileged containers cannot escape their cgroup limits.
+diff --git a/src/lxc/api_extensions.h b/src/lxc/api_extensions.h
+index 3afdc35b9..b69467f26 100644
+--- a/src/lxc/api_extensions.h
++++ b/src/lxc/api_extensions.h
+@@ -39,6 +39,7 @@ static char *api_extensions[] = {
+ #endif
+ 	"cgroup2",
+ 	"pidfd",
++	"cgroup_advanced_isolation",
+ };
+ 
+ static size_t nr_api_extensions = sizeof(api_extensions) / sizeof(*api_extensions);

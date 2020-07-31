@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Stoiko Ivanov <s.ivanov@proxmox.com>
 Date: Wed, 22 Jul 2020 12:17:24 +0200
-Subject: [PATCH lxc] apparmor: Allow ro remount of boot_id
+Subject: [PATCH] apparmor: Allow ro remount of boot_id
 
 The rule added in 863845075d3f77d27c91bd9f47d2f8ddc4867bd5 did not cover all
 necessary mount calls for /proc/sys/kernel/random/boot_id

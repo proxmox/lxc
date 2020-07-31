@@ -1,0 +1,38 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Christian Brauner <christian.brauner@ubuntu.com>
+Date: Fri, 3 Apr 2020 20:10:58 +0200
+Subject: [PATCH] confile: coding style fixes for
+ set_config_cgroup_container_inner_dir()
+
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+---
+ src/lxc/confile.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
+
+diff --git a/src/lxc/confile.c b/src/lxc/confile.c
+index 899dcd454..1abb23ef5 100644
+--- a/src/lxc/confile.c
++++ b/src/lxc/confile.c
+@@ -1758,19 +1758,14 @@ static int set_config_cgroup_container_inner_dir(const char *key,
+ 						 void *data)
+ {
+ 	if (lxc_config_value_empty(value))
+-		return clr_config_cgroup_container_inner_dir(key, lxc_conf,
+-							     NULL);
++		return clr_config_cgroup_container_inner_dir(key, lxc_conf, NULL);
+ 
+ 	if (strchr(value, '/') ||
+ 	    strcmp(value, ".") == 0 ||
+ 	    strcmp(value, "..") == 0)
+-	{
+-		ERROR("lxc.cgroup.dir.container.inner must be a single directory name");
+-		return -1;
+-	}
++		return log_error_errno(-EINVAL, EINVAL, "lxc.cgroup.dir.container.inner must be a single directory name");
+ 
+-	return set_config_string_item(&lxc_conf->cgroup_meta.namespace_dir,
+-				      value);
++	return set_config_string_item(&lxc_conf->cgroup_meta.namespace_dir, value);
+ }
+ 
+ static int set_config_cgroup_relative(const char *key, const char *value,
