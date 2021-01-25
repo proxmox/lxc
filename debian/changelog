@@ -1,3 +1,9 @@
+lxc-pve (4.0.6-1) pve; urgency=medium
+
+  * update to lxc-4.0.6
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 25 Jan 2021 11:26:51 +0100
+
 lxc-pve (4.0.3-1) pve; urgency=medium
 
   * update to lxc-4.0.3
