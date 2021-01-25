@@ -12,7 +12,7 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/config/init/systemd/lxc.service.in b/config/init/systemd/lxc.service.in
-index e3745dc2d..fbe46f1d7 100644
+index 397a6c4d0..6924374d9 100644
 --- a/config/init/systemd/lxc.service.in
 +++ b/config/init/systemd/lxc.service.in
 @@ -1,6 +1,6 @@

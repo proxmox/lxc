@@ -1,7 +1,8 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Thu, 2 Apr 2020 10:01:37 +0200
-Subject: [PATCH] introduce lxc.cgroup.dir.{monitor,container,container.inner}
+Subject: [PATCH] [doc] introduce
+ lxc.cgroup.dir.{monitor,container,container.inner}
 
 This is a new approach to #1302 with a container-side
 configuration instead of a global boolean flag.
@@ -29,7 +30,7 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  4 files changed, 177 insertions(+), 2 deletions(-)
 
 diff --git a/doc/lxc.container.conf.sgml.in b/doc/lxc.container.conf.sgml.in
-index 3ed71c214..a9c87fe2a 100644
+index 3e0e55cee..4011f5734 100644
 --- a/doc/lxc.container.conf.sgml.in
 +++ b/doc/lxc.container.conf.sgml.in
 @@ -1571,6 +1571,53 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -87,10 +88,10 @@ index 3ed71c214..a9c87fe2a 100644
            <term>
              <option>lxc.cgroup.relative</option>
 diff --git a/src/lxc/commands.c b/src/lxc/commands.c
-index b6ae101fc..44714f9ba 100644
+index 3046587c7..a9a03ca2c 100644
 --- a/src/lxc/commands.c
 +++ b/src/lxc/commands.c
-@@ -622,7 +622,7 @@ static int lxc_cmd_get_limiting_cgroup_callback(int fd, struct lxc_cmd_req *req,
+@@ -719,7 +719,7 @@ static int lxc_cmd_get_limiting_cgroup_callback(int fd, struct lxc_cmd_req *req,
  						struct lxc_handler *handler,
  						struct lxc_epoll_descr *descr)
  {
@@ -99,7 +100,7 @@ index b6ae101fc..44714f9ba 100644
  }
  
  /*
-@@ -1472,7 +1472,8 @@ static int lxc_cmd_get_limiting_cgroup2_fd_callback(int fd,
+@@ -1569,7 +1569,8 @@ static int lxc_cmd_get_limiting_cgroup2_fd_callback(int fd,
  						    struct lxc_handler *handler,
  						    struct lxc_epoll_descr *descr)
  {
@@ -110,10 +111,10 @@ index b6ae101fc..44714f9ba 100644
  
  static int lxc_cmd_process(int fd, struct lxc_cmd_req *req,
 diff --git a/src/lxc/conf.c b/src/lxc/conf.c
-index 00789961c..4aafca3cb 100644
+index ae4972551..f1f01898f 100644
 --- a/src/lxc/conf.c
 +++ b/src/lxc/conf.c
-@@ -3750,6 +3750,9 @@ void lxc_conf_free(struct lxc_conf *conf)
+@@ -3844,6 +3844,9 @@ void lxc_conf_free(struct lxc_conf *conf)
  	lxc_clear_apparmor_raw(conf);
  	lxc_clear_namespace(conf);
  	free(conf->cgroup_meta.dir);
@@ -124,7 +125,7 @@ index 00789961c..4aafca3cb 100644
  	free(conf->shmount.path_host);
  	free(conf->shmount.path_cont);
 diff --git a/src/lxc/confile.c b/src/lxc/confile.c
-index 4c27e7d4b..899dcd454 100644
+index da0da5ff9..dab5aaca2 100644
 --- a/src/lxc/confile.c
 +++ b/src/lxc/confile.c
 @@ -71,6 +71,9 @@ lxc_config_define(cap_keep);
@@ -147,7 +148,7 @@ index 4c27e7d4b..899dcd454 100644
  	{ "lxc.cgroup.dir",                set_config_cgroup_dir,                  get_config_cgroup_dir,                  clr_config_cgroup_dir,                },
  	{ "lxc.cgroup.relative",           set_config_cgroup_relative,             get_config_cgroup_relative,             clr_config_cgroup_relative,           },
  	{ "lxc.cgroup",                    set_config_cgroup_controller,           get_config_cgroup_controller,           clr_config_cgroup_controller,         },
-@@ -1725,6 +1731,48 @@ static int set_config_cgroup_dir(const char *key, const char *value,
+@@ -1687,6 +1693,48 @@ static int set_config_cgroup_dir(const char *key, const char *value,
  	return set_config_string_item(&lxc_conf->cgroup_meta.dir, value);
  }
  
@@ -196,7 +197,7 @@ index 4c27e7d4b..899dcd454 100644
  static int set_config_cgroup_relative(const char *key, const char *value,
  				      struct lxc_conf *lxc_conf, void *data)
  {
-@@ -3648,6 +3696,58 @@ static int get_config_cgroup_dir(const char *key, char *retv, int inlen,
+@@ -3498,6 +3546,58 @@ static int get_config_cgroup_dir(const char *key, char *retv, int inlen,
  	return fulllen;
  }
  
@@ -255,7 +256,7 @@ index 4c27e7d4b..899dcd454 100644
  static inline int get_config_cgroup_relative(const char *key, char *retv,
  					     int inlen, struct lxc_conf *lxc_conf,
  					     void *data)
-@@ -4462,6 +4562,30 @@ static int clr_config_cgroup_dir(const char *key, struct lxc_conf *lxc_conf,
+@@ -4308,6 +4408,30 @@ static int clr_config_cgroup_dir(const char *key, struct lxc_conf *lxc_conf,
  	return 0;
  }
  

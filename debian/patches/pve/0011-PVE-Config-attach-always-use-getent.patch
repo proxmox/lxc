@@ -13,10 +13,10 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  1 file changed, 2 insertions(+), 26 deletions(-)
 
 diff --git a/src/lxc/attach.c b/src/lxc/attach.c
-index 38e16f2d1..34d64c196 100644
+index befa1580e..7a325f5b1 100644
 --- a/src/lxc/attach.c
 +++ b/src/lxc/attach.c
-@@ -1452,12 +1452,8 @@ int lxc_attach_run_command(void *payload)
+@@ -1444,12 +1444,8 @@ int lxc_attach_run_command(void *payload)
  
  int lxc_attach_run_shell(void* payload)
  {
@@ -29,7 +29,7 @@ index 38e16f2d1..34d64c196 100644
  	int ret;
  
  	/* Ignore payload parameter. */
-@@ -1465,32 +1461,13 @@ int lxc_attach_run_shell(void* payload)
+@@ -1457,32 +1453,13 @@ int lxc_attach_run_shell(void* payload)
  
  	uid = getuid();
  
@@ -63,7 +63,7 @@ index 38e16f2d1..34d64c196 100644
  	if (user_shell)
  		execlp(user_shell, user_shell, (char *)NULL);
  
-@@ -1500,8 +1477,7 @@ int lxc_attach_run_shell(void* payload)
+@@ -1492,8 +1469,7 @@ int lxc_attach_run_shell(void* payload)
  	execlp("/bin/sh", "/bin/sh", (char *)NULL);
  
  	SYSERROR("Failed to execute shell");

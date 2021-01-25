@@ -12,7 +12,7 @@ Signed-off-by: KATOH Yasufumi <karma@jazz.email.ne.jp>
  1 file changed, 57 insertions(+)
 
 diff --git a/doc/ja/lxc.container.conf.sgml.in b/doc/ja/lxc.container.conf.sgml.in
-index 38b623243..7a65e3fe4 100644
+index fd6fb18e3..2c77d4ea3 100644
 --- a/doc/ja/lxc.container.conf.sgml.in
 +++ b/doc/ja/lxc.container.conf.sgml.in
 @@ -2099,6 +2099,63 @@ by KATOH Yasufumi <karma at jazz.email.ne.jp>

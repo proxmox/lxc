@@ -9,7 +9,7 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/lxc/confile.c b/src/lxc/confile.c
-index 1abb23ef5..13ebdd059 100644
+index 3a388fed1..34d85e788 100644
 --- a/src/lxc/confile.c
 +++ b/src/lxc/confile.c
 @@ -174,8 +174,8 @@ static struct lxc_config_t config_jump_table[] = {

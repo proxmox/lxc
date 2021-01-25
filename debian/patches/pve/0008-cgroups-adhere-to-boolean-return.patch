@@ -9,10 +9,10 @@ Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
  1 file changed, 3 insertions(+), 5 deletions(-)
 
 diff --git a/src/lxc/cgroups/cgfsng.c b/src/lxc/cgroups/cgfsng.c
-index 603940683..6c64c996c 100644
+index 303c2f6ab..56bb005de 100644
 --- a/src/lxc/cgroups/cgfsng.c
 +++ b/src/lxc/cgroups/cgfsng.c
-@@ -1196,11 +1196,9 @@ static bool cgroup_tree_create(struct cgroup_ops *ops, struct lxc_conf *conf,
+@@ -1195,11 +1195,9 @@ static bool cgroup_tree_create(struct cgroup_ops *ops, struct lxc_conf *conf,
  		 * line, which is not possible once a subdirectory has been
  		 * created.
  		 */
