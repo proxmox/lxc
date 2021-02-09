@@ -1,3 +1,10 @@
+lxc-pve (4.0.6-2) pve; urgency=medium
+
+  * include various stable 4.0 patches, among others for retaining
+    CAP_NET_ADMIN and cgroup mounting in some cases
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 09 Feb 2021 07:53:47 +0100
+
 lxc-pve (4.0.6-1) pve; urgency=medium
 
   * update to lxc-4.0.6
