@@ -37,7 +37,10 @@ override_dh_install:
 	rm -f debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/*.la
 	dh_apparmor -p lxc-pve --profile-name=usr.bin.lxc-start
 	dh_apparmor -p lxc-pve --profile-name=lxc-containers
-	dh_install --fail-missing
+	dh_install
+
+override_dh_missing:
+	dh_missing --fail-missing
 
 override_dh_installsystemd:
 	dh_installsystemd -plxc-pve -r lxc-monitord.service lxc-net.service

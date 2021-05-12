@@ -3,7 +3,7 @@ Section: admin
 Priority: optional
 Maintainer: Proxmox Support Team <support@proxmox.com>
 Build-Depends: bash-completion,
-               debhelper (>= 10),
+               debhelper (>= 12),
                dh-apparmor,
                docbook2x,
                doxygen,
@@ -15,7 +15,7 @@ Build-Depends: bash-completion,
                pkg-config,
                pve-libseccomp2.4-dev,
                quilt,
-Standards-Version: 4.3.0
+Standards-Version: 4.5.1
 Homepage: https://linuxcontainers.org
 
 Package: lxc-pve
