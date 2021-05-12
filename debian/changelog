@@ -1,3 +1,11 @@
+lxc-pve (4.0.9-1) bullseye; urgency=medium
+
+  * update to lxc-4.0.9
+
+  * Rebuild for Debian Bullseye / PVE 7
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 12 May 2021 19:24:43 +0200
+
 lxc-pve (4.0.6-2) pve; urgency=medium
 
   * include various stable 4.0 patches, among others for retaining
