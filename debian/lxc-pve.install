@@ -1,13 +1,14 @@
-usr/bin
-usr/sbin
-usr/share/man
-usr/share/lxc
-usr/share/bash-completion/completions/lxc
-usr/lib/*/*.so.*
-usr/lib/*/lxc/lxc-*
-usr/lib/*/lxc/hooks/*
-usr/lib/*/lxc/rootfs/README
-lib/systemd
-etc
-debian/features /usr/share/apparmor-features/
 debian/config/* /usr/share/lxc/config/
+debian/features /usr/share/apparmor-features/
+etc
+lib/systemd
+usr/bin
+usr/lib/*/*.so.*
+usr/lib/*/lxc/rootfs/README
+usr/libexec/lxc/hooks/*
+usr/libexec/lxc/lxc-*
+usr/sbin
+usr/share/bash-completion/completions/lxc
+usr/share/lxc
+usr/share/lxc/hooks/*
+usr/share/man
