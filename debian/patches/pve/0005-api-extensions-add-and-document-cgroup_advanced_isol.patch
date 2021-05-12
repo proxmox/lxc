@@ -10,26 +10,29 @@ Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
  2 files changed, 5 insertions(+)
 
 diff --git a/doc/api-extensions.md b/doc/api-extensions.md
-index 4756be3dc..24dea8c9d 100644
+index ff0df50ef..13ba41a62 100644
 --- a/doc/api-extensions.md
 +++ b/doc/api-extensions.md
-@@ -135,3 +135,7 @@ Retrieve the seccomp notifier fd from a running container.
- ## seccomp\_proxy\_send\_notify\_fd
+@@ -136,6 +136,10 @@ Retrieve the seccomp notifier fd from a running container.
  
  Whether the seccomp notify proxy sends a long a notify fd file descriptor.
-+
+ 
 +## cgroup\_advanced\_isolation
 +
 +Privileged containers will usually be able to override the cgroup limits given to them. This introduces three new configuration keys `lxc.cgroup.dir.monitor`, `lxc.cgroup.dir.container`, and `lxc.cgroup.dir.container.inner`. The `lxc.cgroup.dir.monitor` and `lxc.cgroup.dir.container` keys can be used to set to place the `monitor` and the `container` into different cgroups. The `lxc.cgroup.dir.container.inner` key can be set to a cgroup that is concatenated with `lxc.cgroup.dir.container`. When `lxc.cgroup.dir.container.inner` is set the container will be placed into the `lxc.cgroup.dir.container.inner` cgroup but the limits will be set in the `lxc.cgroup.dir.container` cgroup. This way privileged containers cannot escape their cgroup limits.
++
+ ## idmapped\_mounts
+ 
+ Whether this LXC instance can handle idmapped mounts.
 diff --git a/src/lxc/api_extensions.h b/src/lxc/api_extensions.h
-index 513b774f0..303abd631 100644
+index 06a4130ba..6653c7299 100644
 --- a/src/lxc/api_extensions.h
 +++ b/src/lxc/api_extensions.h
-@@ -43,6 +43,7 @@ static char *api_extensions[] = {
+@@ -41,6 +41,7 @@ static char *api_extensions[] = {
  	"devpts_fd",
  	"seccomp_notify_fd_active",
  	"seccomp_proxy_send_notify_fd",
 +	"cgroup_advanced_isolation",
+ 	"idmapped_mounts",
  };
  
- static size_t nr_api_extensions = sizeof(api_extensions) / sizeof(*api_extensions);

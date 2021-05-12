@@ -60,10 +60,10 @@ index c448850d1..4a4fde5e7 100644
  
  pkglibexec_SCRIPTS = lxc-apparmor-load
 diff --git a/configure.ac b/configure.ac
-index d32fecc06..1dd916248 100644
+index e30ea6f6e..16c5ab8c4 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -842,6 +842,7 @@ AC_CONFIG_FILES([
+@@ -913,6 +913,7 @@ AC_CONFIG_FILES([
  	config/init/systemd/lxc.service
  	config/init/systemd/lxc@.service
  	config/init/systemd/lxc-net.service

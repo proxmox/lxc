@@ -10,10 +10,10 @@ Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
  1 file changed, 3 insertions(+), 8 deletions(-)
 
 diff --git a/src/lxc/confile.c b/src/lxc/confile.c
-index dab5aaca2..3a388fed1 100644
+index daf8ee474..ae6e72c22 100644
 --- a/src/lxc/confile.c
 +++ b/src/lxc/confile.c
-@@ -1720,19 +1720,14 @@ static int set_config_cgroup_container_inner_dir(const char *key,
+@@ -1828,19 +1828,14 @@ static int set_config_cgroup_container_inner_dir(const char *key,
  						 void *data)
  {
  	if (lxc_config_value_empty(value))

@@ -10,10 +10,10 @@ Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/doc/lxc.container.conf.sgml.in b/doc/lxc.container.conf.sgml.in
-index 4011f5734..006dcad92 100644
+index 595cb3972..18bf36aaf 100644
 --- a/doc/lxc.container.conf.sgml.in
 +++ b/doc/lxc.container.conf.sgml.in
-@@ -1583,7 +1583,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+@@ -1769,7 +1769,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
                exclusive with <option>lxc.cgroup.dir</option>.
                Note that the final path the container attaches to may be
                extended further by the
@@ -22,7 +22,7 @@ index 4011f5734..006dcad92 100644
              </para>
            </listitem>
          </varlistentry>
-@@ -1600,7 +1600,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+@@ -1786,7 +1786,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
          </varlistentry>
          <varlistentry>
            <term>

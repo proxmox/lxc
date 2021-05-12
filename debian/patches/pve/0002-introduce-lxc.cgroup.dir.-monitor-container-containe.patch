@@ -1,8 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Thu, 2 Apr 2020 10:01:37 +0200
-Subject: [PATCH] [doc] introduce
- lxc.cgroup.dir.{monitor,container,container.inner}
+Subject: [PATCH] introduce lxc.cgroup.dir.{monitor,container,container.inner}
 
 This is a new approach to #1302 with a container-side
 configuration instead of a global boolean flag.
@@ -22,18 +21,17 @@ failing to create these directories will simply be a hard
 error.
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
 ---
  doc/lxc.container.conf.sgml.in |  47 +++++++++++++
- src/lxc/commands.c             |   5 +-
- src/lxc/conf.c                 |   3 +
  src/lxc/confile.c              | 124 +++++++++++++++++++++++++++++++++
- 4 files changed, 177 insertions(+), 2 deletions(-)
+ 2 files changed, 171 insertions(+)
 
 diff --git a/doc/lxc.container.conf.sgml.in b/doc/lxc.container.conf.sgml.in
-index 3e0e55cee..4011f5734 100644
+index e089fa61d..595cb3972 100644
 --- a/doc/lxc.container.conf.sgml.in
 +++ b/doc/lxc.container.conf.sgml.in
-@@ -1571,6 +1571,53 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+@@ -1757,6 +1757,53 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
              </para>
            </listitem>
          </varlistentry>
@@ -87,48 +85,11 @@ index 3e0e55cee..4011f5734 100644
          <varlistentry>
            <term>
              <option>lxc.cgroup.relative</option>
-diff --git a/src/lxc/commands.c b/src/lxc/commands.c
-index 3046587c7..a9a03ca2c 100644
---- a/src/lxc/commands.c
-+++ b/src/lxc/commands.c
-@@ -719,7 +719,7 @@ static int lxc_cmd_get_limiting_cgroup_callback(int fd, struct lxc_cmd_req *req,
- 						struct lxc_handler *handler,
- 						struct lxc_epoll_descr *descr)
- {
--	return ret_errno(ENOSYS);
-+	return lxc_cmd_get_cgroup_callback_do(fd, req, handler, descr, true);
- }
- 
- /*
-@@ -1569,7 +1569,8 @@ static int lxc_cmd_get_limiting_cgroup2_fd_callback(int fd,
- 						    struct lxc_handler *handler,
- 						    struct lxc_epoll_descr *descr)
- {
--	return ret_errno(ENOSYS);
-+	return lxc_cmd_get_cgroup2_fd_callback_do(fd, req, handler, descr,
-+						  true);
- }
- 
- static int lxc_cmd_process(int fd, struct lxc_cmd_req *req,
-diff --git a/src/lxc/conf.c b/src/lxc/conf.c
-index ae4972551..f1f01898f 100644
---- a/src/lxc/conf.c
-+++ b/src/lxc/conf.c
-@@ -3844,6 +3844,9 @@ void lxc_conf_free(struct lxc_conf *conf)
- 	lxc_clear_apparmor_raw(conf);
- 	lxc_clear_namespace(conf);
- 	free(conf->cgroup_meta.dir);
-+	free(conf->cgroup_meta.monitor_dir);
-+	free(conf->cgroup_meta.container_dir);
-+	free(conf->cgroup_meta.namespace_dir);
- 	free(conf->cgroup_meta.controllers);
- 	free(conf->shmount.path_host);
- 	free(conf->shmount.path_cont);
 diff --git a/src/lxc/confile.c b/src/lxc/confile.c
-index da0da5ff9..dab5aaca2 100644
+index 37c38fe1e..daf8ee474 100644
 --- a/src/lxc/confile.c
 +++ b/src/lxc/confile.c
-@@ -71,6 +71,9 @@ lxc_config_define(cap_keep);
+@@ -67,6 +67,9 @@ lxc_config_define(cap_keep);
  lxc_config_define(cgroup_controller);
  lxc_config_define(cgroup2_controller);
  lxc_config_define(cgroup_dir);
@@ -138,18 +99,18 @@ index da0da5ff9..dab5aaca2 100644
  lxc_config_define(cgroup_relative);
  lxc_config_define(console_buffer_size);
  lxc_config_define(console_logfile);
-@@ -170,6 +173,9 @@ static struct lxc_config_t config_jump_table[] = {
- 	{ "lxc.cap.drop",                  set_config_cap_drop,                    get_config_cap_drop,                    clr_config_cap_drop,                  },
- 	{ "lxc.cap.keep",                  set_config_cap_keep,                    get_config_cap_keep,                    clr_config_cap_keep,                  },
- 	{ "lxc.cgroup2",                   set_config_cgroup2_controller,          get_config_cgroup2_controller,          clr_config_cgroup2_controller,        },
-+	{ "lxc.cgroup.dir.monitor",        set_config_cgroup_monitor_dir,          get_config_cgroup_monitor_dir,          clr_config_cgroup_monitor_dir,        },
-+	{ "lxc.cgroup.dir.container",      set_config_cgroup_container_dir,        get_config_cgroup_container_dir,        clr_config_cgroup_container_dir,      },
-+	{ "lxc.cgroup.dir.container.inner",set_config_cgroup_container_inner_dir,  get_config_cgroup_container_inner_dir,  clr_config_cgroup_container_inner_dir,},
- 	{ "lxc.cgroup.dir",                set_config_cgroup_dir,                  get_config_cgroup_dir,                  clr_config_cgroup_dir,                },
- 	{ "lxc.cgroup.relative",           set_config_cgroup_relative,             get_config_cgroup_relative,             clr_config_cgroup_relative,           },
- 	{ "lxc.cgroup",                    set_config_cgroup_controller,           get_config_cgroup_controller,           clr_config_cgroup_controller,         },
-@@ -1687,6 +1693,48 @@ static int set_config_cgroup_dir(const char *key, const char *value,
- 	return set_config_string_item(&lxc_conf->cgroup_meta.dir, value);
+@@ -185,6 +188,9 @@ static struct lxc_config_t config_jump_table[] = {
+ 	{ "lxc.cap.drop",                   true,  set_config_cap_drop,                   get_config_cap_drop,                   clr_config_cap_drop,                   },
+ 	{ "lxc.cap.keep",                   true,  set_config_cap_keep,                   get_config_cap_keep,                   clr_config_cap_keep,                   },
+ 	{ "lxc.cgroup2",                    false, set_config_cgroup2_controller,         get_config_cgroup2_controller,         clr_config_cgroup2_controller,         },
++	{ "lxc.cgroup.dir.monitor",         true,  set_config_cgroup_monitor_dir,         get_config_cgroup_monitor_dir,         clr_config_cgroup_monitor_dir,         },
++	{ "lxc.cgroup.dir.container.inner", true,  set_config_cgroup_container_inner_dir, get_config_cgroup_container_inner_dir, clr_config_cgroup_container_inner_dir, },
++	{ "lxc.cgroup.dir.container",       true,  set_config_cgroup_container_dir,       get_config_cgroup_container_dir,       clr_config_cgroup_container_dir,       },
+ 	{ "lxc.cgroup.dir",                 true,  set_config_cgroup_dir,                 get_config_cgroup_dir,                 clr_config_cgroup_dir,                 },
+ 	{ "lxc.cgroup.relative",            true,  set_config_cgroup_relative,            get_config_cgroup_relative,            clr_config_cgroup_relative,            },
+ 	{ "lxc.cgroup",                     false, set_config_cgroup_controller,          get_config_cgroup_controller,          clr_config_cgroup_controller,          },
+@@ -1795,6 +1801,48 @@ static int set_config_cgroup_dir(const char *key, const char *value,
+ 	return set_config_path_item(&lxc_conf->cgroup_meta.dir, value);
  }
  
 +static int set_config_cgroup_monitor_dir(const char *key, const char *value,
@@ -197,7 +158,7 @@ index da0da5ff9..dab5aaca2 100644
  static int set_config_cgroup_relative(const char *key, const char *value,
  				      struct lxc_conf *lxc_conf, void *data)
  {
-@@ -3498,6 +3546,58 @@ static int get_config_cgroup_dir(const char *key, char *retv, int inlen,
+@@ -3654,6 +3702,58 @@ static int get_config_cgroup_dir(const char *key, char *retv, int inlen,
  	return fulllen;
  }
  
@@ -256,7 +217,7 @@ index da0da5ff9..dab5aaca2 100644
  static inline int get_config_cgroup_relative(const char *key, char *retv,
  					     int inlen, struct lxc_conf *lxc_conf,
  					     void *data)
-@@ -4308,6 +4408,30 @@ static int clr_config_cgroup_dir(const char *key, struct lxc_conf *lxc_conf,
+@@ -4491,6 +4591,30 @@ static int clr_config_cgroup_dir(const char *key, struct lxc_conf *lxc_conf,
  	return 0;
  }
  
