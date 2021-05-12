@@ -12,8 +12,8 @@ Build-Depends: bash-completion,
                libcap-dev,
                libgnutls28-dev,
                linux-libc-dev,
+               libseccomp-dev (>= 2.4~),
                pkg-config,
-               pve-libseccomp2.4-dev,
                quilt,
 Standards-Version: 4.5.1
 Homepage: https://linuxcontainers.org

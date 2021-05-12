@@ -27,8 +27,6 @@ override_dh_auto_configure:
 	--enable-seccomp \
 	--disable-static \
 	--with-cgroup-pattern='lxc/%n' \
-	SECCOMP_CFLAGS="-I/usr/lib/pve-libseccomp2.4/include" \
-	SECCOMP_LIBS="-L/usr/lib/$(DEB_HOST_MULTIARCH)/pve-libseccomp2.4 -lseccomp" \
 
 override_dh_fixperms:
 	dh_fixperms -Xusr/lib/$(DEB_HOST_MULTIARCH)/lxc/lxc-user-nic
