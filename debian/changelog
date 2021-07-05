@@ -1,3 +1,9 @@
+lxc-pve (4.0.9-2) bullseye; urgency=medium
+
+  * add patch to include /usr/share/lxc/config/userns.conf.d
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 05 Jul 2021 09:54:14 +0200
+
 lxc-pve (4.0.9-1) bullseye; urgency=medium
 
   * update to lxc-4.0.9
