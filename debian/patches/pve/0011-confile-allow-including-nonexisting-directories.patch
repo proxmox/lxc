@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Mon, 5 Jul 2021 10:53:41 +0200
+Subject: [PATCH] confile: allow including nonexisting directories
+
+If an include directive ends with a trailing slash, we now
+always assume it is a directory and do not treat the
+non-existence as an error.
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ src/lxc/confile.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/lxc/confile.c b/src/lxc/confile.c
+index 6e2b68b1c..7f4fb13fb 100644
+--- a/src/lxc/confile.c
++++ b/src/lxc/confile.c
+@@ -2689,7 +2689,7 @@ static int do_includedir(const char *dirp, struct lxc_conf *lxc_conf)
+ 
+ 	dir = opendir(dirp);
+ 	if (!dir)
+-		return -errno;
++		return errno == ENOENT ? 0 : -errno;
+ 
+ 	while ((direntp = readdir(dir))) {
+ 		const char *fnam;
+@@ -2726,7 +2726,7 @@ static int set_config_includefiles(const char *key, const char *value,
+ 		return 0;
+ 	}
+ 
+-	if (is_dir(value))
++	if (value[strlen(value)-1] == '/' || is_dir(value))
+ 		return do_includedir(value, lxc_conf);
+ 
+ 	return lxc_config_read(value, lxc_conf, true);

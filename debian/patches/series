@@ -7,3 +7,5 @@ pve/0006-doc-Add-lxc.cgroup.dir.-monitor-container-container..patch
 pve/0007-PVE-Config-lxc.service-start-after-a-potential-syslo.patch
 pve/0008-PVE-Config-deny-rw-mounting-of-sys-and-proc.patch
 pve/0009-PVE-Config-attach-always-use-getent.patch
+pve/0010-conf-userns.conf-include-userns.conf.d.patch
+pve/0011-confile-allow-including-nonexisting-directories.patch

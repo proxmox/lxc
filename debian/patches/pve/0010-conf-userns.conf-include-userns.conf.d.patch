@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Mon, 5 Jul 2021 09:02:36 +0200
+Subject: [PATCH] conf: userns.conf: include userns.conf.d
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ config/templates/userns.conf.in | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/config/templates/userns.conf.in b/config/templates/userns.conf.in
+index 69d992680..255dd01a3 100644
+--- a/config/templates/userns.conf.in
++++ b/config/templates/userns.conf.in
+@@ -19,3 +19,6 @@ lxc.tty.dir =
+ 
+ # Setup the default mounts
+ lxc.mount.auto = sys:rw
++
++# Lastly, include all the configs from @LXCTEMPLATECONFIG@/userns.conf.d/
++lxc.include = @LXCTEMPLATECONFIG@/userns.conf.d/
