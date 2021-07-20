@@ -9,3 +9,5 @@ pve/0008-PVE-Config-deny-rw-mounting-of-sys-and-proc.patch
 pve/0009-PVE-Config-attach-always-use-getent.patch
 pve/0010-conf-userns.conf-include-userns.conf.d.patch
 pve/0011-confile-allow-including-nonexisting-directories.patch
+pve/0012-cgroups-populate-hierarchy-for-device-cgroup.patch
+pve/0013-cgroups-remove-unneeded-variables-from-cgroup_tree_c.patch
