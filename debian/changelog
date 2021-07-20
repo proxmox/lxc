@@ -1,3 +1,9 @@
+lxc-pve (4.0.9-3) bullseye; urgency=medium
+
+  * fix priviledged containers with legacy (non-unified) cgroup setups
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 20 Jul 2021 13:35:20 +0200
+
 lxc-pve (4.0.9-2) bullseye; urgency=medium
 
   * add patch to include /usr/share/lxc/config/userns.conf.d
