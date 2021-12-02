@@ -8,7 +8,7 @@ usr/lib/*/lxc/rootfs/README
 usr/libexec/lxc/hooks/*
 usr/libexec/lxc/lxc-*
 usr/sbin
-usr/share/bash-completion/completions/lxc
+usr/share/bash-completion/completions
 usr/share/lxc
 usr/share/lxc/hooks/*
 usr/share/man
