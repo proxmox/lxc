@@ -1,0 +1,76 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Fri, 3 Dec 2021 09:13:11 +0100
+Subject: [PATCH lxc] use 2 sysfs instances for sys:mixed
+
+In order to facilitate this, the default mount list's
+'destination' may now be NULL to mean that the source should
+be unmounted instead.
+
+Here's what we need to do:
+
+1) Ensure the first sysfs mount point is writable.
+2) Mount a read-only sysfs on /sys
+3) Bind devices/virtual/net *writably* into /sys
+
+We use /proc/sys as a staging directory for the first sysfs
+mount in read-write mode, then mount /sys r/o. Afterwards we
+bind the r/w devices/virtual/net and unmount the staging
+/proc/sys mount point.
+
+The staging directory would not be required with the new
+mount API, but this way we can support the old API and keep
+the general workflow in the `default_mounts`.
+
+Once we drop support for the old mount API, the
+default_mounts table could just get a subdirectory field to
+mount subdirectories directly.
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ src/lxc/conf.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
+
+diff --git a/src/lxc/conf.c b/src/lxc/conf.c
+index 8e068b8ac..c9ab285d8 100644
+--- a/src/lxc/conf.c
++++ b/src/lxc/conf.c
+@@ -708,9 +708,11 @@ static int lxc_mount_auto_mounts(struct lxc_handler *handler, int flags)
+ 		{ LXC_AUTO_PROC_MASK, LXC_AUTO_PROC_RW,    "proc",                                           "%r/proc",                    "proc",  MS_NODEV|MS_NOEXEC|MS_NOSUID,                    NULL, false },
+ 		{ LXC_AUTO_SYS_MASK,  LXC_AUTO_SYS_RW,     "sysfs",                                          "%r/sys",                     "sysfs", 0,                                               NULL, false },
+ 		{ LXC_AUTO_SYS_MASK,  LXC_AUTO_SYS_RO,     "sysfs",                                          "%r/sys",                     "sysfs", MS_RDONLY,                                       NULL, false },
++		/* /proc/sys is used as a temporary staging directory for the read-write sysfs mount and unmounted after binding net */
++		{ LXC_AUTO_SYS_MASK,  LXC_AUTO_SYS_MIXED,  "sysfs",                                          "%r/proc/sys",                "sysfs", MS_NOSUID|MS_NODEV|MS_NOEXEC,                    NULL, false },
+ 		{ LXC_AUTO_SYS_MASK,  LXC_AUTO_SYS_MIXED,  "sysfs",                                          "%r/sys",                     "sysfs", MS_RDONLY|MS_NOSUID|MS_NODEV|MS_NOEXEC,          NULL, false },
+-		{ LXC_AUTO_SYS_MASK,  LXC_AUTO_SYS_MIXED,  "%r/sys/devices/virtual/net",                     "%r/sys/devices/virtual/net",  NULL,   MS_BIND,                                         NULL, false },
+-		{ LXC_AUTO_SYS_MASK,  LXC_AUTO_SYS_MIXED,  NULL,                                             "%r/sys/devices/virtual/net",  NULL,   MS_REMOUNT|MS_NOSUID|MS_NODEV|MS_NOEXEC,         NULL, false },
++		{ LXC_AUTO_SYS_MASK,  LXC_AUTO_SYS_MIXED,  "%r/proc/sys/devices/virtual/net",                "%r/sys/devices/virtual/net", NULL,    MS_BIND,                                         NULL, false },
++		{ LXC_AUTO_SYS_MASK,  LXC_AUTO_SYS_MIXED,  "%r/proc/sys",                                    NULL,                         NULL,    0,                                               NULL, false },
+ 		{ 0,                  0,                   NULL,                                             NULL,                         NULL,    0,                                               NULL, false }
+ 	};
+ 	struct lxc_conf *conf = handler->conf;
+@@ -778,14 +780,21 @@ static int lxc_mount_auto_mounts(struct lxc_handler *handler, int flags)
+ 				return syserror_set(-ENOMEM, "Failed to create source path");
+ 		}
+ 
+-		if (!default_mounts[i].destination)
+-			return syserror_set(-EINVAL, "BUG: auto mounts destination %d was NULL", i);
+-
+ 		if (!has_cap_net_admin && default_mounts[i].requires_cap_net_admin) {
+ 			TRACE("Container does not have CAP_NET_ADMIN. Skipping \"%s\" mount", default_mounts[i].source ?: "(null)");
+ 			continue;
+ 		}
+ 
++		if (!default_mounts[i].destination) {
++			ret = umount2(source, MNT_DETACH);
++			if (ret < 0)
++				return log_error_errno(-1, errno,
++						       "Failed to unmount \"%s\"",
++						       source);
++			TRACE("Unmounted automount \"%s\"", source);
++			continue;
++		}
++
+ 		/* will act like strdup if %r is not present */
+ 		destination = lxc_string_replace("%r", rootfs->path ? rootfs->mount : "", default_mounts[i].destination);
+ 		if (!destination)

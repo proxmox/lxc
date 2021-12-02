@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Fabian=20Gr=C3=BCnbichler?= <f.gruenbichler@proxmox.com>
 Date: Wed, 9 Nov 2016 09:14:26 +0100
-Subject: [PATCH] PVE: [Config] deny rw mounting of /sys and /proc
+Subject: [PATCH lxc] PVE: [Config] deny rw mounting of /sys and /proc
 
 Note that we don't actually make use of this anymore, since
 we switched to the generated profiles which already do this.

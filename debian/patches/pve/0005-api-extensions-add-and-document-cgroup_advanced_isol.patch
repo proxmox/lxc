@@ -1,7 +1,8 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Christian Brauner <christian.brauner@ubuntu.com>
 Date: Sat, 4 Apr 2020 12:07:43 +0200
-Subject: [PATCH] api-extensions: add and document cgroup_advanced_isolation
+Subject: [PATCH lxc] api-extensions: add and document
+ cgroup_advanced_isolation
 
 Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
 ---
@@ -10,7 +11,7 @@ Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
  2 files changed, 5 insertions(+)
 
 diff --git a/doc/api-extensions.md b/doc/api-extensions.md
-index ff0df50ef..13ba41a62 100644
+index cdf82f937..6f9e1621d 100644
 --- a/doc/api-extensions.md
 +++ b/doc/api-extensions.md
 @@ -136,6 +136,10 @@ Retrieve the seccomp notifier fd from a running container.
@@ -23,9 +24,9 @@ index ff0df50ef..13ba41a62 100644
 +
  ## idmapped\_mounts
  
- Whether this LXC instance can handle idmapped mounts.
+ Whether this LXC instance can handle idmapped mounts for the rootfs.
 diff --git a/src/lxc/api_extensions.h b/src/lxc/api_extensions.h
-index 06a4130ba..6653c7299 100644
+index c2509207d..ae71ff18e 100644
 --- a/src/lxc/api_extensions.h
 +++ b/src/lxc/api_extensions.h
 @@ -41,6 +41,7 @@ static char *api_extensions[] = {
@@ -34,5 +35,5 @@ index 06a4130ba..6653c7299 100644
  	"seccomp_proxy_send_notify_fd",
 +	"cgroup_advanced_isolation",
  	"idmapped_mounts",
- };
- 
+ 	"idmapped_mounts_v2",
+ 	"core_scheduling",

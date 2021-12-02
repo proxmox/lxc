@@ -1,8 +1,8 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: KATOH Yasufumi <karma@jazz.email.ne.jp>
 Date: Sun, 5 Apr 2020 21:18:59 +0900
-Subject: [PATCH] doc: Add lxc.cgroup.dir.{monitor,container,container.inner}
- to Japanese man
+Subject: [PATCH lxc] doc: Add
+ lxc.cgroup.dir.{monitor,container,container.inner} to Japanese man
 
 Update for commit a900cba
 
@@ -12,10 +12,10 @@ Signed-off-by: KATOH Yasufumi <karma@jazz.email.ne.jp>
  1 file changed, 57 insertions(+)
 
 diff --git a/doc/ja/lxc.container.conf.sgml.in b/doc/ja/lxc.container.conf.sgml.in
-index fd6fb18e3..2c77d4ea3 100644
+index 05ae2f441..9ad6627ab 100644
 --- a/doc/ja/lxc.container.conf.sgml.in
 +++ b/doc/ja/lxc.container.conf.sgml.in
-@@ -2099,6 +2099,63 @@ by KATOH Yasufumi <karma at jazz.email.ne.jp>
+@@ -2389,6 +2389,63 @@ by KATOH Yasufumi <karma at jazz.email.ne.jp>
              </para>
            </listitem>
          </varlistentry>

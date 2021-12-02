@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Christian Brauner <christian.brauner@ubuntu.com>
 Date: Fri, 3 Apr 2020 20:08:41 +0200
-Subject: [PATCH] doc:
+Subject: [PATCH lxc] doc:
  s/lxc.cgroup.container.namespace/lxc.cgroup.container.inner/g
 
 Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
@@ -10,10 +10,10 @@ Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/doc/lxc.container.conf.sgml.in b/doc/lxc.container.conf.sgml.in
-index 595cb3972..18bf36aaf 100644
+index 3bf62f082..490793ddb 100644
 --- a/doc/lxc.container.conf.sgml.in
 +++ b/doc/lxc.container.conf.sgml.in
-@@ -1769,7 +1769,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+@@ -1813,7 +1813,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
                exclusive with <option>lxc.cgroup.dir</option>.
                Note that the final path the container attaches to may be
                extended further by the
@@ -22,7 +22,7 @@ index 595cb3972..18bf36aaf 100644
              </para>
            </listitem>
          </varlistentry>
-@@ -1786,7 +1786,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+@@ -1830,7 +1830,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
          </varlistentry>
          <varlistentry>
            <term>

@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Sat, 13 Nov 2021 18:20:13 +0100
+Subject: [PATCH lxc] Revert "initutils: use vfork() in lxc_container_init()"
+
+This reverts commit d65e5e492f740bbb50e3005f97420c3ddae3d595.
+
+With vfork the child process modifies the parent's memory,
+so the calls to `signal`, `fprintf` and regular `exit` may
+be dangerous and might cause conflicting states in the
+parent.
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ src/lxc/initutils.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/lxc/initutils.c b/src/lxc/initutils.c
+index 24baecc88..72278c1f1 100644
+--- a/src/lxc/initutils.c
++++ b/src/lxc/initutils.c
+@@ -551,7 +551,7 @@ __noreturn int lxc_container_init(int argc, char *const *argv, bool quiet)
+ 
+ 	remove_self();
+ 
+-	pid = vfork();
++	pid = fork();
+ 	if (pid < 0)
+ 		exit(EXIT_FAILURE);
+ 

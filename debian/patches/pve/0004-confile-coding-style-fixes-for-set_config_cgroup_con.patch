@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Christian Brauner <christian.brauner@ubuntu.com>
 Date: Fri, 3 Apr 2020 20:10:58 +0200
-Subject: [PATCH] confile: coding style fixes for
+Subject: [PATCH lxc] confile: coding style fixes for
  set_config_cgroup_container_inner_dir()
 
 Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
@@ -10,10 +10,10 @@ Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
  1 file changed, 3 insertions(+), 8 deletions(-)
 
 diff --git a/src/lxc/confile.c b/src/lxc/confile.c
-index daf8ee474..ae6e72c22 100644
+index 23ed7837c..c7e7887f3 100644
 --- a/src/lxc/confile.c
 +++ b/src/lxc/confile.c
-@@ -1828,19 +1828,14 @@ static int set_config_cgroup_container_inner_dir(const char *key,
+@@ -1873,19 +1873,14 @@ static int set_config_cgroup_container_inner_dir(const char *key,
  						 void *data)
  {
  	if (lxc_config_value_empty(value))
