@@ -1,3 +1,9 @@
+lxc-pve (4.0.11-1) bullseye; urgency=medium
+
+  * update to 4.0.11
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 02 Dec 2021 10:38:50 +0100
+
 lxc-pve (4.0.9-4) bullseye; urgency=medium
 
   * fix priviledged containers with legacy (non-unified) cgroup setups
