@@ -10,7 +10,7 @@ Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/doc/lxc.container.conf.sgml.in b/doc/lxc.container.conf.sgml.in
-index 3bf62f082..490793ddb 100644
+index 0fda37b5e..988b846e4 100644
 --- a/doc/lxc.container.conf.sgml.in
 +++ b/doc/lxc.container.conf.sgml.in
 @@ -1813,7 +1813,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA

@@ -11,7 +11,7 @@ Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
  2 files changed, 5 insertions(+)
 
 diff --git a/doc/api-extensions.md b/doc/api-extensions.md
-index cdf82f937..6f9e1621d 100644
+index 98686f9ed..fe1b1bdb7 100644
 --- a/doc/api-extensions.md
 +++ b/doc/api-extensions.md
 @@ -136,6 +136,10 @@ Retrieve the seccomp notifier fd from a running container.
@@ -26,13 +26,13 @@ index cdf82f937..6f9e1621d 100644
  
  Whether this LXC instance can handle idmapped mounts for the rootfs.
 diff --git a/src/lxc/api_extensions.h b/src/lxc/api_extensions.h
-index c2509207d..ae71ff18e 100644
+index d99adacbe..a10f2e5f3 100644
 --- a/src/lxc/api_extensions.h
 +++ b/src/lxc/api_extensions.h
-@@ -41,6 +41,7 @@ static char *api_extensions[] = {
- 	"devpts_fd",
+@@ -45,6 +45,7 @@ static char *api_extensions[] = {
  	"seccomp_notify_fd_active",
  	"seccomp_proxy_send_notify_fd",
+ #endif /* HAVE_DECL_SECCOMP_NOTIFY_FD */
 +	"cgroup_advanced_isolation",
  	"idmapped_mounts",
  	"idmapped_mounts_v2",

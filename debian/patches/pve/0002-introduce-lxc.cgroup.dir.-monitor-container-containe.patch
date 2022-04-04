@@ -29,7 +29,7 @@ Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
  2 files changed, 171 insertions(+)
 
 diff --git a/doc/lxc.container.conf.sgml.in b/doc/lxc.container.conf.sgml.in
-index 6c9271130..3bf62f082 100644
+index c1054ddbc..0fda37b5e 100644
 --- a/doc/lxc.container.conf.sgml.in
 +++ b/doc/lxc.container.conf.sgml.in
 @@ -1801,6 +1801,53 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -87,7 +87,7 @@ index 6c9271130..3bf62f082 100644
            <term>
              <option>lxc.cgroup.relative</option>
 diff --git a/src/lxc/confile.c b/src/lxc/confile.c
-index 213688060..23ed7837c 100644
+index 5cb3ecfac..0929ba165 100644
 --- a/src/lxc/confile.c
 +++ b/src/lxc/confile.c
 @@ -67,6 +67,9 @@ lxc_config_define(cap_keep);
@@ -159,7 +159,7 @@ index 213688060..23ed7837c 100644
  static int set_config_cgroup_relative(const char *key, const char *value,
  				      struct lxc_conf *lxc_conf, void *data)
  {
-@@ -3707,6 +3755,58 @@ static int get_config_cgroup_dir(const char *key, char *retv, int inlen,
+@@ -3711,6 +3759,58 @@ static int get_config_cgroup_dir(const char *key, char *retv, int inlen,
  	return fulllen;
  }
  
@@ -218,7 +218,7 @@ index 213688060..23ed7837c 100644
  static inline int get_config_cgroup_relative(const char *key, char *retv,
  					     int inlen, struct lxc_conf *lxc_conf,
  					     void *data)
-@@ -4568,6 +4668,30 @@ static int clr_config_cgroup_dir(const char *key, struct lxc_conf *lxc_conf,
+@@ -4572,6 +4672,30 @@ static int clr_config_cgroup_dir(const char *key, struct lxc_conf *lxc_conf,
  	return 0;
  }
  

@@ -13,7 +13,7 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  1 file changed, 2 insertions(+), 26 deletions(-)
 
 diff --git a/src/lxc/attach.c b/src/lxc/attach.c
-index cd526ab6b..845270ee5 100644
+index 77da7bb45..9b98d842b 100644
 --- a/src/lxc/attach.c
 +++ b/src/lxc/attach.c
 @@ -1841,12 +1841,8 @@ int lxc_attach_run_command(void *payload)

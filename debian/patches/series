@@ -7,5 +7,3 @@ pve/0006-doc-Add-lxc.cgroup.dir.-monitor-container-container..patch
 pve/0007-PVE-Config-lxc.service-start-after-a-potential-syslo.patch
 pve/0008-PVE-Config-deny-rw-mounting-of-sys-and-proc.patch
 pve/0009-PVE-Config-attach-always-use-getent.patch
-pve/0010-Revert-initutils-use-vfork-in-lxc_container_init.patch
-pve/0011-use-2-sysfs-instances-for-sys-mixed.patch
