@@ -1,3 +1,9 @@
+lxc-pve (4.0.12-1) bullseye; urgency=medium
+
+  * update to 4.0.12
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 04 Apr 2022 11:29:52 +0200
+
 lxc-pve (4.0.11-1) bullseye; urgency=medium
 
   * update to 4.0.11
