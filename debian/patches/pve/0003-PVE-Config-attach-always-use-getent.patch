@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Tue, 13 Aug 2019 13:57:22 +0200
-Subject: [PATCH lxc] PVE: [Config] attach: always use getent
+Subject: [PATCH] PVE: [Config] attach: always use getent
 
 In debian buster, some libnss plugins (if installed) can
 cause getpwent to segfault instead of erroring out cleanly.
@@ -9,14 +9,14 @@ To avoid this, stick to always using getent.
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---
- src/lxc/attach.c | 28 ++--------------------------
- 1 file changed, 2 insertions(+), 26 deletions(-)
+ src/lxc/attach.c | 29 ++---------------------------
+ 1 file changed, 2 insertions(+), 27 deletions(-)
 
 diff --git a/src/lxc/attach.c b/src/lxc/attach.c
-index 77da7bb45..9b98d842b 100644
+index 77da7bb45..65c953298 100644
 --- a/src/lxc/attach.c
 +++ b/src/lxc/attach.c
-@@ -1841,12 +1841,8 @@ int lxc_attach_run_command(void *payload)
+@@ -1841,45 +1841,21 @@ int lxc_attach_run_command(void *payload)
  
  int lxc_attach_run_shell(void* payload)
  {
@@ -26,10 +26,10 @@ index 77da7bb45..9b98d842b 100644
 -	struct passwd *pwentp = NULL;
  	char *user_shell;
 -	ssize_t bufsize;
- 	int ret;
+-	int ret;
  
  	/* Ignore payload parameter. */
-@@ -1854,32 +1850,13 @@ int lxc_attach_run_shell(void* payload)
+ 	(void)payload;
  
  	uid = getuid();
  
@@ -63,7 +63,7 @@ index 77da7bb45..9b98d842b 100644
  	if (user_shell)
  		execlp(user_shell, user_shell, (char *)NULL);
  
-@@ -1889,8 +1866,7 @@ int lxc_attach_run_shell(void* payload)
+@@ -1889,8 +1865,7 @@ int lxc_attach_run_shell(void* payload)
  	execlp("/bin/sh", "/bin/sh", (char *)NULL);
  
  	SYSERROR("Failed to execute shell");

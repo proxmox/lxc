@@ -1,9 +1,3 @@
-pve/0001-allow-running-lxc-monitord-as-a-system-daemon.patch
-pve/0002-introduce-lxc.cgroup.dir.-monitor-container-containe.patch
-pve/0003-doc-s-lxc.cgroup.container.namespace-lxc.cgroup.cont.patch
-pve/0004-confile-coding-style-fixes-for-set_config_cgroup_con.patch
-pve/0005-api-extensions-add-and-document-cgroup_advanced_isol.patch
-pve/0006-doc-Add-lxc.cgroup.dir.-monitor-container-container..patch
-pve/0007-PVE-Config-lxc.service-start-after-a-potential-syslo.patch
-pve/0008-PVE-Config-deny-rw-mounting-of-sys-and-proc.patch
-pve/0009-PVE-Config-attach-always-use-getent.patch
+pve/0001-PVE-Config-lxc.service-start-after-a-potential-syslo.patch
+pve/0002-PVE-Config-deny-rw-mounting-of-sys-and-proc.patch
+pve/0003-PVE-Config-attach-always-use-getent.patch
