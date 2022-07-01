@@ -1,3 +1,9 @@
+lxc-pve (5.0.0-2) bullseye; urgency=medium
+
+  * add patch to fix issues with some bind mounts, such as /dev/fuse
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 01 Jul 2022 11:30:14 +0200
+
 lxc-pve (5.0.0-1) bullseye; urgency=medium
 
   * update to 5.0.0
