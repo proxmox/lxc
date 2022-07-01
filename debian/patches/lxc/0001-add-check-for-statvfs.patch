@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Fri, 1 Jul 2022 11:09:15 +0200
+Subject: [PATCH lxc] add check for statvfs
+
+we use HAVE_STATVFS in the code but this was not added to
+config.h
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ meson.build | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/meson.build b/meson.build
+index 43362d37a..274511037 100644
+--- a/meson.build
++++ b/meson.build
+@@ -493,6 +493,7 @@ foreach tuple: [
+     ['sigdescr_np'],
+     ['signalfd'],
+     ['statx'],
++    ['statvfs'],
+     ['strlcat'],
+     ['strlcpy'],
+     ['unshare'],
+@@ -622,6 +623,7 @@ foreach ident: [
+     ['setns',             '''#include <sched.h>'''],
+     ['sigdescr_np',       '''#include <string.h>'''],
+     ['signalfd',          '''#include <sys/signalfd.h>'''],
++    ['statvfs',           '''#include <sys/statvfs.h>'''],
+     ['statx',             '''#include <sys/types.h>
+                              #include <sys/stat.h>
+                              #include <unistd.h>'''],
