@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: srd424 <srd424@users.noreply.github.com>
+Date: Sun, 3 Jul 2022 18:18:23 +0100
+Subject: [PATCH] Store mount options in correct variable
+
+This was exposed by the fix in the previous commit.
+
+Signed-off-by: srd424 <srd424@users.noreply.github.com>
+---
+ src/lxc/storage/overlay.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/lxc/storage/overlay.c b/src/lxc/storage/overlay.c
+index 0c3fa1220..f38f3a740 100644
+--- a/src/lxc/storage/overlay.c
++++ b/src/lxc/storage/overlay.c
+@@ -448,7 +448,7 @@ int ovl_mount(struct lxc_storage *bdev)
+ 		       strlen("upperdir=,lowerdir=,workdir=,") +
+ 		       strlen(mntdata) + 1;
+ 		options_work = must_realloc(NULL, len2);
+-		ret2 = snprintf(options, len2,
++		ret2 = snprintf(options_work, len2,
+ 				"upperdir=%s,lowerdir=%s,workdir=%s,%s", upper,
+ 				lower, work, mntdata);
+ 	} else {

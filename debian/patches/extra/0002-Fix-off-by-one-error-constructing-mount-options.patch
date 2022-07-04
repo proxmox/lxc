@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: srd424 <srd424@users.noreply.github.com>
+Date: Sun, 3 Jul 2022 10:21:30 +0100
+Subject: [PATCH] Fix off-by-one error constructing mount options
+
+This fixes a really subtle off-by-one error constructing overlay mount options if rootfs options are provided and modern overlayfs (i.e. requiring a workdir) is used. We need to allow for the extra "," required to separate the extra options when computing the length!
+
+Signed-off-by: srd424 <srd424@users.noreply.github.com>
+---
+ src/lxc/storage/overlay.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/lxc/storage/overlay.c b/src/lxc/storage/overlay.c
+index f8094fada..0c3fa1220 100644
+--- a/src/lxc/storage/overlay.c
++++ b/src/lxc/storage/overlay.c
+@@ -445,7 +445,7 @@ int ovl_mount(struct lxc_storage *bdev)
+ 			       upper, lower, mntdata);
+ 
+ 		len2 = strlen(lower) + strlen(upper) + strlen(work) +
+-		       strlen("upperdir=,lowerdir=,workdir=") +
++		       strlen("upperdir=,lowerdir=,workdir=,") +
+ 		       strlen(mntdata) + 1;
+ 		options_work = must_realloc(NULL, len2);
+ 		ret2 = snprintf(options, len2,

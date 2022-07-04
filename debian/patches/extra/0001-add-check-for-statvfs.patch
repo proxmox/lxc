@@ -1,10 +1,21 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Fri, 1 Jul 2022 11:09:15 +0200
-Subject: [PATCH lxc] add check for statvfs
+Subject: [PATCH] add check for statvfs
 
-we use HAVE_STATVFS in the code but this was not added to
-config.h
+we use HAVE_STATVFS in the code but with meson the check got
+lost causing mount_entry to fail to remount some things such
+as a bind mount of /dev/fuse via
+
+    lxc.mount.entry = /dev/fuse dev/fuse none bind,create=file 0 0
+
+which would cause the following log messages:
+
+    DEBUG    conf - ../src/lxc/conf.c:mount_entry:2416 - Remounting "/dev/fuse" on "/usr/lib/x86_64-linux-gnu/lxc/rootfs/dev/fuse" to respect bind or remount options
+    ERROR    conf - ../src/lxc/conf.c:mount_entry:2459 - Operation not permitted - Failed to mount "/dev/fuse" on "/usr/lib/x86_64-linux-gnu/lxc/rootfs/dev/fuse"
+
+note that the `Flags for ... were ...` line is not showing
+up there, which depends on HAVE_STATVFS
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
 ---

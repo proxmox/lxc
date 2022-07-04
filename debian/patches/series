@@ -1,4 +1,8 @@
-lxc/0001-add-check-for-statvfs.patch
+extra/0001-add-check-for-statvfs.patch
+extra/0002-Fix-off-by-one-error-constructing-mount-options.patch
+extra/0003-Store-mount-options-in-correct-variable.patch
+extra/0004-Fix-uninitialized-read-in-parse_cap-when-libcap-is-n.patch
+extra/0005-meson-add-remaining-still-in-use-config-checks.patch
 pve/0001-PVE-Config-lxc.service-start-after-a-potential-syslo.patch
 pve/0002-PVE-Config-deny-rw-mounting-of-sys-and-proc.patch
 pve/0003-PVE-Config-attach-always-use-getent.patch

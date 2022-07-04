@@ -1,0 +1,81 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Raphael Isemann <teemperor@gmail.com>
+Date: Tue, 21 Jun 2022 13:10:40 +0200
+Subject: [PATCH] Fix uninitialized read in parse_cap when libcap is not used
+
+fuzz-lxc-cgroup-init currently fails for me with the input
+```
+ lxc.cap.keep=0
+```
+
+with this report:
+
+```
+==640655==WARNING: MemorySanitizer: use-of-uninitialized-value
+    #0 0x833c77 in parse_cap /src/lxc/san_build/../src/lxc/conf.c:3161:6
+    #1 0xaa5fd6 in add_cap_entry /src/lxc/san_build/../src/lxc/confile.c:2462:9
+    #2 0x9eb69c in set_config_cap_keep /src/lxc/san_build/../src/lxc/confile.c:2503:8
+    #3 0x974a76 in parse_line /src/lxc/san_build/../src/lxc/confile.c:3115:9
+    #4 0xea8cac in lxc_file_for_each_line_mmap /src/lxc/san_build/../src/lxc/parse.c:123:9
+    #5 0x9700a1 in lxc_config_read /src/lxc/san_build/../src/lxc/confile.c:3192:9
+    #6 0x4a3b50 in LLVMFuzzerTestOneInput /src/lxc/san_build/../src/tests/fuzz-lxc-cgroup-init.c:40:8
+    #7 0x10556e3 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:611:15
+    #8 0x1041372 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:324:6
+    #9 0x1046bbc in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:860:9
+    #10 0x106f7b2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #11 0x7ffff7bc00b2 in __libc_start_main /build/glibc-sMfBJT/glibc-2.31/csu/../csu/libc-start.c:308:16
+    #12 0x420a9d in _start (/home/fuzzer/oss-fuzz/build/out/lxc/fuzz-lxc-cgroup-init+0x420a9d)
+
+  Uninitialized value was created by an allocation of 'last_cap' in the stack frame of function 'parse_cap'
+    #0 0x832e30 in parse_cap /src/lxc/san_build/../src/lxc/conf.c:3131
+```
+
+The reason is that without libcap we parse_cap ends up comparing two
+uninitialized values. See the snippet below:
+
+```
+int parse_cap(const char *cap_name, __u32 *cap)
+{
+	int ret;
+	unsigned int res;
+	__u32 last_cap;
+
+  [...]
+
+	ret = lxc_caps_last_cap(&last_cap); // NOTE: 1. Call here.
+	if (ret) // Not taken as dummy lxc_caps_last_cap returned 0.
+		return -1;
+
+	if ((__u32)res > last_cap) // last_cap is uninitialized.
+		return -1;
+
+	*cap = (__u32)res;
+	return 0;
+}
+```
+
+Root cause seems to be that the dummy `lxc_caps_last_cap` returns 0 but
+doesn't set the last_cap value. This patch just returns -1 as an error code
+to avoid the uninitialized read.
+
+Note: When reproducing the bug you need to compile with O0 and *not* with O1
+otherwise you will not see the report.
+
+Signed-off-by: Raphael Isemann <teemperor@gmail.com>
+---
+ src/lxc/caps.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/lxc/caps.h b/src/lxc/caps.h
+index fd1456b81..fbec1fdb5 100644
+--- a/src/lxc/caps.h
++++ b/src/lxc/caps.h
+@@ -49,7 +49,7 @@ static inline int lxc_caps_init(void)
+ 
+ static inline int lxc_caps_last_cap(__u32 *cap)
+ {
+-	return 0;
++	return -1;
+ }
+ 
+ typedef int cap_value_t;
