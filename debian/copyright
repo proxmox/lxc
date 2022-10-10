@@ -22,7 +22,7 @@ License: LGPL-2.1+
  can be found in /usr/share/common-licenses/LGPL-2.1 file.
 
 Files: debian/*
-Copyright: 2015 Proxmox Support Team <support@promxox.com>
+Copyright: 2015 Proxmox Support Team <support@proxmox.com>
 License: GPL-2+
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
