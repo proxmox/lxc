@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Fabian=20Gr=C3=BCnbichler?= <f.gruenbichler@proxmox.com>
 Date: Wed, 9 Nov 2016 09:14:26 +0100
-Subject: [PATCH lxc] PVE: [Config] deny rw mounting of /sys and /proc
+Subject: [PATCH 2/3] PVE: [Config] deny rw mounting of /sys and /proc
 
 Note that we don't actually make use of this anymore, since
 we switched to the generated profiles which already do this.
@@ -64,3 +64,6 @@ index 2606fb64c..3e61c62ea 100644
    # allow paths to be made slave, shared, private or unbindable
    # FIXME: This currently doesn't work due to the apparmor parser treating those as allowing all mounts.
  #  mount options=(rw,make-slave) -> **,
+-- 
+2.30.2
+
