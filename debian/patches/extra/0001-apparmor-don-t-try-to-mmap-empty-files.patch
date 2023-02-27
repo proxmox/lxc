@@ -1,0 +1,43 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Mon, 27 Feb 2023 11:02:43 +0100
+Subject: [PATCH] apparmor: don't try to mmap empty files
+
+In case empty profile files linger somehow (eg. powerloss or
+oom killer etc. between creating and writing the file) we
+tried to use mmap() with a length of 0 which is invalid.
+Let's treat this as if it did not exist.
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ src/lxc/lsm/apparmor.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/src/lxc/lsm/apparmor.c b/src/lxc/lsm/apparmor.c
+index 23af021aa..685d3b9ef 100644
+--- a/src/lxc/lsm/apparmor.c
++++ b/src/lxc/lsm/apparmor.c
+@@ -973,12 +973,14 @@ static int load_apparmor_profile(struct lsm_ops *ops, struct lxc_conf *conf, con
+ 			goto out;
+ 		}
+ 		old_len = profile_sb.st_size;
+-		old_content = lxc_strmmap(NULL, old_len, PROT_READ,
+-		                          MAP_PRIVATE, profile_fd, 0);
+-		if (old_content == MAP_FAILED) {
+-			SYSERROR("Failed to mmap old profile from %s",
+-			         profile_path);
+-			goto out;
++		if (old_len) {
++			old_content = lxc_strmmap(NULL, old_len, PROT_READ,
++						  MAP_PRIVATE, profile_fd, 0);
++			if (old_content == MAP_FAILED) {
++				SYSERROR("Failed to mmap old profile from %s",
++					 profile_path);
++				goto out;
++			}
+ 		}
+ 	} else if (errno != ENOENT) {
+ 		SYSERROR("Error reading old profile from %s", profile_path);
+-- 
+2.30.2
+
