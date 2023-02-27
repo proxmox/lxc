@@ -1,3 +1,9 @@
+lxc-pve (5.0.2-2) bullseye; urgency=medium
+
+  * add patch to handle empty left-over apparmor profile files
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 27 Feb 2023 11:12:58 +0100
+
 lxc-pve (5.0.2-1) bullseye; urgency=medium
 
   * update to 5.0.2
