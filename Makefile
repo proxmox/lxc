@@ -46,7 +46,7 @@ $(ORIG_SRC_TAR): $(BUILDSRC)
 dsc: $(DSC)
 $(DSC): $(ORIG_SRC_TAR)
 	rm -f *.dsc
-	cd $(BUILDSRC); dpkg-buildpackage -S -us -uc -d -nc
+	cd $(BUILDSRC); dpkg-buildpackage -S -us -uc -d
 	lintian $(DSC)
 
 .PHONY: upload
