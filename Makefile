@@ -57,7 +57,7 @@ distclean: clean
 
 .PHONY: clean
 clean:
-	rm -rf $(BUILDSRC) *.deb  *.dsc *.tar.gz *.changes *.dsc *.buildinfo
+	rm -rf $(BUILDSRC) $(PACKAGE)-[0-9]*/ $(ORIG_SRC_TAR) *.deb *.dsc $(PACKAGE)*.debian.tar.[gx]z *.changes *.dsc *.buildinfo *.build
 
 .PHONY: dinstall
 dinstall: $(DEBS)
