@@ -12,7 +12,7 @@ DEB2=$(PACKAGE)-dev_$(DEB_VERSION_UPSTREAM_REVISION)_$(DEB_BUILD_ARCH).deb \
      $(PACKAGE)-dbgsym_$(DEB_VERSION_UPSTREAM_REVISION)_$(DEB_BUILD_ARCH).deb
 DEBS=$(DEB1) $(DEB2)
 DSC=$(DEB_BASE).dsc
-TARGZ=$(DEB_BASE).tar.gz
+ORIG_SRC_TAR=$(PACKAGE)_$(DEB_VERSION_UPSTREAM).orig.tar.gz
 
 all: $(DEBS)
 	echo $(DEBS)
@@ -39,9 +39,12 @@ $(DEB1): $(BUILDSRC)
 	cd $(BUILDSRC); dpkg-buildpackage -b -us -uc
 	lintian $(DEBS)
 
+$(ORIG_SRC_TAR): $(BUILDSRC)
+	tar czf $(ORIG_SRC_TAR) -C $(BUILDSRC) .
+
 .PHONY: dsc
-dsc $(TARGZ): $(DSC)
-$(DSC): $(BUILDSRC)
+dsc: $(DSC)
+$(DSC): $(ORIG_SRC_TAR)
 	rm -f *.dsc
 	cd $(BUILDSRC); dpkg-buildpackage -S -us -uc -d -nc
 	lintian $(DSC)
