@@ -1,4 +1,3 @@
 extra/0001-apparmor-don-t-try-to-mmap-empty-files.patch
-pve/0001-PVE-Config-lxc.service-start-after-a-potential-syslo.patch
-pve/0002-PVE-Config-deny-rw-mounting-of-sys-and-proc.patch
-pve/0003-PVE-Config-attach-always-use-getent.patch
+pve/0001-PVE-Config-deny-rw-mounting-of-sys-and-proc.patch
+pve/0002-PVE-Config-attach-always-use-getent.patch
