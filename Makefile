@@ -49,6 +49,9 @@ $(DSC): $(ORIG_SRC_TAR)
 	cd $(BUILDSRC); dpkg-buildpackage -S -us -uc -d
 	lintian $(DSC)
 
+sbuild: $(DSC)
+	sbuild $(DSC)
+
 .PHONY: upload
 upload: $(DEBS)
 	tar cf - $(DEBS) | ssh repoman@repo.proxmox.com upload --product pve --dist bookworm
