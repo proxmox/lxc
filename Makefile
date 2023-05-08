@@ -40,7 +40,7 @@ $(DEB1): $(BUILDSRC)
 	lintian $(DEBS)
 
 $(ORIG_SRC_TAR): $(BUILDSRC)
-	tar czf $(ORIG_SRC_TAR) -C $(BUILDSRC) .
+	tar czf $(ORIG_SRC_TAR) --exclude="$(BUILDSRC)/debian" $(BUILDSRC)
 
 .PHONY: dsc
 dsc: $(DSC)
