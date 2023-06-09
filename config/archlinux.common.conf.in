@@ -27,3 +27,5 @@ lxc.signal.halt=SIGRTMIN+4
 # lxc.cap.drop = audit_control    # breaks sshd (set_loginuid failed)
 # lxc.cap.drop = audit_write
 # lxc.cap.drop = setpcap          # big big login delays in Fedora 20 systemd
+#
+lxc.cap.drop = setfcap sys_nice sys_pacct sys_rawio
