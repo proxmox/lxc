@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Tue, 13 Aug 2019 13:57:22 +0200
-Subject: [PATCH 3/3] PVE: [Config] attach: always use getent
+Subject: [PATCH 2/2] PVE: [Config] attach: always use getent
 
 In debian buster, some libnss plugins (if installed) can
 cause getpwent to segfault instead of erroring out cleanly.
@@ -13,7 +13,7 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  1 file changed, 2 insertions(+), 27 deletions(-)
 
 diff --git a/src/lxc/attach.c b/src/lxc/attach.c
-index f086e96c4..9969f2d8e 100644
+index 8f2f7a37c..a8684808c 100644
 --- a/src/lxc/attach.c
 +++ b/src/lxc/attach.c
 @@ -1843,45 +1843,21 @@ int lxc_attach_run_command(void *payload)
@@ -74,5 +74,5 @@ index f086e96c4..9969f2d8e 100644
  	return -1;
  }
 -- 
-2.30.2
+2.39.2
 
