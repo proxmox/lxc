@@ -1,2 +1,3 @@
+0001-Revert-lsm-apparmor-allow-to-change-mount-propagatio.patch
 pve/0001-PVE-Config-deny-rw-mounting-of-sys-and-proc.patch
 pve/0002-PVE-Config-attach-always-use-getent.patch
