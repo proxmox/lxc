@@ -1,3 +1,11 @@
+lxc-pve (6.0.4-1) trixie; urgency=medium
+
+  * update to lxc 6.0.4-1
+
+  * undo kernel feature pinning for debian trixie release
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 10 Jun 2025 11:06:59 +0200
+
 lxc-pve (6.0.0-1) bookworm; urgency=medium
 
   * update to lxc 6.0.0-1
