@@ -1,5 +1,4 @@
 debian/config/* /usr/share/lxc/config/
-debian/features /usr/share/apparmor-features/
 etc
 lib/systemd
 usr/bin
