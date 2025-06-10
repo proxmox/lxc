@@ -1,6 +1,6 @@
 debian/config/* /usr/share/lxc/config/
 etc
-lib/systemd
+usr/lib/systemd
 usr/bin
 usr/lib/*/*.so.*
 usr/lib/*/lxc/rootfs/README
