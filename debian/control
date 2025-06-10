@@ -16,7 +16,7 @@ Build-Depends: bash-completion,
                linux-libc-dev,
                meson (>= 0.61),
                pkg-config,
-               systemd,
+               systemd-dev,
                quilt,
 Standards-Version: 4.5.1
 Homepage: https://linuxcontainers.org
