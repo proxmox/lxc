@@ -1,3 +1,4 @@
+debian/apparmor-abi/lxc /etc/apparmor.d/abi/
 debian/config/* /usr/share/lxc/config/
 etc
 usr/lib/systemd
