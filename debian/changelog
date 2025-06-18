@@ -1,3 +1,11 @@
+lxc-pve (6.0.4-2) trixie; urgency=medium
+
+  * have apparmor profiles declare the feature abi
+
+  * make sure global apparmor feature pinning is undone on upgrades
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 18 Jun 2025 11:44:44 +0200
+
 lxc-pve (6.0.4-1) trixie; urgency=medium
 
   * update to lxc 6.0.4-1
