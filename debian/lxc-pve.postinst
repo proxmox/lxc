@@ -8,12 +8,22 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+# remove diversion of apparmor feature pinning file, when coming from bookworm's lxc-pve
+aa_feature_remove_diversion() {
+  dpkg-divert --package lxc-pve --remove --rename \
+      --divert /usr/share/apparmor-features/features.stock \
+      /usr/share/apparmor-features/features
+}
+
 case "$1" in
     configure)
 
 	# create subuid/subgui map for root
 	# (to run unprivileged containers as root)
 	usermod -v 100000-165535 -w 100000-165535 root
+    if dpkg --compare-versions "$2" 'le' '6.0.4-2'; then
+      aa_feature_remove_diversion || true
+    fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
