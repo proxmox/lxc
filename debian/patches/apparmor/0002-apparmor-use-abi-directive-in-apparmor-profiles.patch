@@ -1,0 +1,68 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Wed, 10 Apr 2024 09:10:09 +0200
+Subject: [PATCH 2/2] apparmor: use abi directive in apparmor profiles
+
+We want to not have to pin the features file globally, but also, a lot
+of feature versions fail on various kernels, including 6.8 or 6.14
+with its own feature sets extracted via `aa-features-abi -x` for some
+reason...
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ config/apparmor/lxc-containers    | 2 ++
+ config/apparmor/usr.bin.lxc-copy  | 2 ++
+ config/apparmor/usr.bin.lxc-start | 2 ++
+ src/lxc/lsm/apparmor.c            | 1 +
+ 4 files changed, 7 insertions(+)
+
+diff --git a/config/apparmor/lxc-containers b/config/apparmor/lxc-containers
+index 0644cf2d3..ee265b47b 100644
+--- a/config/apparmor/lxc-containers
++++ b/config/apparmor/lxc-containers
+@@ -4,4 +4,6 @@
+ 
+ #include <tunables/global>
+ 
++abi <abi/lxc>,
++
+ #include <lxc>
+diff --git a/config/apparmor/usr.bin.lxc-copy b/config/apparmor/usr.bin.lxc-copy
+index 36b8d5cd9..2f25c4680 100644
+--- a/config/apparmor/usr.bin.lxc-copy
++++ b/config/apparmor/usr.bin.lxc-copy
+@@ -1,5 +1,7 @@
+ #include <tunables/global>
+ 
++abi <abi/lxc>,
++
+ /usr/bin/lxc-copy flags=(attach_disconnected) {
+   #include <abstractions/lxc/start-container>
+ }
+diff --git a/config/apparmor/usr.bin.lxc-start b/config/apparmor/usr.bin.lxc-start
+index 2f87cdd12..050d84ac4 100644
+--- a/config/apparmor/usr.bin.lxc-start
++++ b/config/apparmor/usr.bin.lxc-start
+@@ -1,5 +1,7 @@
+ #include <tunables/global>
+ 
++abi <abi/lxc>,
++
+ /usr/bin/lxc-start flags=(attach_disconnected) {
+   #include <abstractions/lxc/start-container>
+ }
+diff --git a/src/lxc/lsm/apparmor.c b/src/lxc/lsm/apparmor.c
+index d6516ae9f..27a51a2a1 100644
+--- a/src/lxc/lsm/apparmor.c
++++ b/src/lxc/lsm/apparmor.c
+@@ -748,6 +748,7 @@ static char *get_apparmor_profile_content(struct lsm_ops *ops, struct lxc_conf *
+ 
+ 	profile = must_concat(NULL,
+ "#include <tunables/global>\n"
++"abi <abi/lxc>,\n"
+ "profile \"", profile_name_full, "\" flags=(attach_disconnected,mediate_deleted) {\n",
+ 	                      NULL);
+ 	size = strlen(profile);
+-- 
+2.47.2
+
