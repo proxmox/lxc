@@ -1,4 +1,5 @@
 apparmor/0001-apparmor-allow-lxc-start-to-create-user-namespaces.patch
 apparmor/0002-apparmor-use-abi-directive-in-apparmor-profiles.patch
+apparmor/0003-apparmor-skip-proc-and-sys-restrictions-if-nesting.patch
 pve/0001-PVE-Config-deny-rw-mounting-of-sys-and-proc.patch
 pve/0002-PVE-Config-attach-always-use-getent.patch
