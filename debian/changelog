@@ -1,3 +1,12 @@
+lxc-pve (6.0.5-2) trixie; urgency=medium
+
+  * fix #7006: do not restrict /proc or /sys if nesting is enabled anyway, as
+    then one can mount a fresh instance of procfs and sysfs inside the
+    container anyway already, making any extra restriction useless and only
+    allowing for breakage.
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 13 Nov 2025 18:09:44 +0100
+
 lxc-pve (6.0.5-1) trixie; urgency=medium
 
   * update to lxc 6.0.5
