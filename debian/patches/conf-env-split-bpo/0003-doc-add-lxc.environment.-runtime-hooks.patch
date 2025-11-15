@@ -1,0 +1,73 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Filip Schauer <f.schauer@proxmox.com>
+Date: Tue, 16 Sep 2025 11:52:27 +0200
+Subject: [PATCH] doc: add lxc.environment.{runtime, hooks}
+
+Signed-off-by: Filip Schauer <f.schauer@proxmox.com>
+(cherry picked from commit e0290fa4aa173f8e5a43adac4e345310bf82ef0f)
+Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
+---
+ doc/lxc.container.conf.sgml.in | 36 +++++++++++++++++++++++++++++++---
+ 1 file changed, 33 insertions(+), 3 deletions(-)
+
+diff --git a/doc/lxc.container.conf.sgml.in b/doc/lxc.container.conf.sgml.in
+index 20ae63fd4..39efffbe5 100644
+--- a/doc/lxc.container.conf.sgml.in
++++ b/doc/lxc.container.conf.sgml.in
+@@ -2990,7 +2990,14 @@
+       </para>
+ 
+       <para>
+-        This configuration parameter can be specified multiple times; once
++        Subkeys are available to narrow the scope of environment variables:
++        <command>lxc.environment.runtime</command> applies only to
++        the container's init process (and all its descendents),
++        and <command>lxc.environment.hooks</command> applies only to hooks.
++      </para>
++
++      <para>
++        These configuration parameters can be specified multiple times; once
+         for each environment variable you wish to configure.
+       </para>
+ 
+@@ -3001,8 +3008,8 @@
+           </term>
+           <listitem>
+             <para>
+-              Specify an environment variable to pass into the container.
+-              Example:
++              Environment variables applied both to the container init process
++              and to hooks. Example:
+             </para>
+             <programlisting>
+               lxc.environment = APP_ENV=production
+@@ -3017,6 +3024,29 @@
+             </programlisting>
+           </listitem>
+         </varlistentry>
++
++        <varlistentry>
++          <term>
++            <option>lxc.environment.runtime</option>
++          </term>
++          <listitem>
++            <para>
++              Environment variables applied only to the container's init
++              process.
++            </para>
++          </listitem>
++        </varlistentry>
++
++        <varlistentry>
++          <term>
++            <option>lxc.environment.hooks</option>
++          </term>
++          <listitem>
++            <para>
++              Environment variables applied only to hooks.
++            </para>
++          </listitem>
++        </varlistentry>
+       </variablelist>
+     </refsect2>
+ 

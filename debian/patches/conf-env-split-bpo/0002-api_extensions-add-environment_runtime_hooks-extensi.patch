@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Filip Schauer <f.schauer@proxmox.com>
+Date: Tue, 16 Sep 2025 11:38:11 +0200
+Subject: [PATCH] api_extensions: add environment_runtime_hooks extension
+
+Signed-off-by: Filip Schauer <f.schauer@proxmox.com>
+(cherry picked from commit 9ebe1f11ec66ec6df2b76abc089692e8e324b02b)
+Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
+---
+ doc/api-extensions.md    | 7 +++++++
+ src/lxc/api_extensions.h | 1 +
+ 2 files changed, 8 insertions(+)
+
+diff --git a/doc/api-extensions.md b/doc/api-extensions.md
+index 0e9c724e8..4a0699289 100644
+--- a/doc/api-extensions.md
++++ b/doc/api-extensions.md
+@@ -160,3 +160,10 @@ This adds the new options `cgroup2`, `cgroup2:ro`, `cgroup2:force`,
+ `cgroup2:ro:force` for the `lxc.mount.auto` configuration key. For example, if
+ a user specifies `cgroup2:force` LXC will pre-mount a pure `cgroup2` layout for
+ the container even if the host is running with a hybrid layout.
++
++## environment\_runtime\_hooks
++
++This introduces `lxc.environment.runtime` and `lxc.environment.hooks`
++configuration keys to allow environment variables to be applied only to the
++container init process or only to hooks respectively.
++`lxc.environment` remains and still applies to both.
+diff --git a/src/lxc/api_extensions.h b/src/lxc/api_extensions.h
+index 6a0b9fe98..54ca565f8 100644
+--- a/src/lxc/api_extensions.h
++++ b/src/lxc/api_extensions.h
+@@ -52,6 +52,7 @@ static char *api_extensions[] = {
+ 	"idmapped_mounts_v2",
+ 	"core_scheduling",
+ 	"cgroup2_auto_mounting",
++	"environment_runtime_hooks",
+ };
+ 
+ static size_t nr_api_extensions = sizeof(api_extensions) / sizeof(*api_extensions);
