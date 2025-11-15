@@ -1,3 +1,13 @@
+lxc-pve (6.0.5-3) trixie; urgency=medium
+
+  * conf: split `lxc.environment` into `runtime` and `hooks`. Introduce
+    `lxc.environment.runtime` to set environment variables only for the
+    container init process and `lxc.environment.hooks` to set environment
+    variables only for hooks. Leave the original `lxc.environment` unchanged.
+    It still applies to everything.
+
+ -- Proxmox Support Team <support@proxmox.com>  Sat, 15 Nov 2025 10:03:09 +0100
+
 lxc-pve (6.0.5-2) trixie; urgency=medium
 
   * fix #7006: do not restrict /proc or /sys if nesting is enabled anyway, as
