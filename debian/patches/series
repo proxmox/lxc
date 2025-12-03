@@ -6,3 +6,4 @@ conf-env-split-bpo/0002-api_extensions-add-environment_runtime_hooks-extensi.pat
 conf-env-split-bpo/0003-doc-add-lxc.environment.-runtime-hooks.patch
 pve/0001-PVE-Config-deny-rw-mounting-of-sys-and-proc.patch
 pve/0002-PVE-Config-attach-always-use-getent.patch
+pve/0003-PVE-apply-rfc3442-classless-routes.patch
