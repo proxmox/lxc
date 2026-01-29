@@ -1,3 +1,11 @@
+lxc-pve (6.0.5-4) trixie; urgency=medium
+
+  * adapt dhclient-script to correctly set RFC3442 classless routes.
+
+  * backport fix for lxc.init.groups in unprivileged containers.
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 29 Jan 2026 18:22:59 +0100
+
 lxc-pve (6.0.5-3) trixie; urgency=medium
 
   * conf: split `lxc.environment` into `runtime` and `hooks`. Introduce
