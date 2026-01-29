@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Filip Schauer <f.schauer@proxmox.com>
+Date: Mon, 15 Dec 2025 16:03:43 +0100
+Subject: [PATCH] start: Respect lxc.init.groups also in new user namespace
+
+Fix supplementary groups defined in 'lxc.init.groups' being ignored when
+the container uses a new user namespace.
+
+In other words: Fix lxc.init.groups for unprivileged containers.
+
+Signed-off-by: Filip Schauer <f.schauer@proxmox.com>
+(cherry picked from commit 9e6caeabec77471c46a629ad5a5a6586ff31e9ce)
+Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
+---
+ src/lxc/start.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/src/lxc/start.c b/src/lxc/start.c
+index e10fbfaed..8e29b404c 100644
+--- a/src/lxc/start.c
++++ b/src/lxc/start.c
+@@ -1403,17 +1403,19 @@ static int do_start(void *data)
+ 		if (lxc_proc_cap_is_set(CAP_SETGID, CAP_EFFECTIVE))
+ 		#endif
+ 		{
+-			if (handler->conf->init_groups.size > 0) {
+-				if (!lxc_setgroups(handler->conf->init_groups.list,
+-						   handler->conf->init_groups.size))
+-					goto out_warn_father;
+-			} else {
++			if (handler->conf->init_groups.size == 0) {
+ 				if (!lxc_drop_groups())
+ 					goto out_warn_father;
+ 			}
+ 		}
+ 	}
+ 
++	if (handler->conf->init_groups.size > 0) {
++		if (!lxc_setgroups(handler->conf->init_groups.list,
++				   handler->conf->init_groups.size))
++			goto out_warn_father;
++	}
++
+ 	if (!lxc_switch_uid_gid(new_uid, new_gid))
+ 		goto out_warn_father;
+ 
