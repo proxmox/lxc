@@ -1,3 +1,9 @@
+lxc-pve (7.0.0-1) trixie; urgency=medium
+
+  * update to lxc 7.0.0
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 30 Apr 2026 15:39:11 +0200
+
 lxc-pve (6.0.5-4) trixie; urgency=medium
 
   * adapt dhclient-script to correctly set RFC3442 classless routes.
