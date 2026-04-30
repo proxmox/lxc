@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Wolfgang Bumiller <w.bumiller@proxmox.com>
 Date: Tue, 13 Aug 2019 13:57:22 +0200
-Subject: [PATCH 2/2] PVE: [Config] attach: always use getent
+Subject: [PATCH 2/3] PVE: [Config] attach: always use getent
 
 In debian buster, some libnss plugins (if installed) can
 cause getpwent to segfault instead of erroring out cleanly.
@@ -13,10 +13,10 @@ Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
  1 file changed, 2 insertions(+), 27 deletions(-)
 
 diff --git a/src/lxc/attach.c b/src/lxc/attach.c
-index 8f2f7a37c..a8684808c 100644
+index f22f83f0d..cef560e9b 100644
 --- a/src/lxc/attach.c
 +++ b/src/lxc/attach.c
-@@ -1843,45 +1843,21 @@ int lxc_attach_run_command(void *payload)
+@@ -1847,45 +1847,21 @@ int lxc_attach_run_command(void *payload)
  
  int lxc_attach_run_shell(void* payload)
  {
@@ -63,7 +63,7 @@ index 8f2f7a37c..a8684808c 100644
  	if (user_shell)
  		execlp(user_shell, user_shell, (char *)NULL);
  
-@@ -1891,8 +1867,7 @@ int lxc_attach_run_shell(void* payload)
+@@ -1895,8 +1871,7 @@ int lxc_attach_run_shell(void* payload)
  	execlp("/bin/sh", "/bin/sh", (char *)NULL);
  
  	SYSERROR("Failed to execute shell");
@@ -74,5 +74,5 @@ index 8f2f7a37c..a8684808c 100644
  	return -1;
  }
 -- 
-2.47.2
+2.47.3
 

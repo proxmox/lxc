@@ -52,10 +52,10 @@ index 2f87cdd12..050d84ac4 100644
    #include <abstractions/lxc/start-container>
  }
 diff --git a/src/lxc/lsm/apparmor.c b/src/lxc/lsm/apparmor.c
-index d6516ae9f..27a51a2a1 100644
+index 256f8c12c..c091a0853 100644
 --- a/src/lxc/lsm/apparmor.c
 +++ b/src/lxc/lsm/apparmor.c
-@@ -748,6 +748,7 @@ static char *get_apparmor_profile_content(struct lsm_ops *ops, struct lxc_conf *
+@@ -786,6 +786,7 @@ static char *get_apparmor_profile_content(struct lsm_ops *ops, struct lxc_conf *
  
  	profile = must_concat(NULL,
  "#include <tunables/global>\n"
@@ -64,5 +64,5 @@ index d6516ae9f..27a51a2a1 100644
  	                      NULL);
  	size = strlen(profile);
 -- 
-2.47.2
+2.47.3
 

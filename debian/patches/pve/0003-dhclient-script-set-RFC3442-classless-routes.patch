@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Filip Schauer <f.schauer@proxmox.com>
 Date: Wed, 3 Dec 2025 15:03:50 +0100
-Subject: [PATCH] dhclient-script: set RFC3442 classless routes
+Subject: [PATCH 3/3] dhclient-script: set RFC3442 classless routes
 
 Due to the removal of hooks in the LXC fork of dhclient-script, the
 rfc3442-classless-routes hook did not run. As a result, classless static
