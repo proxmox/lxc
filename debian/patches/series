@@ -3,3 +3,5 @@ apparmor/0002-apparmor-use-abi-directive-in-apparmor-profiles.patch
 pve/0001-PVE-Config-deny-rw-mounting-of-sys-and-proc.patch
 pve/0002-PVE-Config-attach-always-use-getent.patch
 pve/0003-dhclient-script-set-RFC3442-classless-routes.patch
+cgroupv1-warnings/0001-PVE-Revert-lxc-conf-drop-cgroup1-config-options-lxc..patch
+cgroupv1-warnings/0002-PVE-ignore-cgroupv1-settings-with-a-warning.patch

@@ -1,0 +1,80 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Thu, 7 May 2026 10:11:04 +0200
+Subject: [PATCH 2/2] PVE: ignore cgroupv1 settings with a warning
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ src/lxc/conf.c    |  6 ------
+ src/lxc/conf.h    |  1 -
+ src/lxc/confile.c | 11 ++++-------
+ 3 files changed, 4 insertions(+), 14 deletions(-)
+
+diff --git a/src/lxc/conf.c b/src/lxc/conf.c
+index 5749cb35a..fcbcc4d6a 100644
+--- a/src/lxc/conf.c
++++ b/src/lxc/conf.c
+@@ -3103,7 +3103,6 @@ struct lxc_conf *lxc_conf_init(void)
+ 	new->rootfs.fd_path_pin = -EBADF;
+ 	new->rootfs.dfd_idmapped = -EBADF;
+ 	new->logfd = -1;
+-	INIT_LIST_HEAD(&new->cgroup);
+ 	INIT_LIST_HEAD(&new->cgroup2);
+ 	/* Block ("allowlist") all devices by default. */
+ 	new->bpf_devices.list_type = LXC_BPF_DEVICE_CGROUP_ALLOWLIST;
+@@ -4013,11 +4012,6 @@ int lxc_clear_cgroups(struct lxc_conf *c, const char *key, int version)
+ 		namespaced_token	= "lxc.cgroup2.";
+ 		namespaced_token_len	= STRLITERALLEN("lxc.cgroup2.");
+ 		list = &c->cgroup2;
+-	} else if (version == CGROUP_SUPER_MAGIC) {
+-		global_token		= "lxc.cgroup";
+-		namespaced_token	= "lxc.cgroup.";
+-		namespaced_token_len	= STRLITERALLEN("lxc.cgroup.");
+-		list = &c->cgroup;
+ 	} else {
+ 		return ret_errno(EINVAL);
+ 	}
+diff --git a/src/lxc/conf.h b/src/lxc/conf.h
+index 762d58901..ea4e19940 100644
+--- a/src/lxc/conf.h
++++ b/src/lxc/conf.h
+@@ -417,7 +417,6 @@ struct lxc_conf {
+ 	struct utsname *utsname;
+ 
+ 	struct {
+-		struct list_head cgroup;
+ 		struct list_head cgroup2;
+ 		struct bpf_devices bpf_devices;
+ 	};
+diff --git a/src/lxc/confile.c b/src/lxc/confile.c
+index b313114ae..9f4744c13 100644
+--- a/src/lxc/confile.c
++++ b/src/lxc/confile.c
+@@ -1964,8 +1964,10 @@ static int __set_config_cgroup_controller(const char *key, const char *value,
+ 
+ 	if (version == CGROUP2_SUPER_MAGIC)
+ 		list_add_tail(&new_cgroup->head, &lxc_conf->cgroup2);
+-	else
+-		list_add_tail(&new_cgroup->head, &lxc_conf->cgroup);
++	else {
++		WARN("Attempted to configure cgroupv1 which is not supported anymore.");
++		return 0; /* return so we don't call `move_ptr` */
++	}
+ 	move_ptr(new_cgroup);
+ 
+ 	return 0;
+@@ -3903,11 +3905,6 @@ static int __get_config_cgroup_controller(const char *key, char *retv,
+ 		namespaced_token = "lxc.cgroup2.";
+ 		namespaced_token_len = STRLITERALLEN("lxc.cgroup2.");
+ 		list = &c->cgroup2;
+-	} else if (version == CGROUP_SUPER_MAGIC) {
+-		global_token = "lxc.cgroup";
+-		namespaced_token = "lxc.cgroup.";
+-		namespaced_token_len = STRLITERALLEN("lxc.cgroup.");
+-		list = &c->cgroup;
+ 	} else {
+ 		return ret_errno(EINVAL);
+ 	}
+-- 
+2.47.3
+
